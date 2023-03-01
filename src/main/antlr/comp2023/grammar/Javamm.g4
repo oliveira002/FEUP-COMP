@@ -68,11 +68,10 @@ expression
     | expression '.' 'length' #ArrayLength
     | expression '.' ID '(' (expression (',' expression)*)? ')' #Smth
     | value = INTEGER #Integer
-    | ID #Identifier
+    | value = ID #Identifier
     | 'new' 'int' '[' expression ']' #NewInt
     | 'new' ID '('')' #NewPar
     | '!' expression #Negative
-    | INTEGER #Integer
     | 'true' #True
     | 'false' #False
     | 'this' #This
