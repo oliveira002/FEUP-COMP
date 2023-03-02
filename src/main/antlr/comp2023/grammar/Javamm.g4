@@ -24,15 +24,15 @@ program
     ;
 
 importDeclaration
-    : 'import' ID ('.' ID)* ';'
+    : 'import' import_module = ID ('.' ID)* ';'
     ;
 
 classDeclaration
-    : 'class' ID ('extends' ID)? '{' (varDeclaration)* (methodDeclaration)* '}'
+    : 'class' class_name = ID ('extends' extends_name = ID)? '{' (varDeclaration)* (methodDeclaration)* '}'
     ;
 
 varDeclaration
-    : type ID ';'
+    : type var = ID ';'
     ;
 
 methodDeclaration
@@ -54,12 +54,13 @@ statement
     | 'if' '(' expression ')' statement 'else' statement
     | 'while' '(' expression ')' statement
     | expression ';'
-    | ID '=' expression ';'
-    | ID '[' expression ']' '=' expression ';'
+    | var = ID '=' expression ';'
+    | var = ID '[' expression ']' '=' expression ';'
     ;
 
 expression
     : START_PAR expression END_PAR #Parethenses
+    | '!' expression #Negative
     | expression op=(MULT | DIV) expression #BinaryOp
     | expression op=(SUM | DIFFERENCE) expression #BinaryOp
     | expression op=(LOGICAL_AND | LOGICAL_OR) expression #BinaryOp
@@ -68,11 +69,9 @@ expression
     | expression '.' 'length' #ArrayLength
     | expression '.' ID '(' (expression (',' expression)*)? ')' #Smth
     | value = INTEGER #Integer
-    | value = ID #Identifier
+    | var = ID #Identifier
     | 'new' 'int' '[' expression ']' #NewInt
     | 'new' ID '('')' #NewPar
-    | '!' expression #Negative
-    | 'true' #True
-    | 'false' #False
+    | value = ('true' | 'false') #Boolean
     | 'this' #This
     ;
