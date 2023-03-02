@@ -63,8 +63,8 @@ expression
     | '!' expression #Negative
     | expression op=(MULT | DIV) expression #BinaryOp
     | expression op=(SUM | DIFFERENCE) expression #BinaryOp
+    | expression op=LESS expression #CompareOp
     | expression op=(LOGICAL_AND | LOGICAL_OR) expression #BinaryOp
-    | expression op=LESS expression #BinaryOp
     | expression '[' expression ']' #ArrayIndex
     | expression '.' 'length' #ArrayLength
     | expression '.' ID '(' (expression (',' expression)*)? ')' #Smth
