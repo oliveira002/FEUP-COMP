@@ -24,7 +24,7 @@ program
     ;
 
 importDeclaration
-    : 'import' ID ('.' ID)* ';' #ImportModule //Como dizer que importModule=ID ('.' ID)*   ?
+    : 'import' importModule+=ID ('.' importModule+=ID)* ';'
     ;
 
 classDeclaration
@@ -46,7 +46,6 @@ type locals[boolean isArray = false, boolean isClass = false]
     | 'int'
     | ID
     ;
-
 
 statement
     : '{' (statement)* '}'
