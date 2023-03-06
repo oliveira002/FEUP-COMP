@@ -37,12 +37,11 @@ varDeclaration
 
 methodDeclaration
     : ('public')? type ID '(' (type ID (',' type ID)*)? ')' '{' (varDeclaration)* (statement)* 'return' expression ';' '}'
-    | ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' ID ')' '{' (varDeclaration)* (statement)* '}'
+    | ('public')? 'static' 'void' 'main' '(' type '[' ']' ID ')' '{' (varDeclaration)* (statement)* '}'
     ;
 
-type
-    : 'int' '['']'
-    | 'String'
+type locals[boolean isArray = false, boolean isClass = false]
+    : 'int' ('['']' {$isArray=true;})?
     | 'boolean'
     | 'int'
     | ID
