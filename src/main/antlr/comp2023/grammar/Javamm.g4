@@ -28,7 +28,7 @@ importDeclaration
     ;
 
 classDeclaration
-    : 'class' class_name=ID ('extends' extends_name=ID)? '{' (varDeclaration)* (methodDeclaration)* '}'
+    : 'class' className=ID ('extends' extendsName=ID)? '{' (varDeclaration)* (methodDeclaration)* '}'
     ;
 
 varDeclaration
@@ -36,15 +36,15 @@ varDeclaration
     ;
 
 methodDeclaration
-    : ('public')? type ID '(' (type ID (',' type ID)*)? ')' '{' (varDeclaration)* (statement)* 'return' expression ';' '}'
-    | ('public')? 'static' 'void' 'main' '(' type '[' ']' ID ')' '{' (varDeclaration)* (statement)* '}'
+    : ('public')? type name=ID '(' (type param+=ID (',' type param+=ID )*)? ')' '{' (varDeclaration)* (statement)* 'return' expression ';' '}'
+    | ('public')? 'static' 'void' name='main' '(' type '[' ']' param+=ID ')' '{' (varDeclaration)* (statement)* '}'
     ;
 
 type locals[boolean isArray = false, boolean isClass = false]
-    : 'int' ('['']' {$isArray=true;})?
-    | 'boolean'
-    | 'int'
-    | ID
+    : value='int' ('['']' {$isArray=true;})?
+    | value='boolean'
+    | value='int'
+    | value=ID
     ;
 
 statement

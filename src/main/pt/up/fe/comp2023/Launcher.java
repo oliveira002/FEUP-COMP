@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.up.fe.comp.TestUtils;
+import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
@@ -40,7 +41,11 @@ public class Launcher {
         // Check if there are parsing errors
         TestUtils.noErrors(parserResult.getReports());
 
-        // ... add remaining stages
+        // Instantiate JmmAnalysis
+        JmmSimpleAnalysis analysis = new JmmSimpleAnalysis();
+
+        // Analysis stage
+        JmmSemanticsResult analysisResult = analysis.semanticAnalysis(parserResult);
     }
 
     private static Map<String, String> parseArgs(String[] args) {
