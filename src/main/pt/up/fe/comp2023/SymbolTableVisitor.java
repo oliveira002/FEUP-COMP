@@ -16,7 +16,6 @@ public class SymbolTableVisitor extends PreorderJmmVisitor <SymbolTableCR,Intege
 
     final List<Report> reports = new ArrayList<>();
     public SymbolTableVisitor() {
-
         this.buildVisitor();
     }
 
@@ -45,6 +44,7 @@ public class SymbolTableVisitor extends PreorderJmmVisitor <SymbolTableCR,Intege
         String methodName = jmmNode.get("name");
 
         List<Symbol> localVars = new ArrayList();
+        List<String> localVarsName = new ArrayList();
         List<Symbol> params = new ArrayList();
         List<JmmNode> paramsList = jmmNode.getChildren().subList(1,numChildren);
         List<String> paramsName = (ArrayList<String>) jmmNode.getOptionalObject("param").get();
@@ -60,7 +60,17 @@ public class SymbolTableVisitor extends PreorderJmmVisitor <SymbolTableCR,Intege
                 Symbol symb = new Symbol(tipo,varName);
                 params.add(symb);
             }
+            else if(child.getKind().equals("VarDeclaration")) {
+                String decName = child.get("var");
+                String decType = child.getJmmChild(0).get("value");
+                boolean isArray = child.getJmmChild(0).get("isArray").equals("true");
+                Type tipo = new Type(decType,isArray);
+                Symbol lclVar = new Symbol(tipo,decName);
+                localVars.add(lclVar);
+            }
         }
+
+
 
         JmmNode returnNode = jmmNode.getJmmChild(0);
         Type returnType = new Type(returnNode.get("value"),returnNode.get("isArray").equals("true"));
