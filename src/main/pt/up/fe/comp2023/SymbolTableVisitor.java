@@ -3,9 +3,6 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
-import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
-import pt.up.fe.comp.jmm.ast.JmmNode;
-import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
 
 import java.util.ArrayList;
@@ -25,6 +22,7 @@ public class SymbolTableVisitor extends PreorderJmmVisitor <SymbolTableCR,Intege
         addVisit("ImportDeclaration", this::visitImport);
         addVisit("ClassDeclaration", this::visitClass);
         addVisit("MethodDeclaration", this::visitMethod);
+        addVisit("VarDeclaration", this::visitVarDeclaration);
     }
 
     private Integer defaultVisit(JmmNode jmmNode, SymbolTableCR symbolTable) {
@@ -39,43 +37,37 @@ public class SymbolTableVisitor extends PreorderJmmVisitor <SymbolTableCR,Intege
     }
 
     private Integer visitMethod(JmmNode jmmNode, SymbolTableCR symbolTable) {
+
         // return type node
         int numChildren = jmmNode.getChildren().size();
         String methodName = jmmNode.get("name");
-
-        List<Symbol> localVars = new ArrayList();
-        List<String> localVarsName = new ArrayList();
-        List<Symbol> params = new ArrayList();
+        List<Symbol> params = new ArrayList<>();
         List<JmmNode> paramsList = jmmNode.getChildren().subList(1,numChildren);
         List<String> paramsName = (ArrayList<String>) jmmNode.getOptionalObject("param").get();
 
-        // parse param names
-        for(int i = 0; i < paramsList.size(); i++) {
-            JmmNode child = paramsList.get(i);
-            if(child.getKind().equals("Type")) {
-                String typeName = child.get("value");
-                boolean isArray = child.get("isArray").equals("true");
-                Type tipo = new Type(typeName,isArray);
-                String varName = paramsName.get(i);
-                Symbol symb = new Symbol(tipo,varName);
-                params.add(symb);
+        if(!methodName.equals("main")) {
+            JmmNode returnNode = jmmNode.getJmmChild(0);
+            Type returnType = new Type(returnNode.get("value"),returnNode.get("isArray").equals("true"));
+            for(int i = 0; i < paramsList.size(); i++) {
+                JmmNode child = paramsList.get(i);
+                if(child.getKind().equals("Type")) {
+                    String typeName = child.get("value");
+                    boolean isArray = child.get("isArray").equals("true");
+                    Type type = new Type(typeName,isArray);
+                    String varName = paramsName.get(i);
+                    Symbol symb = new Symbol(type,varName);
+                    params.add(symb);
+                }
             }
-            else if(child.getKind().equals("VarDeclaration")) {
-                String decName = child.get("var");
-                String decType = child.getJmmChild(0).get("value");
-                boolean isArray = child.getJmmChild(0).get("isArray").equals("true");
-                Type tipo = new Type(decType,isArray);
-                Symbol lclVar = new Symbol(tipo,decName);
-                localVars.add(lclVar);
-            }
+            symbolTable.addMethod(methodName,returnType,params);
+            return 1;
         }
-
-
-
-        JmmNode returnNode = jmmNode.getJmmChild(0);
-        Type returnType = new Type(returnNode.get("value"),returnNode.get("isArray").equals("true"));
-
-        symbolTable.addMethod(methodName,returnType,params,localVars);
+        Type returnType = new Type("void",false);
+        Type paramType = new Type("String",true);
+        String paramName = "args";
+        Symbol mainSymbol = new Symbol(paramType,paramName);
+        params.add(mainSymbol);
+        symbolTable.addMethod(methodName,returnType,params);
         return 1;
     }
 
@@ -85,17 +77,29 @@ public class SymbolTableVisitor extends PreorderJmmVisitor <SymbolTableCR,Intege
         if(jmmNode.hasAttribute("extendsName")) {
             symbolTable.setSuper(jmmNode.get("extendsName"));
         }
+        return 1;
+    }
 
-        for(JmmNode child: jmmNode.getChildren()) {
-            if(child.getKind().equals("VarDeclaration")) {
-                String varName = child.get("var");
-                String varType = child.getJmmChild(0).get("value");
-                boolean isArray = child.getJmmChild(0).get("isArray").equals("true");
-                Type tipo = new Type(varType,isArray);
-                Symbol symb = new Symbol(tipo,varName);
-                symbolTable.addField(symb);
-            }
+    private Integer visitVarDeclaration(JmmNode jmmNode, SymbolTableCR symbolTable) {
+        // need to check if it's local variable or not, can do it by checking parent
+        JmmNode parent = jmmNode.getJmmParent();
+
+        String varName = jmmNode.get("var");
+        String varType = jmmNode.getJmmChild(0).get("value");
+        boolean isArray = jmmNode.getJmmChild(0).get("isArray").equals("true");
+        Type type = new Type(varType,isArray);
+        Symbol symb = new Symbol(type,varName);
+
+
+        // if it's a field else it's a local variable
+        if(parent.getKind().equals("ClassDeclaration")) {
+            symbolTable.addField(symb);
+        }
+        else {
+            String methodName = parent.get("name");
+            symbolTable.addLocalVar(methodName,symb);
         }
         return 1;
     }
+
 }

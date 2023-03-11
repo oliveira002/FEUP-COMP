@@ -64,11 +64,23 @@ public class SymbolTableCR implements SymbolTable {
         return this.methods;
     }
 
-    public void addMethod(String methodName, Type returnType, List<Symbol> parameters, List<Symbol> localVariables) {
+    public void addMethod(String methodName, Type returnType, List<Symbol> parameters) {
         this.methods.add(methodName);
         this.returnTypes.put(methodName,returnType);
         this.parameters.put(methodName,parameters);
-        this.localVariables.put(methodName,localVariables);
+    }
+
+    public void addLocalVar(String methodName, Symbol var) {
+        if(localVariables.containsKey(methodName)) {
+            List<Symbol> curr_variables = localVariables.get(methodName);
+            curr_variables.add(var);
+            localVariables.put(methodName,curr_variables);
+        }
+        else {
+            List<Symbol> nova = new ArrayList();
+            nova.add(var);
+            localVariables.put(methodName, nova);
+        }
     }
 
     @Override
