@@ -83,11 +83,10 @@ public class SymbolTableCR implements SymbolTable {
         }
     }
 
-    // TODO - return null type
     @Override
     public Type getReturnType(String s) {
-        var types = this.returnTypes.get(s);
-        return types;
+        var type = this.returnTypes.get(s);
+        return type != null ? type : new Type("void", false) ;
     }
 
     @Override
