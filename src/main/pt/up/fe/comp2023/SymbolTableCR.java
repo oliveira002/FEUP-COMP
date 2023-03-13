@@ -5,10 +5,7 @@ import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.report.Report;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SymbolTableCR implements SymbolTable {
     private String className = "";
@@ -90,11 +87,18 @@ public class SymbolTableCR implements SymbolTable {
 
     @Override
     public List<Symbol> getParameters(String s) {
-        return this.parameters.get(s);
+        var params = this.parameters.get(s);
+        return params != null ? params : Collections.emptyList();
     }
 
     @Override
     public List<Symbol> getLocalVariables(String s) {
-        return this.localVariables.get(s);
+        var vars = this.localVariables.get(s);
+        return vars != null ? vars : Collections.emptyList();
+    }
+
+    @Override
+    public String toString() {
+        return print();
     }
 }

@@ -65,11 +65,11 @@ expression
     | expression op=(LOGICAL_AND | LOGICAL_OR) expression #BinaryOp
     | expression '[' expression ']' #ArrayIndex
     | expression '.' 'length' #ArrayLength
-    | expression '.' ID '(' (expression (',' expression)*)? ')' #MethodCall
+    | expression '.' var=ID '(' (expression (',' expression)*)? ')' #MethodCall
     | value=INTEGER #Integer
     | var=ID #Identifier
     | 'new' 'int' '[' expression ']' #NewIntArray
-    | 'new' ID '('')' #NewObj
+    | 'new' var=ID '('')' #NewObj
     | value=('true' | 'false') #Boolean
     | 'this' #This
     ;

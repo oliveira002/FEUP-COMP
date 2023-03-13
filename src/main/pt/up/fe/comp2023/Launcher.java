@@ -46,6 +46,11 @@ public class Launcher {
 
         // Analysis stage
         JmmSemanticsResult analysisResult = analysis.semanticAnalysis(parserResult);
+
+        // Check if there are analysis errors
+        TestUtils.noErrors(analysisResult.getReports());
+
+        System.out.println("Symbol table:\n"+analysisResult.getSymbolTable());
     }
 
     private static Map<String, String> parseArgs(String[] args) {
