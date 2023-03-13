@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.antlr.runtime.tree.ParseTree;
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
@@ -49,7 +50,7 @@ public class Launcher {
 
         // Check if there are analysis errors
         TestUtils.noErrors(analysisResult.getReports());
-
+        System.out.println(parserResult.getRootNode().toTree());
         System.out.println("Symbol table:\n"+analysisResult.getSymbolTable());
     }
 

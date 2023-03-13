@@ -21,7 +21,8 @@ public class SymbolTableCR implements SymbolTable {
 
     @Override
     public List<String> getImports() {
-        return this.imports;
+        var imports = this.imports;
+        return imports != null ? imports : Collections.emptyList();
     }
 
     public void addImport(String s) {
@@ -49,22 +50,24 @@ public class SymbolTableCR implements SymbolTable {
 
     @Override
     public List<Symbol> getFields() {
-        return this.fields;
+        var fields = this.fields;
+        return fields != null ? fields : Collections.emptyList();
     }
 
     public void addField(Symbol s) {
         this.fields.add(s);
     }
 
-    @Override
-    public List<String> getMethods() {
-        return this.methods;
-    }
-
     public void addMethod(String methodName, Type returnType, List<Symbol> parameters) {
         this.methods.add(methodName);
         this.returnTypes.put(methodName,returnType);
         this.parameters.put(methodName,parameters);
+    }
+
+    @Override
+    public List<String> getMethods() {
+        var methods = this.methods;
+        return methods != null ? methods : Collections.emptyList();
     }
 
     public void addLocalVar(String methodName, Symbol var) {
@@ -80,9 +83,11 @@ public class SymbolTableCR implements SymbolTable {
         }
     }
 
+    // TODO - return null type
     @Override
     public Type getReturnType(String s) {
-        return this.returnTypes.get(s);
+        var types = this.returnTypes.get(s);
+        return types;
     }
 
     @Override
