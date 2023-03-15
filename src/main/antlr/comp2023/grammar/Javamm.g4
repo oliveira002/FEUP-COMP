@@ -46,6 +46,8 @@ methodDeclaration
 type locals[boolean isArray = false, boolean isClass = false]
     : value='int' ('['']' {$isArray=true;})?
     | value='boolean'
+    | value= 'String'
+    | value='String' ('['']' {$isArray=true;})?
     | value='int'
     | value=ID
     ;
