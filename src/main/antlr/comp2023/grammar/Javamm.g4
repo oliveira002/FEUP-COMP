@@ -9,6 +9,7 @@ ID : [a-zA-Z_][a-zA-Z_0-9]* ;
 
 WS : [ \t\n\r\f]+ -> skip ;
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
+COMMENT: '/*' .*? '*/' -> skip;
 
 START_PAR: '(';
 END_PAR: ')';
