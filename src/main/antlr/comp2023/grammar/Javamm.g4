@@ -4,7 +4,7 @@ grammar Javamm;
     package pt.up.fe.comp2023;
 }
 
-INTEGER : [0-9]+ ;
+INTEGER : [-+]?[0-9]+;
 ID : [a-zA-Z_][a-zA-Z_0-9]* ;
 
 WS : [ \t\n\r\f]+ -> skip ;
@@ -35,6 +35,7 @@ classDeclaration
 
 varDeclaration
     : type var=ID ';'
+    | type var=ID '=' expression ';'
     ;
 
 methodDeclaration
@@ -60,7 +61,7 @@ statement
 
 expression
     : START_PAR expression END_PAR #Parentheses
-    | '!' expression #Negative
+    | '!' expression #Not
     | expression op=(MULT | DIV) expression #BinaryOp
     | expression op=(SUM | DIFFERENCE) expression #BinaryOp
     | expression op=LESS expression #CompareOp
