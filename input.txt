@@ -2,9 +2,9 @@ import io;
 
 class Fac {
     public int computeFac (int num){
-        int num_aux = -2;
+        int num_aux = -23;
         if (num < 1)
-            num_aux = -23;
+            num_aux = 23;
         else
             num_aux = num * (this.computeFac(num - 1));
         return num_aux;
