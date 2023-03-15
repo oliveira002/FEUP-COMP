@@ -2,7 +2,7 @@ import io;
 
 class Fac {
     public int computeFac (int num){
-        int num_aux = -23;
+        int num_aux = 2;
         if (num < 1)
             num_aux = 23;
         else
