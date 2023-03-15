@@ -5,7 +5,7 @@ grammar Javamm;
 }
 
 INTEGER : [0-9]+;
-ID : [a-zA-Z_][a-zA-Z_0-9]* ;
+ID : [$a-zA-Z_][$a-zA-Z_0-9]* ;
 
 WS : [ \t\n\r\f]+ -> skip ;
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
@@ -46,7 +46,6 @@ methodDeclaration
 type locals[boolean isArray = false, boolean isClass = false]
     : value='int' ('['']' {$isArray=true;})?
     | value='boolean'
-    | value= 'String'
     | value='String' ('['']' {$isArray=true;})?
     | value='int'
     | value=ID
