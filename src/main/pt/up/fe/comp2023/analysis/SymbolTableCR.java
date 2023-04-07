@@ -1,4 +1,4 @@
-package pt.up.fe.comp2023;
+package pt.up.fe.comp2023.analysis;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
@@ -99,6 +99,16 @@ public class SymbolTableCR implements SymbolTable {
     public List<Symbol> getLocalVariables(String s) {
         var vars = this.localVariables.get(s);
         return vars != null ? vars : Collections.emptyList();
+    }
+
+    public Type getLocalVariableType(String id, String methodName) {
+        List<Symbol> methodVars = this.localVariables.get(methodName);
+        for(Symbol s : methodVars) {
+            if(Objects.equals(s.getName(), id)) {
+                return s.getType();
+            }
+        }
+        return new Type("unknown",false);
     }
 
     @Override
