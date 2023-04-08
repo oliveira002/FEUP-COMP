@@ -66,7 +66,7 @@ expression
     | expression op=(MULT | DIV) expression #BinaryOp
     | expression op=(SUM | DIFFERENCE) expression #BinaryOp
     | expression op=LESS expression #CompareOp
-    | expression op=(LOGICAL_AND | LOGICAL_OR) expression #BinaryOp
+    | expression op=(LOGICAL_AND | LOGICAL_OR) expression #LogicalOp
     | expression '[' expression ']' #ArrayIndex
     | expression '.' 'length' #ArrayLength
     | expression '.' var=ID '(' (expression (',' expression)*)? ')' #MethodCall

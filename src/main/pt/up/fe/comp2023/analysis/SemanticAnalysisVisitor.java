@@ -28,6 +28,29 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
         return new Type("unknown",false);
     }
 
+    public boolean checkValidNode(JmmNode node, SymbolTableCR symbolTable, String expectedType, boolean expectedArray) {
+        return
+            switch(node.getKind()) {
+                case "Identifier" -> this.checkValidIdentifier(node, symbolTable, expectedType, expectedArray);
+                case "Integer", "String", "Boolean" -> checkValidLiteral(node, expectedType,expectedArray);
+                default -> false;
+            };
+    }
+
+    public boolean checkValidIdentifier(JmmNode node, SymbolTableCR symbolTable, String expectedType, boolean expectedArray) {
+        String tempType = expectedType.toLowerCase();
+        if(expectedType.equals("Integer")) {
+            tempType = "int";
+        }
+        String methodName = node.getJmmParent().getJmmParent().get("name");
+        Type nodeType =  this.getLocalVariableType(node.get("var"),methodName,symbolTable);
+        return Objects.equals(nodeType.getName(), tempType) && nodeType.isArray() == expectedArray;
+    }
+
+    public boolean checkValidLiteral(JmmNode node, String expectedType, boolean expectedArray) {
+        return Objects.equals(node.getKind(), expectedType) && !expectedArray;
+    }
+
     public boolean isLiteral(JmmNode node) {
         return Objects.equals(node.getKind(), "Integer") || Objects.equals(node.getKind(), "Boolean") || Objects.equals(node.getKind(), "String");
     }

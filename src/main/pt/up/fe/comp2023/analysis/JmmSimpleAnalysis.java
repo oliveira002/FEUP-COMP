@@ -5,7 +5,7 @@ import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
-import pt.up.fe.comp2023.analysis.analysers.ArrayAccess;
+import pt.up.fe.comp2023.analysis.analysers.OperationSemantics;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class JmmSimpleAnalysis implements JmmAnalysis {
         SymbolTableVisitor stVisitor =  new SymbolTableVisitor();
         stVisitor.visit(root,symbolTable);
 
-        ArrayAccess ola = new ArrayAccess();
+        OperationSemantics ola = new OperationSemantics();
         ola.visit(root,symbolTable);
         List<Report> reps = ola.getReports();
         int a = 2;
