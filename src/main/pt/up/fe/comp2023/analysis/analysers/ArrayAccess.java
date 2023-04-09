@@ -35,7 +35,7 @@ public class ArrayAccess extends SemanticAnalysisVisitor {
         JmmNode right = jmmNode.getJmmChild(1);
         String methodName = jmmNode.getJmmParent().get("name");
 
-        Type left_hand =  this.getLocalVariableType(left.get("var"),methodName,symbolTable);
+        Type left_hand =  this.getVariableType(left.get("var"),methodName,symbolTable);
 
         // check if left side is an array
         if(!left_hand.isArray() || (!Objects.equals(left_hand.getName(), "int"))) {
@@ -51,7 +51,7 @@ public class ArrayAccess extends SemanticAnalysisVisitor {
 
         // if it's not a literal need to check its original type
         else {
-            Type right_hand = this.getLocalVariableType(right.get("var"),methodName,symbolTable);
+            Type right_hand = this.getVariableType(right.get("var"),methodName,symbolTable);
             // check if right side is an integer and not an array
             if(!Objects.equals(right_hand.getName(), "int") || right_hand.isArray())  {
                 reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Array Access must use an integer!"));

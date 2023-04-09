@@ -18,13 +18,29 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
         this.reports = new ArrayList<>();
     }
 
-    public Type getLocalVariableType(String id, String methodName, SymbolTableCR symbolTable) {
+    public Type getVariableType(String id, String methodName, SymbolTableCR symbolTable) {
         List<Symbol> methodVars = symbolTable.getLocalVariables(methodName);
+        List<Symbol> params = symbolTable.getParameters(methodName);
+        List<Symbol> fields = symbolTable.getFields();
+
         for(Symbol s : methodVars) {
             if(Objects.equals(s.getName(), id)) {
                 return s.getType();
             }
         }
+
+        for(Symbol s : params) {
+            if(Objects.equals(s.getName(), id)) {
+                return s.getType();
+            }
+        }
+
+        for(Symbol s : fields) {
+            if(Objects.equals(s.getName(), id)) {
+                return s.getType();
+            }
+        }
+
         return new Type("unknown",false);
     }
 
@@ -43,7 +59,7 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
             tempType = "int";
         }
         String methodName = node.getJmmParent().getJmmParent().get("name");
-        Type nodeType =  this.getLocalVariableType(node.get("var"),methodName,symbolTable);
+        Type nodeType =  this.getVariableType(node.get("var"),methodName,symbolTable);
         return Objects.equals(nodeType.getName(), tempType) && nodeType.isArray() == expectedArray;
     }
 
@@ -62,7 +78,7 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
 
     public Type getIdentifierType(JmmNode node, SymbolTableCR symbolTable) {
         String methodName = node.getJmmParent().getJmmParent().get("name");
-        Type nodeType =  this.getLocalVariableType(node.get("var"),methodName,symbolTable);
+        Type nodeType =  this.getVariableType(node.get("var"),methodName,symbolTable);
         return nodeType;
     }
 
