@@ -58,7 +58,7 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
         if(expectedType.equals("Integer")) {
             tempType = "int";
         }
-        String methodName = node.getJmmParent().getJmmParent().get("name");
+        String methodName = getMethodName(node);
         Type nodeType =  this.getVariableType(node.get("var"),methodName,symbolTable);
         return Objects.equals(nodeType.getName(), tempType) && nodeType.isArray() == expectedArray;
     }
@@ -79,7 +79,7 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
     }
 
     public Type getIdentifierType(JmmNode node, SymbolTableCR symbolTable) {
-        String methodName = node.getJmmParent().getJmmParent().get("name");
+        String methodName = getMethodName(node);
         Type nodeType =  this.getVariableType(node.get("var"),methodName,symbolTable);
         return nodeType;
     }
@@ -95,6 +95,19 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
 
     public boolean isLiteral(JmmNode node) {
         return Objects.equals(node.getKind(), "Integer") || Objects.equals(node.getKind(), "Boolean") || Objects.equals(node.getKind(), "String");
+    }
+
+    public String getMethodName(JmmNode node) {
+        while(!Objects.equals(node.getKind(), "MethodDeclaration") && !Objects.equals(node.getKind(), "ClassDeclaration")) {
+            node = node.getJmmParent();
+        }
+
+        if(Objects.equals(node.getKind(), "MethodDeclaration")) {
+            return node.get("name");
+        }
+        else {
+            return "";
+        }
     }
 
     public void addReport(Report rep) {

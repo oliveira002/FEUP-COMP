@@ -19,6 +19,7 @@ public class JmmSimpleAnalysis implements JmmAnalysis {
         SymbolTableVisitor stVisitor =  new SymbolTableVisitor();
         stVisitor.visit(root,symbolTable);
 
+
         ConditionSemantics ola = new ConditionSemantics();
         ola.visit(root,symbolTable);
         List<Report> reps = ola.getReports();

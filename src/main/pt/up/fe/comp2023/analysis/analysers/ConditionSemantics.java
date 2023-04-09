@@ -34,7 +34,7 @@ public class ConditionSemantics extends SemanticAnalysisVisitor {
         JmmNode condition = jmmNode.getJmmChild(0);
         Type conditionType = this.getNodeType(condition,symbolTable);
 
-        if(conditionType != new Type("boolean",false)) {
+        if(!Objects.equals(conditionType, new Type("boolean", false))) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Condition must be of type boolean!"));
         }
         return 1;
