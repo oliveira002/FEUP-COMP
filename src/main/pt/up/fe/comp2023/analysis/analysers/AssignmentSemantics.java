@@ -33,7 +33,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
 
     private Integer visitVarAssign(JmmNode jmmNode, SymbolTableCR symbolTable) {
         String varName = jmmNode.get("var");
-        String methodName = jmmNode.getJmmParent().get("name");
+        String methodName = this.getMethodName(jmmNode);
         Type varType = this.getVariableType(varName,methodName,symbolTable);
 
         // check if variable exists
@@ -43,9 +43,9 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
 
         // check if value is the same type of the variable
         JmmNode value = jmmNode.getJmmChild(0);
-        boolean valid_value = this.checkValidNode(value,symbolTable,varType.getName(), varType.isArray());
+        Type valueType = this.getNodeType(value,symbolTable);
 
-        if(!valid_value) {
+        if(!Objects.equals(valueType.getName(), varType.getName()) || !Objects.equals(valueType.isArray(), varType.isArray())) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"The assignment doesn't not have the type of the variable!"));
         }
 

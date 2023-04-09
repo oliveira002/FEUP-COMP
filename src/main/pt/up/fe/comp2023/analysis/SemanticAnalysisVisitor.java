@@ -67,6 +67,7 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
     }
 
     public boolean checkValidLiteral(JmmNode node, String expectedType, boolean expectedArray) {
+
         return Objects.equals(node.getKind(), expectedType) && !expectedArray;
     }
 
@@ -90,7 +91,7 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
 
     public Type getLiteralType(JmmNode node) {
         String type = node.getKind().toLowerCase();
-        if(type.equals("Integer")) {
+        if(type.equals("integer")) {
             type = "int";
         }
 

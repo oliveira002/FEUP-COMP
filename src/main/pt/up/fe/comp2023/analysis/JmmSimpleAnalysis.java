@@ -22,14 +22,14 @@ public class JmmSimpleAnalysis implements JmmAnalysis {
 
 
         ArrayAccess ola = new ArrayAccess();
-        //AssignmentSemantics ola2 = new AssignmentSemantics();
-        //OperationSemantics ola3 = new  OperationSemantics();
-        //ConditionSemantics ola4 = new ConditionSemantics();
+        AssignmentSemantics ola2 = new AssignmentSemantics();
+        OperationSemantics ola3 = new  OperationSemantics();
+        ConditionSemantics ola4 = new ConditionSemantics();
 
         ola.visit(root,symbolTable);
-        //ola2.visit(root,symbolTable);
-        //ola3.visit(root,symbolTable);
-        //ola4.visit(root,symbolTable);
+        ola2.visit(root,symbolTable);
+        ola3.visit(root,symbolTable);
+        ola4.visit(root,symbolTable);
         List<Report> reps = ola.getReports();
         //reps.addAll(ola2.getReports());
         //reps.addAll(ola3.getReports());
