@@ -5,6 +5,7 @@ import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp2023.analysis.analysers.ArrayAccess;
 import pt.up.fe.comp2023.analysis.analysers.AssignmentSemantics;
 import pt.up.fe.comp2023.analysis.analysers.ConditionSemantics;
 import pt.up.fe.comp2023.analysis.analysers.OperationSemantics;
@@ -20,7 +21,7 @@ public class JmmSimpleAnalysis implements JmmAnalysis {
         stVisitor.visit(root,symbolTable);
 
 
-        ConditionSemantics ola = new ConditionSemantics();
+        ArrayAccess ola = new ArrayAccess();
         ola.visit(root,symbolTable);
         List<Report> reps = ola.getReports();
         int a = 2;

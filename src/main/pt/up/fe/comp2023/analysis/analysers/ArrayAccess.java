@@ -33,31 +33,18 @@ public class ArrayAccess extends SemanticAnalysisVisitor {
     private Integer visitArrayIndex(JmmNode jmmNode, SymbolTableCR symbolTable) {
         JmmNode left = jmmNode.getJmmChild(0);
         JmmNode right = jmmNode.getJmmChild(1);
-        String methodName = jmmNode.getJmmParent().get("name");
 
-        Type left_hand =  this.getVariableType(left.get("var"),methodName,symbolTable);
+        Type leftType = getNodeType(left,symbolTable);
+        Type rightType = getNodeType(right,symbolTable);
 
-        // check if left side is an array
-        if(!left_hand.isArray() || (!Objects.equals(left_hand.getName(), "int"))) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Array Access must be done over an integer array!"));
+
+        if(!Objects.equals(leftType, new Type("int", true))) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Array Access is not being done over an array!"));
         }
 
-        // check if right side is a literal
-        if(this.isLiteral(right)) {
-            if(!Objects.equals(right.getKind(), "Integer")) {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Array Access must use an integer"));
-            }
+        if(!Objects.equals(rightType, new Type("int", false))) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Array Access is not being done with an Integer!"));
         }
-
-        // if it's not a literal need to check its original type
-        else {
-            Type right_hand = this.getVariableType(right.get("var"),methodName,symbolTable);
-            // check if right side is an integer and not an array
-            if(!Objects.equals(right_hand.getName(), "int") || right_hand.isArray())  {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Array Access must use an integer!"));
-            }
-        }
-
         return 1;
     }
 
