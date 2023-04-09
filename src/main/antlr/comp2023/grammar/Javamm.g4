@@ -53,8 +53,8 @@ type locals[boolean isArray = false, boolean isClass = false]
 
 statement
     : '{' (statement)* '}' #ThenStmt
-    | 'if' '(' expression ')' statement 'else' statement #IfStmt
-    | 'while' '(' expression ')' statement #WhileStmt
+    | 'if' '(' expression ')' statement 'else' statement #ConditionStmt
+    | 'while' '(' expression ')' statement #ConditionStmt
     | expression ';' #ExpStmt
     | var=ID '=' expression ';' #VarAssign
     | var=ID '[' expression ']' '=' expression ';' #ArrayAssign
