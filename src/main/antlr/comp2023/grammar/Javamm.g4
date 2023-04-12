@@ -52,12 +52,12 @@ type locals[boolean isArray = false, boolean isClass = false]
     ;
 
 statement
-    : '{' (statement)* '}'
-    | 'if' '(' expression ')' statement 'else' statement
-    | 'while' '(' expression ')' statement
-    | expression ';'
-    | var=ID '=' expression ';'
-    | var=ID '[' expression ']' '=' expression ';'
+    : '{' (statement)* '}' #ThenStmt
+    | 'if' '(' expression ')' statement 'else' statement #ConditionStmt
+    | 'while' '(' expression ')' statement #ConditionStmt
+    | expression ';' #ExpStmt
+    | var=ID '=' expression ';' #VarAssign
+    | var=ID '[' expression ']' '=' expression ';' #ArrayAssign
     ;
 
 expression
@@ -66,7 +66,7 @@ expression
     | expression op=(MULT | DIV) expression #BinaryOp
     | expression op=(SUM | DIFFERENCE) expression #BinaryOp
     | expression op=LESS expression #CompareOp
-    | expression op=(LOGICAL_AND | LOGICAL_OR) expression #BinaryOp
+    | expression op=(LOGICAL_AND | LOGICAL_OR) expression #LogicalOp
     | expression '[' expression ']' #ArrayIndex
     | expression '.' 'length' #ArrayLength
     | expression '.' var=ID '(' (expression (',' expression)*)? ')' #MethodCall
