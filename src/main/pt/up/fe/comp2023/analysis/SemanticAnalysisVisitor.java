@@ -74,7 +74,7 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
     public Type getNodeType(JmmNode node, SymbolTableCR symbolTable) {
         return
         switch(node.getKind()) {
-            case "Identifier" -> this.getIdentifierType(node,symbolTable);
+            case "Identifier","VarAssign" -> this.getIdentifierType(node,symbolTable);
             case "Integer", "String", "Boolean" -> this.getLiteralType(node);
             case "BinaryOp" -> new Type("int",false);
             case "CompareOp", "LogicalOp" -> new Type("boolean",false);
@@ -114,6 +114,15 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
             return "";
         }
     }
+
+    public String getClassName(JmmNode node) {
+        while(!Objects.equals(node.getKind(), "ClassDeclaration")) {
+            node = node.getJmmParent();
+        }
+
+        return node.get("className");
+    }
+
 
     public void addReport(Report rep) {
         this.reports.add(rep);
