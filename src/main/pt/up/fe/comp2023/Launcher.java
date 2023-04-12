@@ -5,10 +5,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.antlr.runtime.tree.ParseTree;
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
+import pt.up.fe.comp2023.ollir.ASTParser;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -52,6 +53,11 @@ public class Launcher {
         TestUtils.noErrors(analysisResult.getReports());
         System.out.println(parserResult.getRootNode().toTree());
         System.out.println("Symbol table:\n"+analysisResult.getSymbolTable());
+
+        //Ollir generation
+        ASTParser astParser = new ASTParser();
+        OllirResult ollir = astParser.toOllir(analysisResult);
+        System.out.println(ollir.getOllirCode());
     }
 
     private static Map<String, String> parseArgs(String[] args) {
@@ -62,14 +68,27 @@ public class Launcher {
             throw new RuntimeException("Expected a single argument, a path to an existing input file.");
         }
 
-        // Create config
+        // Create config with default values
         Map<String, String> config = new HashMap<>();
         config.put("inputFile", args[0]);
         config.put("optimize", "false");
         config.put("registerAllocation", "-1");
         config.put("debug", "false");
 
+        // Change config based on command line arguments
+        for(String option : args){
+            String[] option_split = option.split("=");
+            String flag = option_split[0];
+
+            switch (flag){
+                case "-i" -> config.put("inputFile", option_split[1]);
+                case "-o" -> config.put("optimize", "true");
+                case "-r" -> config.put("registerAllocation", option_split[1]);
+                case "-d" -> config.put("debug", "true");
+                default -> throw new IllegalArgumentException("Unexpected argument: " + flag);
+            }
+        }
+
         return config;
     }
-
 }
