@@ -23,13 +23,15 @@ public class JmmSimpleAnalysis implements JmmAnalysis {
         OperationSemantics ola3 = new  OperationSemantics();
         ConditionSemantics ola4 = new ConditionSemantics();
         ThisSemantics ola5 = new ThisSemantics();
+        ReturnSemantics ola6 = new ReturnSemantics();
 
+        ola6.visit(root,symbolTable);
         ola.visit(root,symbolTable);
         ola2.visit(root,symbolTable);
         ola3.visit(root,symbolTable);
         ola4.visit(root,symbolTable);
         ola5.visit(root,symbolTable);
-        List<Report> reps = ola3.getReports();
+        List<Report> reps = ola6.getReports();
         //reps.addAll(ola2.getReports());
         //reps.addAll(ola3.getReports());
         //reps.addAll(ola4.getReports());
