@@ -32,9 +32,11 @@ public class JmmSimpleAnalysis implements JmmAnalysis {
         ola4.visit(root,symbolTable);
         ola5.visit(root,symbolTable);
         List<Report> reps = ola6.getReports();
-        //reps.addAll(ola2.getReports());
-        //reps.addAll(ola3.getReports());
-        //reps.addAll(ola4.getReports());
+        reps.addAll(ola.getReports());
+        reps.addAll(ola2.getReports());
+        reps.addAll(ola3.getReports());
+        reps.addAll(ola4.getReports());
+        reps.addAll(ola5.getReports());
 
         int a = 2;
         return new JmmSemanticsResult(jmmParserResult, symbolTable, reps);
