@@ -80,6 +80,7 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
             case "CompareOp", "LogicalOp" -> new Type("boolean",false);
             case "NewIntArray" -> new Type("int",true);
             case "NewObj" -> new Type(node.get("var"),false);
+            case "MethodCall" -> getMethodCallType(node,symbolTable);
             default -> new Type("unknown",false);
         };
     }
@@ -97,6 +98,13 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
         }
 
         return new Type(type,false);
+    }
+
+    public Type getMethodCallType(JmmNode node, SymbolTableCR symbolTable) {
+        JmmNode parent= node.getJmmParent();
+        String methodName = parent.get("name");
+
+        return symbolTable.getReturnType(methodName);
     }
 
     public boolean isLiteral(JmmNode node) {
@@ -124,6 +132,14 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
         return node.get("className");
     }
 
+    public List<Type> getArgTypes(String methodName, SymbolTableCR symbolTable) {
+        List<Symbol> args = symbolTable.getParameters(methodName);
+        List<Type> argTypes = new ArrayList<>();
+        for(Symbol s: args) {
+            argTypes.add(s.getType());
+        }
+        return argTypes;
+    }
 
     public void addReport(Report rep) {
         this.reports.add(rep);

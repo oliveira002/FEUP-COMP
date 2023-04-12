@@ -24,7 +24,9 @@ public class JmmSimpleAnalysis implements JmmAnalysis {
         ConditionSemantics ola4 = new ConditionSemantics();
         ThisSemantics ola5 = new ThisSemantics();
         ReturnSemantics ola6 = new ReturnSemantics();
+        MethodSemantics ola7 = new MethodSemantics();
 
+        ola7.visit(root,symbolTable);
         ola6.visit(root,symbolTable);
         ola.visit(root,symbolTable);
         ola2.visit(root,symbolTable);
@@ -37,6 +39,8 @@ public class JmmSimpleAnalysis implements JmmAnalysis {
         reps.addAll(ola3.getReports());
         reps.addAll(ola4.getReports());
         reps.addAll(ola5.getReports());
+        reps.addAll(ola7.getReports());
+
 
         int a = 2;
         return new JmmSemanticsResult(jmmParserResult, symbolTable, reps);

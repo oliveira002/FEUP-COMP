@@ -111,6 +111,15 @@ public class SymbolTableCR implements SymbolTable {
         return new Type("unknown",false);
     }
 
+    public boolean methodExists(String methodName) {
+        for(String x : methods) {
+            if(Objects.equals(x, methodName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return print();
