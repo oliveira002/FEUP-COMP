@@ -78,6 +78,7 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
             case "Integer", "String", "Boolean" -> this.getLiteralType(node);
             case "BinaryOp" -> new Type("int",false);
             case "CompareOp", "LogicalOp" -> new Type("boolean",false);
+            case "NewIntArray" -> new Type("int",true);
             case "NewObj" -> new Type(node.get("var"),false);
             default -> new Type("unknown",false);
         };
