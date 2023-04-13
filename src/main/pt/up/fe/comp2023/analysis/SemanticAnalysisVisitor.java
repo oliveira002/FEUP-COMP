@@ -156,4 +156,8 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
     public void addReport(Report rep) {
         this.reports.add(rep);
     }
+
+    public List<Report> getReports() {
+        return this.getReports();
+    }
 }

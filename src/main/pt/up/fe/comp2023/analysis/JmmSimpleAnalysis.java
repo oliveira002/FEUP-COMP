@@ -7,6 +7,8 @@ import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp2023.analysis.analysers.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class JmmSimpleAnalysis implements JmmAnalysis {
@@ -17,32 +19,14 @@ public class JmmSimpleAnalysis implements JmmAnalysis {
         SymbolTableVisitor stVisitor =  new SymbolTableVisitor();
         stVisitor.visit(root,symbolTable);
 
+        List<SemanticAnalysisVisitor> visitors = Arrays.asList(new ArrayAccess(),new AssignmentSemantics(),new OperationSemantics(),
+                new ThisSemantics(), new ConditionSemantics(), new ReturnSemantics(), new MethodSemantics());
 
-        ArrayAccess ola = new ArrayAccess();
-        AssignmentSemantics ola2 = new AssignmentSemantics();
-        OperationSemantics ola3 = new  OperationSemantics();
-        ConditionSemantics ola4 = new ConditionSemantics();
-        ThisSemantics ola5 = new ThisSemantics();
-        ReturnSemantics ola6 = new ReturnSemantics();
-        MethodSemantics ola7 = new MethodSemantics();
-
-        ola7.visit(root,symbolTable);
-        ola6.visit(root,symbolTable);
-        ola.visit(root,symbolTable);
-        ola2.visit(root,symbolTable);
-        ola3.visit(root,symbolTable);
-        ola4.visit(root,symbolTable);
-        ola5.visit(root,symbolTable);
-        List<Report> reps = ola6.getReports();
-        reps.addAll(ola.getReports());
-        reps.addAll(ola2.getReports());
-        reps.addAll(ola3.getReports());
-        reps.addAll(ola4.getReports());
-        reps.addAll(ola5.getReports());
-        reps.addAll(ola7.getReports());
-
-
-        int a = 2;
+        List<Report> reps = new ArrayList<>();
+        for(SemanticAnalysisVisitor v: visitors) {
+            v.visit(root,symbolTable);
+            reps.addAll(v.getReports());
+        }
         return new JmmSemanticsResult(jmmParserResult, symbolTable, reps);
     }
 }
