@@ -44,32 +44,6 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
         return new Type("unknown",false);
     }
 
-    public boolean checkValidNode(JmmNode node, SymbolTableCR symbolTable, String expectedType, boolean expectedArray) {
-        return
-            switch(node.getKind()) {
-                case "Identifier" -> this.checkValidIdentifier(node, symbolTable, expectedType, expectedArray);
-                case "Integer", "String", "Boolean" -> this.checkValidLiteral(node, expectedType,expectedArray);
-                case "BinaryOp" -> Objects.equals(expectedType, "Integer");
-                case "CompareOp", "LogicalOp" -> Objects.equals(expectedType, "Boolean");
-                case "NewObj" -> Objects.equals(node.get("var"),expectedType);
-                default -> false;
-            };
-    }
-
-    public boolean checkValidIdentifier(JmmNode node, SymbolTableCR symbolTable, String expectedType, boolean expectedArray) {
-        String tempType = expectedType.toLowerCase();
-        if(expectedType.equals("Integer")) {
-            tempType = "int";
-        }
-        String methodName = getMethodName(node);
-        Type nodeType =  this.getVariableType(node.get("var"),methodName,symbolTable);
-        return Objects.equals(nodeType.getName(), tempType) && nodeType.isArray() == expectedArray;
-    }
-
-    public boolean checkValidLiteral(JmmNode node, String expectedType, boolean expectedArray) {
-
-        return Objects.equals(node.getKind(), expectedType) && !expectedArray;
-    }
 
     public Type getNodeType(JmmNode node, SymbolTableCR symbolTable) {
         return
@@ -102,7 +76,8 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
 
     public Type getMethodCallType(JmmNode node, SymbolTableCR symbolTable) {
         JmmNode parent= node.getJmmParent();
-        String methodName = parent.get("name");
+
+        String methodName = getMethodName(parent);
 
         return symbolTable.getReturnType(methodName);
     }

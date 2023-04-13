@@ -24,6 +24,8 @@ public class ArrayAccess extends SemanticAnalysisVisitor {
     protected void buildVisitor() {
         setDefaultVisit(this::defaultVisit);
         addVisit("ArrayIndex", this::visitArrayIndex);
+        addVisit("ArrayLength", this::visitArrayLength);
+        addVisit("NewIntArray", this::visitNewArray);
     }
 
     private Integer defaultVisit(JmmNode jmmNode, SymbolTableCR symbolTable) {
@@ -37,6 +39,16 @@ public class ArrayAccess extends SemanticAnalysisVisitor {
         Type leftType = getNodeType(left,symbolTable);
         Type rightType = getNodeType(right,symbolTable);
 
+        if(Objects.equals(leftType.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            return 1;
+        }
+
+        if(Objects.equals(rightType.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            return 1;
+        }
+
         if(!Objects.equals(leftType, new Type("int", true))) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Array Access is not being done over an array!"));
         }
@@ -44,9 +56,43 @@ public class ArrayAccess extends SemanticAnalysisVisitor {
         if(!Objects.equals(rightType, new Type("int", false))) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Array Access is not being done with an Integer!"));
         }
-        // a[10]
+
         return 1;
     }
+
+    private Integer visitArrayLength(JmmNode jmmNode, SymbolTableCR symbolTable) {
+        JmmNode var = jmmNode.getJmmChild(0);
+        Type varType = this.getNodeType(var,symbolTable);
+
+        if(Objects.equals(varType.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Index is not defined!"));
+            return 1;
+        }
+
+        if(!Objects.equals(varType.getName(), "int") || !varType.isArray()) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable is not an integer array!"));
+        }
+
+
+        return 1;
+    }
+
+    private Integer visitNewArray(JmmNode jmmNode, SymbolTableCR symbolTable) {
+        JmmNode index = jmmNode.getJmmChild(0);
+        Type indexType = this.getNodeType(index,symbolTable);
+        if(Objects.equals(indexType.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Index is not defined!"));
+            return 1;
+        }
+
+        if(!Objects.equals(indexType.getName(), "int") || indexType.isArray()) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Index is not an integer!"));
+        }
+
+        return 1;
+    }
+
+
 
     public List<Report> getReports() {
         return reports;

@@ -35,6 +35,20 @@ public class ReturnSemantics extends SemanticAnalysisVisitor {
         if(!Objects.equals(methodName, "main")) {
             JmmNode returnExp = jmmNode.getJmmChild(jmmNode.getNumChildren()-1);
             Type returnedType = this.getNodeType(returnExp,symbolTable);
+
+            if(Objects.equals(returnedType.getName(), "unknown")) {
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable is not defined!"));
+                return 1;
+            }
+
+            if(Objects.equals(returnExp.getKind(), "MethodCall") && !symbolTable.methodExists(returnExp.get("var"))) {
+                return 1;
+            }
+
+            if(Objects.equals(returnExp.getKind(), "MethodCall")) {
+                methodName = returnExp.get("var");
+            }
+
             Type originalType = symbolTable.getReturnType(methodName);
             if(!Objects.equals(returnedType.getName(), originalType.getName()) || returnedType.isArray() != originalType.isArray()) {
                 reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Return type doesn't  match with what is being returned!"));

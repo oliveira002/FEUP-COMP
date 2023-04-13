@@ -34,6 +34,15 @@ public class ConditionSemantics extends SemanticAnalysisVisitor {
         JmmNode condition = jmmNode.getJmmChild(0);
         Type conditionType = this.getNodeType(condition,symbolTable);
 
+        if(Objects.equals(conditionType.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable is not defined!"));
+            return 1;
+        }
+
+        if(Objects.equals(condition.getKind(), "MethodCall") && !symbolTable.methodExists(condition.get("var"))) {
+            return 1;
+        }
+
         if(!Objects.equals(conditionType, new Type("boolean", false))) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Condition must be of type boolean!"));
         }

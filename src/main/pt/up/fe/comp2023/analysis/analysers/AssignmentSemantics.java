@@ -35,27 +35,33 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         String varName = jmmNode.get("var");
         String methodName = this.getMethodName(jmmNode);
         Type varType = this.getVariableType(varName,methodName,symbolTable);
-
-        // check if variable exists
-        if(Objects.equals(varType.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
-        }
-
-        // check if value is the same type of the variable
         JmmNode value = jmmNode.getJmmChild(0);
         Type valueType = this.getNodeType(value,symbolTable);
 
-        List<String> imports = this.parsedImports(symbolTable);
-
-        // if both types are imported
-        boolean both_imported = imports.contains(valueType.getName()) && imports.contains(varType.getName());
-
-        if(both_imported || (Objects.equals(valueType.getName(), symbolTable.getClassName()) && Objects.equals(varType.getName(), symbolTable.getSuper()))){
+        if(Objects.equals(varType.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
             return 1;
         }
 
-        if(!Objects.equals(valueType.getName(), varType.getName()) || !Objects.equals(valueType.isArray(), varType.isArray())) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"The assignment doesn't not have the type of the variable!"));
+        if(Objects.equals(valueType.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
+            return 1;
+        }
+
+        if(Objects.equals(value.getKind(), "MethodCall") && !symbolTable.methodExists(value.get("var"))) {
+            return 1;
+        }
+
+        if(parsedImports(symbolTable).contains(varType.getName()) && Objects.equals(symbolTable.getSuper(), varType.getName()) && (Objects.equals(valueType.getName(), symbolTable.getClassName()))) {
+            return 1;
+        }
+
+        if(parsedImports(symbolTable).contains(varType.getName()) && parsedImports(symbolTable).contains(valueType.getName())) {
+            return 1;
+        }
+
+        if(!Objects.equals(valueType.getName(), varType.getName()) || valueType.isArray() != varType.isArray()) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Types in the assignment don't match!"));
         }
 
         return 1;
@@ -66,25 +72,42 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         String methodName = jmmNode.getJmmParent().get("name");
         Type varType = this.getVariableType(varName,methodName,symbolTable);
 
-        // check if variable exists
         if(Objects.equals(varType.getName(), "unknown")) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
+            return 1;
+        }
+
+        if(!Objects.equals(varType.getName(), "int") || !varType.isArray()) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned isn't an integer array!"));
+            return 1;
         }
 
         // check if index is an int
         JmmNode index = jmmNode.getJmmChild(0);
-        boolean valid_index = this.checkValidNode(index,symbolTable,"Integer", false);
+        Type idxType = this.getNodeType(index,symbolTable);
 
-        if(!valid_index) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Accessing an array by index must be done with Integers only!"));
+        if(Objects.equals(idxType.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
+            return 1;
+        }
+
+        if(!Objects.equals(idxType.getName(), "int") || idxType.isArray()) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Index isn't an integer!"));
+            return 1;
         }
 
         // check if value is the same type of the variable
         JmmNode value = jmmNode.getJmmChild(1);
-        boolean valid_value = this.checkValidNode(value,symbolTable,varType.getName(), false);
+        Type valType = this.getNodeType(value,symbolTable);
 
-        if(!valid_value) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"The assignment doesn't not have the type of the variable!"));
+        if(Objects.equals(valType.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
+            return 1;
+        }
+
+        if(!Objects.equals(valType.getName(), "int") || valType.isArray()) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Value isn't an integer!"));
+            return 1;
         }
 
         return 1;

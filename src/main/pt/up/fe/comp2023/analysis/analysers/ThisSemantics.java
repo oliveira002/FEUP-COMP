@@ -31,15 +31,24 @@ public class ThisSemantics extends SemanticAnalysisVisitor {
     }
 
     private Integer visitThis(JmmNode jmmNode, SymbolTableCR symbolTable) {
-        String className = this.getClassName(jmmNode);
+        String className = symbolTable.getClassName();
         String classSuper = symbolTable.getSuper();
+        String methodName = this.getMethodName(jmmNode);
         JmmNode var = jmmNode.getJmmParent();
         Type varType = this.getNodeType(var,symbolTable);
 
+        if(Objects.equals(methodName, "main")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"This cannot be used inside static methods!"));
+            return 1;
+        }
 
-        // still need to check if method is static or not
-        if((!Objects.equals(varType.getName(), className) && !Objects.equals(varType.getName(), classSuper)) || varType.isArray()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"This is not being used with correct Class Type!"));
+        if(Objects.equals(varType.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            return 1;
+        }
+
+        if(!(Objects.equals(className, varType.getName()) || (Objects.equals(classSuper, varType.getName())) && parsedImports(symbolTable).contains(classSuper))) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Cannot use this with this object type!"));
         }
         return 1;
     }

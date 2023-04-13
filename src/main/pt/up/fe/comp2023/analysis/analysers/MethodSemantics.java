@@ -24,6 +24,7 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
     protected void buildVisitor() {
         setDefaultVisit(this::defaultVisit);
         addVisit("MethodCall", this::visitMethodCall);
+        addVisit("NewObj",this::visitNewObj);
     }
 
     private Integer defaultVisit(JmmNode jmmNode, SymbolTableCR symbolTable) {
@@ -41,9 +42,23 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
         return 1;
     }
 
+    private Integer visitNewObj(JmmNode jmmNode, SymbolTableCR symbolTable) {
+        String className = jmmNode.get("var");
+
+        if(!Objects.equals(className, symbolTable.getClassName())) {
+            if(!this.parsedImports(symbolTable).contains(className)) {
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Objects' class is not being imported!"));
+            }
+        }
+
+        return 1;
+    }
+
     public Integer methodNotExists(JmmNode jmmNode, SymbolTableCR symbolTable) {
         String methodName = jmmNode.get("var");
         String className = this.getClassName(jmmNode);
+        String superClass = symbolTable.getSuper();
+
         JmmNode obj = jmmNode.getJmmChild(0);
         Type objType = this.getNodeType(obj,symbolTable);
 
@@ -53,34 +68,35 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
             return 1;
         }
 
-        // parse import list
         List<String> parsedImports = this.parsedImports(symbolTable);
-        String superClass = symbolTable.getSuper();
 
-        if(parsedImports.isEmpty() || (!Objects.equals(superClass, "") && !parsedImports.contains(superClass))) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
+        if(Objects.equals(objType.getName(), className)) {
+            if(!(!Objects.equals(superClass, "") && parsedImports.contains(superClass))) {
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class extended is not in imports or doesn't extend anything!"));
+                return 1;
+            }
         }
-
-
+        else {
+            if(!parsedImports.contains(objType.getName())) {
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class is not imported!"));
+                return 1;
+            }
+        }
 
         return 1;
     }
 
     public Integer methodExists(JmmNode jmmNode, SymbolTableCR symbolTable) {
         String methodName = jmmNode.get("var");
-        String className = this.getClassName(jmmNode);
+        String className = symbolTable.getClassName();
+
         JmmNode obj = jmmNode.getJmmChild(0);
         Type objType = this.getNodeType(obj,symbolTable);
 
         // invalid type
-        if(Objects.equals(objType.getName(), "unknown")) {
+        if(Objects.equals(objType.getName(), "unknown") || !Objects.equals(objType.getName(), className) ) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
             return 1;
-        }
-
-        Type methodRType = symbolTable.getReturnType(methodName);
-        if(!Objects.equals(objType.getName(), methodRType.getName()) || objType.isArray() != methodRType.isArray()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Return type doesn't match with the object's type!"));
         }
 
         int num_children = jmmNode.getNumChildren();
@@ -99,9 +115,23 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
             return 1;
         }
 
+        for(int i = 0; i < originalArgs.size(); i++) {
+            if(Objects.equals(originalArgs.get(i).getName(),"unknown")) {
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
+                return 1;
+            }
+            if(Objects.equals(currArgs.get(i).getName(),"unknown")) {
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
+                return 1;
+            }
+        }
+
         // check args one by one to see if their type match
         for(int i = 0; i < originalArgs.size(); i++) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
+            if(!Objects.equals(originalArgs.get(i).getName(),currArgs.get(i).getName())) {
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
+                return 1;
+            }
         }
 
         return 1;

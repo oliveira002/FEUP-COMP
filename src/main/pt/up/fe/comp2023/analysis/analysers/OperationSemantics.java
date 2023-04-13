@@ -26,6 +26,7 @@ public class OperationSemantics extends SemanticAnalysisVisitor {
         addVisit("BinaryOp", this::visitBinaryOp);
         addVisit("LogicalOp", this::visitLogicalOp);
         addVisit("CompareOp",this::visitCompareOp);
+        addVisit("Not",this::visitNot);
     }
 
     private Integer defaultVisit(JmmNode jmmNode, SymbolTableCR symbolTable) {
@@ -39,6 +40,16 @@ public class OperationSemantics extends SemanticAnalysisVisitor {
 
         Type fst = this.getNodeType(firstOperand,symbolTable);
         Type snd = this.getNodeType(secOperand,symbolTable);
+
+        if(Objects.equals(fst.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            return 1;
+        }
+
+        if(Objects.equals(snd.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            return 1;
+        }
 
         if(!Objects.equals(fst.getName(), "int") || fst.isArray()) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type integer"));
@@ -58,6 +69,16 @@ public class OperationSemantics extends SemanticAnalysisVisitor {
         Type fst = this.getNodeType(firstOperand,symbolTable);
         Type snd = this.getNodeType(secOperand,symbolTable);
 
+        if(Objects.equals(fst.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            return 1;
+        }
+
+        if(Objects.equals(snd.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            return 1;
+        }
+
         if(!Objects.equals(fst.getName(), "boolean")) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type boolean"));
         }
@@ -76,8 +97,34 @@ public class OperationSemantics extends SemanticAnalysisVisitor {
         Type fst = this.getNodeType(firstOperand,symbolTable);
         Type snd = this.getNodeType(secOperand,symbolTable);
 
-        if(!Objects.equals(fst.getName(), snd.getName()) || !Objects.equals(fst.isArray(), snd.isArray()) || Objects.equals(fst.getName(),"boolean")  || Objects.equals(snd.getName(),"boolean")) {
+        if(Objects.equals(fst.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            return 1;
+        }
+
+        if(Objects.equals(snd.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            return 1;
+        }
+
+        if(!Objects.equals(fst.getName(),"int")  || !Objects.equals(snd.getName(),"int") || fst.isArray() || snd.isArray()) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Types don't match in the comparison (<)"));
+        }
+
+        return 1;
+    }
+
+    private Integer visitNot(JmmNode jmmNode, SymbolTableCR symbolTable) {
+        JmmNode var = jmmNode.getJmmChild(0);
+        Type varType = this.getNodeType(var,symbolTable);
+
+        if(Objects.equals(varType.getName(), "unknown")) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Index is not defined!"));
+            return 1;
+        }
+
+        if(!Objects.equals(varType.getName(), "boolean") || varType.isArray()) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable is not an integer array!"));
         }
 
         return 1;
