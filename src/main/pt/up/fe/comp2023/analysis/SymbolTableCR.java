@@ -4,6 +4,8 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.*;
 
@@ -55,10 +57,27 @@ public class SymbolTableCR implements SymbolTable {
     }
 
     public void addField(Symbol s) {
+        if(fieldExists(s.getName())) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Duplicated Field!"));
+            return;
+        };
         this.fields.add(s);
     }
 
+    public boolean fieldExists(String var) {
+        for(Symbol s: fields) {
+            if(Objects.equals(s.getName(), var)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void addMethod(String methodName, Type returnType, List<Symbol> parameters) {
+        if (methodExists(methodName)) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Duplicated Method!"));
+            return;
+        }
         this.methods.add(methodName);
         this.returnTypes.put(methodName,returnType);
         this.parameters.put(methodName,parameters);
@@ -71,6 +90,10 @@ public class SymbolTableCR implements SymbolTable {
     }
 
     public void addLocalVar(String methodName, Symbol var) {
+        if (localVarExists(var.getName(), methodName)) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Duplicated Local Vars!"));
+            return;
+        }
         if(localVariables.containsKey(methodName)) {
             List<Symbol> curr_variables = localVariables.get(methodName);
             curr_variables.add(var);
@@ -116,6 +139,19 @@ public class SymbolTableCR implements SymbolTable {
             if(Objects.equals(x, methodName)) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    public boolean localVarExists(String var, String methodName) {
+        if(localVariables.containsKey(methodName)) {
+            List<Symbol> locals = getLocalVariables(methodName);
+            for(Symbol s : locals) {
+                if(Objects.equals(s.getName(), var)) {
+                    return true;
+                }
+            }
+            return false;
         }
         return false;
     }
