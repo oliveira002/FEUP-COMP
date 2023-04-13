@@ -51,8 +51,12 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         if(Objects.equals(valueType.getName(),"this")) {
             JmmNode var = value.getJmmParent();
             Type temp = this.getNodeType(var,symbolTable);
-            if(!(Objects.equals(symbolTable.getClassName(), temp.getName()) || Objects.equals(temp.getName(),symbolTable.getSuper()))) {
+            String classe = symbolTable.getClassName();
+            String superClass = symbolTable.getSuper();
+            String tipo = temp.getName();
+            if(!(Objects.equals(tipo, classe) || (Objects.equals(tipo, superClass) && parsedImports(symbolTable).contains(superClass)))){
                 reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"This is not valid for object assignment!"));
+                return 1;
             }
         }
 
