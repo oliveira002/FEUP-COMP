@@ -37,14 +37,14 @@ public class OperationSemantics extends SemanticAnalysisVisitor {
         JmmNode secOperand = jmmNode.getJmmChild(1);
         String op = jmmNode.get("op");
 
-        boolean firstValid = this.checkValidNode(firstOperand,symbolTable,"Integer",false);
-        boolean secValid = this.checkValidNode(secOperand,symbolTable,"Integer",false);
+        Type fst = this.getNodeType(firstOperand,symbolTable);
+        Type snd = this.getNodeType(secOperand,symbolTable);
 
-        if(!firstValid) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type Integer"));
+        if(!Objects.equals(fst.getName(), "int") || fst.isArray()) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type boolean"));
         }
-        if(!secValid) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Second Operand must be of type Integer"));
+        if(!Objects.equals(snd.getName(), "int") || snd.isArray()) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type boolean"));
         }
 
         return 1;
@@ -55,13 +55,13 @@ public class OperationSemantics extends SemanticAnalysisVisitor {
         JmmNode secOperand = jmmNode.getJmmChild(1);
         String op = jmmNode.get("op");
 
-        boolean firstValid = this.checkValidNode(firstOperand,symbolTable,"Boolean",false);
-        boolean secValid = this.checkValidNode(secOperand,symbolTable,"Boolean",false);
+        Type fst = this.getNodeType(firstOperand,symbolTable);
+        Type snd = this.getNodeType(secOperand,symbolTable);
 
-        if(!firstValid) {
+        if(!Objects.equals(fst.getName(), "boolean")) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type boolean"));
         }
-        if(!secValid) {
+        if(!Objects.equals(snd.getName(), "boolean")) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type boolean"));
         }
 
