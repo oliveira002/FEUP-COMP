@@ -35,6 +35,8 @@ public class ThisSemantics extends SemanticAnalysisVisitor {
         String classSuper = symbolTable.getSuper();
         JmmNode var = jmmNode.getJmmParent();
         Type varType = this.getNodeType(var,symbolTable);
+
+
         // still need to check if method is static or not
         if((!Objects.equals(varType.getName(), className) && !Objects.equals(varType.getName(), classSuper)) || varType.isArray()) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"This is not being used with correct Class Type!"));
