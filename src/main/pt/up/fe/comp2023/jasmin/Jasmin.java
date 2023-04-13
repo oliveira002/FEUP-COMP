@@ -4,10 +4,12 @@ import org.specs.comp.ollir.*;
 import pt.up.fe.comp.jmm.jasmin.JasminBackend;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.specs.util.SpecsIo;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.StringJoiner;
 
 public class Jasmin implements JasminBackend {
     private ClassUnit OllirCode;
@@ -21,7 +23,6 @@ public class Jasmin implements JasminBackend {
     public JasminResult toJasmin(OllirResult ollirResult) {
         this.OllirCode = ollirResult.getOllirClass();
 
-        File file = new File("./jasmin/" + this.OllirCode.getClassName() + ".j");
         StringBuilder jasminCode = new StringBuilder();
 
         for (String importString : this.OllirCode.getImports()) {
@@ -31,7 +32,25 @@ public class Jasmin implements JasminBackend {
 
         jasminCode.append(this.jasminHeader());
         jasminCode.append(this.jasminFields());
+        boolean hasContructor = false;
+        for (Method method : this.OllirCode.getMethods()) {
+            if(method.isConstructMethod()){
+                if(hasContructor){
+                    throw new RuntimeException("2 constructors");
+                }
+                hasContructor = true;
+            }
+        }
 
+        if(!hasContructor){
+            jasminCode.append(this.defaultConstructor());
+        }
+
+        for(Method method: this.OllirCode.getMethods()){
+            jasminCode.append(this.jasminMethodParser(method));
+        }
+
+        System.out.println(jasminCode);
         return new JasminResult(ollirResult, jasminCode.toString(), Collections.emptyList());
     }
     public String jasminHeader(){
@@ -70,18 +89,17 @@ public class Jasmin implements JasminBackend {
         else if(eType == ElementType.VOID){
             return "V";
         }
-        /*
         else if(eType == ElementType.ARRAYREF){
-            return "[" + this.getParseType(type.getArrayElementType());
+            return "[" + this.getParseType(new Type(((ArrayType) type).getArrayType()));
         }
         else if(eType == ElementType.OBJECTREF){
-            return "L" + this.importsMap.getOrDefault(type.getClassName(), type.getClassName()) + ";";
-        }*/
+            return "L" + this.importsMap.getOrDefault(eType.getClass().getName(), eType.getClass().getName()) + ";";
+        }
         else{
-            return "";
+            throw new RuntimeException("no include");
         }
     }
-    private String jasminFields() {
+    public String jasminFields() {
         StringBuilder code = new StringBuilder();
 
         for (Field field : this.OllirCode.getFields()) {
@@ -105,5 +123,100 @@ public class Jasmin implements JasminBackend {
 
         return code.toString();
     }
+    public String defaultConstructor(){
+        StringBuilder code = new StringBuilder(".method public <init>()V\n" +
+                "\taload_0\n" +
+                "\tinvokespecial " + this.defaultSuperClass + "/<init>()V\n" +
+                "\treturn\n" +
+                ".end method");
+        return code.toString();
+    }
 
+    public String jasminMethodParser(Method method){
+        String methodSpec = ".method ";
+        StringBuilder code = new StringBuilder();
+
+        if (method.getMethodAccessModifier() != AccessModifiers.DEFAULT) {
+            code.append(method.getMethodAccessModifier().toString().toLowerCase()).append(" ");
+        }
+        if (method.isStaticMethod()) {
+            code.append("static ");
+        }
+        if (method.isFinalMethod()) {
+            code.append("final ");
+        }
+        if (method.isConstructMethod()) {
+            code.append("<init>(");
+        } else {
+            code.append(method.getMethodName()).append('(');
+        }
+        code.append(this.getParams(method));
+        code.append("\t.limit stack 99\n\t.limit locals 99\n");
+        boolean hasReturnInstruction = false;
+        for (Instruction instruction : method.getInstructions()) {
+            if (instruction instanceof ReturnInstruction) {
+                hasReturnInstruction = true;
+            }
+            code.append(this.routeInstruction(instruction));
+        }
+
+        if (!hasReturnInstruction) {
+            code.append("\treturn\n");
+        }
+        code.append(".end method\n\n");
+        return code.toString();
+    }
+    public String getParams(Method method){
+        StringBuilder code = new StringBuilder();
+        for (Element param : method.getParams()) {
+            code.append(this.getParseType(param.getType()));
+        }
+        code.append(')').append(this.getParseType(method.getReturnType())).append('\n');
+
+        return code.toString();
+    }
+    public String routeInstruction(Instruction instruction){
+
+        if (instruction instanceof CallInstruction) {
+            return routeInstruction((CallInstruction) instruction);
+        }
+
+        if (instruction instanceof AssignInstruction) {
+            return routeInstruction((AssignInstruction) instruction);
+        }
+
+        if (instruction instanceof GotoInstruction) {
+            return routeInstruction((GotoInstruction) instruction);
+        }
+
+        if (instruction instanceof ReturnInstruction) {
+            return routeInstruction((ReturnInstruction) instruction);
+        }
+
+        if (instruction instanceof SingleOpInstruction) {
+            return routeInstruction((SingleOpInstruction) instruction);
+        }
+
+        if (instruction instanceof PutFieldInstruction) {
+            return routeInstruction((PutFieldInstruction) instruction);
+        }
+
+        if (instruction instanceof GetFieldInstruction) {
+            return routeInstruction((GetFieldInstruction) instruction);
+        }
+
+        if (instruction instanceof BinaryOpInstruction) {
+            return routeInstruction((BinaryOpInstruction) instruction);
+        }
+
+        if (instruction instanceof CondBranchInstruction) {
+            return routeInstruction((CondBranchInstruction) instruction);
+        }
+
+        if (instruction instanceof UnaryOpInstruction) {
+            return routeInstruction((UnaryOpInstruction) instruction);
+        }
+
+        throw new RuntimeException("no instruction");
+    }
 }
