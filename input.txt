@@ -2,7 +2,9 @@ import io;
 
 class Fac {
     public int computeFac (int num){
-        String num_aux;
+        int a = 2;
+        int b = 3;
+
         if (num < 1)
             num_aux = 23;
         else
