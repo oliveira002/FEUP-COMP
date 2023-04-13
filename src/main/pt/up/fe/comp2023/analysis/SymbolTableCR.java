@@ -12,7 +12,7 @@ import java.util.*;
 public class SymbolTableCR implements SymbolTable {
     private String className = "";
     private String classSuper = "";
-    private List<Report> reports;
+    private final List<Report> reports;
 
     private List<String> methods = new ArrayList<>();
     private List<String> imports = new ArrayList<>();
@@ -21,6 +21,9 @@ public class SymbolTableCR implements SymbolTable {
     private Map<String, List<Symbol>> parameters = new HashMap<>();
     private Map<String, List<Symbol>> localVariables = new HashMap<>();
 
+    public SymbolTableCR() {
+        this.reports = new ArrayList<>();
+    }
     @Override
     public List<String> getImports() {
         var imports = this.imports;
@@ -154,6 +157,10 @@ public class SymbolTableCR implements SymbolTable {
             return false;
         }
         return false;
+    }
+
+    public List<Report> getReports() {
+        return reports;
     }
 
     @Override

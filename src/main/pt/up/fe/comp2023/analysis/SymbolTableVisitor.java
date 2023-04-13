@@ -11,9 +11,10 @@ import java.util.Objects;
 
 public class SymbolTableVisitor extends PreorderJmmVisitor <SymbolTableCR,Integer> {
 
-    final List<Report> reports = new ArrayList<>();
+    private final List<Report> reports;
     public SymbolTableVisitor() {
         this.buildVisitor();
+        this.reports = new ArrayList<>();
     }
 
     @Override

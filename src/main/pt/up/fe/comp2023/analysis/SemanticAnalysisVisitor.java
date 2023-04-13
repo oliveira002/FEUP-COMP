@@ -55,6 +55,7 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
             case "NewIntArray" -> new Type("int",true);
             case "NewObj" -> new Type(node.get("var"),false);
             case "MethodCall" -> getMethodCallType(node,symbolTable);
+            case "This" -> new Type("this",false);
             default -> new Type("unknown",false);
         };
     }
