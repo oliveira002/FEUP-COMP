@@ -49,8 +49,8 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
             switch(node.getKind()) {
                 case "Identifier" -> this.checkValidIdentifier(node, symbolTable, expectedType, expectedArray);
                 case "Integer", "String", "Boolean" -> this.checkValidLiteral(node, expectedType,expectedArray);
-                case "BinaryOp" -> Objects.equals(expectedType, "Integer") ? true : false;
-                case "CompareOp", "LogicalOp" -> Objects.equals(expectedType, "Boolean") ? true : false;
+                case "BinaryOp" -> Objects.equals(expectedType, "Integer");
+                case "CompareOp", "LogicalOp" -> Objects.equals(expectedType, "Boolean");
                 case "NewObj" -> Objects.equals(node.get("var"),expectedType);
                 default -> false;
             };
@@ -76,12 +76,11 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
         switch(node.getKind()) {
             case "Identifier","VarAssign" -> this.getIdentifierType(node,symbolTable);
             case "Integer", "String", "Boolean" -> this.getLiteralType(node);
-            case "BinaryOp" -> new Type("int",false);
+            case "BinaryOp", "ArrayIndex" -> new Type("int",false);
             case "CompareOp", "LogicalOp" -> new Type("boolean",false);
             case "NewIntArray" -> new Type("int",true);
             case "NewObj" -> new Type(node.get("var"),false);
             case "MethodCall" -> getMethodCallType(node,symbolTable);
-            case "ArrayIndex" -> new Type("int",false);
             default -> new Type("unknown",false);
         };
     }
