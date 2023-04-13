@@ -54,19 +54,14 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
         }
 
         // parse import list
-        List <String> importList = symbolTable.getImports();
-        List <String> parsedImports = new ArrayList<>();
+        List<String> parsedImports = this.parsedImports(symbolTable);
+        String superClass = symbolTable.getSuper();
 
-        for (String s : importList) {
-            int lastDotIndex = s.lastIndexOf(".");
-            parsedImports.add(s.substring(lastDotIndex + 1));
+        if(parsedImports.isEmpty() || (!Objects.equals(superClass, "") && !parsedImports.contains(superClass))) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
         }
 
 
-        if(!parsedImports.contains(symbolTable.getSuper())) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Extended class is not imported!"));
-            return 1;
-        }
 
         return 1;
     }

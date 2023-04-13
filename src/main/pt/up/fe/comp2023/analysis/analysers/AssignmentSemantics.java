@@ -45,6 +45,15 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         JmmNode value = jmmNode.getJmmChild(0);
         Type valueType = this.getNodeType(value,symbolTable);
 
+        List<String> imports = this.parsedImports(symbolTable);
+
+        // if both types are imported
+        boolean both_imported = imports.contains(valueType.getName()) && imports.contains(varType.getName());
+
+        if(both_imported || (Objects.equals(valueType.getName(), symbolTable.getClassName()) && Objects.equals(varType.getName(), symbolTable.getSuper()))){
+            return 1;
+        }
+
         if(!Objects.equals(valueType.getName(), varType.getName()) || !Objects.equals(valueType.isArray(), varType.isArray())) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"The assignment doesn't not have the type of the variable!"));
         }

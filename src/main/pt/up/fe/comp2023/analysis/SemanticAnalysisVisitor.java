@@ -141,6 +141,18 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
         return argTypes;
     }
 
+    public List<String> parsedImports(SymbolTableCR symbolTable) {
+        List <String> importList = symbolTable.getImports();
+        List <String> parsedImports = new ArrayList<>();
+
+        for (String s : importList) {
+            int lastDotIndex = s.lastIndexOf(".");
+            parsedImports.add(s.substring(lastDotIndex + 1));
+        }
+
+        return parsedImports;
+    }
+
     public void addReport(Report rep) {
         this.reports.add(rep);
     }
