@@ -41,10 +41,10 @@ public class OperationSemantics extends SemanticAnalysisVisitor {
         Type snd = this.getNodeType(secOperand,symbolTable);
 
         if(!Objects.equals(fst.getName(), "int") || fst.isArray()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type boolean"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type integer"));
         }
         if(!Objects.equals(snd.getName(), "int") || snd.isArray()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type boolean"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type integer"));
         }
 
         return 1;

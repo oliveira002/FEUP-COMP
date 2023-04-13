@@ -37,7 +37,6 @@ public class ArrayAccess extends SemanticAnalysisVisitor {
         Type leftType = getNodeType(left,symbolTable);
         Type rightType = getNodeType(right,symbolTable);
 
-
         if(!Objects.equals(leftType, new Type("int", true))) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Array Access is not being done over an array!"));
         }
@@ -45,6 +44,7 @@ public class ArrayAccess extends SemanticAnalysisVisitor {
         if(!Objects.equals(rightType, new Type("int", false))) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Array Access is not being done with an Integer!"));
         }
+        // a[10]
         return 1;
     }
 
