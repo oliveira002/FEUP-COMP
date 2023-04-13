@@ -1,7 +1,6 @@
 package pt.up.fe.comp2023.jasmin;
 
-import org.specs.comp.ollir.AccessModifiers;
-import org.specs.comp.ollir.ClassUnit;
+import org.specs.comp.ollir.*;
 import pt.up.fe.comp.jmm.jasmin.JasminBackend;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
@@ -31,6 +30,7 @@ public class Jasmin implements JasminBackend {
         }
 
         jasminCode.append(this.jasminHeader());
+        jasminCode.append(this.jasminFields());
 
         return new JasminResult(ollirResult, jasminCode.toString(), Collections.emptyList());
     }
@@ -52,6 +52,56 @@ public class Jasmin implements JasminBackend {
         code.append(superSpec + defaultSuperClass);
 
         code.append("\n\n");
+
+        return code.toString();
+    }
+
+    public String getParseType(Type type) {
+        ElementType eType = type.getTypeOfElement();
+        if(eType == ElementType.INT32){
+            return "I";
+        }
+        else if(eType == ElementType.BOOLEAN){
+            return "Z";
+        }
+        else if(eType == ElementType.STRING){
+            return "Ljava/lang/String;";
+        }
+        else if(eType == ElementType.VOID){
+            return "V";
+        }
+        /*
+        else if(eType == ElementType.ARRAYREF){
+            return "[" + this.getParseType(type.getArrayElementType());
+        }
+        else if(eType == ElementType.OBJECTREF){
+            return "L" + this.importsMap.getOrDefault(type.getClassName(), type.getClassName()) + ";";
+        }*/
+        else{
+            return "";
+        }
+    }
+    private String jasminFields() {
+        StringBuilder code = new StringBuilder();
+
+        for (Field field : this.OllirCode.getFields()) {
+            code.append(".field ");
+
+            if (field.getFieldAccessModifier() != AccessModifiers.DEFAULT) {
+                code.append(field.getFieldAccessModifier().toString().toLowerCase()).append(" ");
+            }
+            if (field.isStaticField()) {
+                code.append("static ");
+            }
+            if (field.isFinalField()) {
+                code.append("final ");
+            }
+
+            code.append(field.getFieldName()).append(" ");
+            code.append(this.getParseType(field.getFieldType()));
+
+            code.append('\n');
+        }
 
         return code.toString();
     }
