@@ -58,6 +58,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
                 reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"This is not valid for object assignment!"));
                 return 1;
             }
+            return 1;
         }
 
         if(Objects.equals(value.getKind(), "MethodCall") && !symbolTable.methodExists(value.get("var"))) {
