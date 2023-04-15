@@ -134,6 +134,6 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
     }
 
     public List<Report> getReports() {
-        return this.getReports();
+        return this.reports;
     }
 }
