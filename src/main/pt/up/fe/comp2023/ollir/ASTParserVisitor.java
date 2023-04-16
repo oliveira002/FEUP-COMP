@@ -4,8 +4,9 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
-import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp2023.SymbolTableCR;
+
+import java.util.List;
 
 public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
     private final SymbolTableCR symbolTable;
@@ -74,7 +75,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
             boolean is_array = field_type.isArray();
             String type = Utils.toOllirType(field_name, is_array);
 
-            ollirCode.append("\t".repeat(indent))
+            ollirCode.append("\t".repeat(this.indent))
                      .append(".field ")
                      .append(field.getName())
                      .append(type)
@@ -83,15 +84,14 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
         ollirCode.append("\n");
 
         //Class constructor
-        ollirCode.append("\t".repeat(indent))
+        ollirCode.append("\t".repeat(this.indent))
                  .append(".construct ")
                  .append(symbolTable.getClassName())
                  .append("().V {\n")
-                 .append("\t".repeat(++indent))
+                 .append("\t".repeat(++this.indent))
                  .append("invokespecial(this, \"<init>\").V;\n")
-                 .append("\t".repeat(--indent))
-                 .append("}\n\n");
-        indent--;
+                 .append("\t".repeat(--this.indent))
+                 .append("}\n");
 
         //Visit children: Only need to visit method declarations because fields already dealt with
         for(JmmNode child : jmmNode.getChildren()){
@@ -115,7 +115,53 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
 
     private Void methodDeclarationVisit(JmmNode jmmNode, StringBuilder ollirCode){
 
-        this.indent++;
+        String method = jmmNode.get("name");
+        Type return_type = symbolTable.getReturnType(method);
+
+        ollirCode.append("\n")
+                 .append("\t".repeat(indent))
+                 .append(".method ")
+                 .append(jmmNode.get("modifier"))
+                 .append(method.equals("main")? " static main(" : " %s(".formatted(method));
+
+        List<Symbol> params = symbolTable.getParameters(method);
+
+        for(Symbol param : params) {
+            String param_name = param.getName();
+            boolean is_array = param.getType().isArray();
+            String param_type = Utils.toOllirType(param.getType().getName(), is_array);
+
+            ollirCode.append(param_name)
+                    .append(param_type)
+                    .append(", ");
+        }
+
+        //Remove trailing ", "
+        if(!params.isEmpty())
+            ollirCode.deleteCharAt(ollirCode.length() - 1).deleteCharAt(ollirCode.length() - 1);
+
+        ollirCode.append(")")
+                 .append(Utils.toOllirType(return_type.getName(), return_type.isArray()))
+                 .append(" {\n");
+
+        //Visit children: Only need to visit local var declarations, statements because types already dealt with and expressions are dealt after
+        for(JmmNode child : jmmNode.getChildren()){
+            if(!child.getKind().equals(ASTDict.VAR_TYPE) || !child.getKind().equals(ASTDict.EXPRESSION))
+                visit(child, ollirCode);
+        }
+
+        //Return statement
+        ollirCode.append("ret")
+                  .append(Utils.toOllirType(return_type.getName(), return_type.isArray()));
+
+        //Visit children: Only need to visit expressions, because types, local var declarations and statements already dealt with
+        for(JmmNode child : jmmNode.getChildren()){
+            if(child.getKind().equals(ASTDict.EXPRESSION))
+                visit(child, ollirCode);
+        }
+
+        ollirCode.append("\t".repeat(indent))
+                 .append("}\n");
         return null;
     }
 

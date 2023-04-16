@@ -77,7 +77,7 @@ public class SymbolTableCR implements SymbolTable {
             localVariables.put(methodName,curr_variables);
         }
         else {
-            List<Symbol> nova = new ArrayList();
+            List<Symbol> nova = new ArrayList<>();
             nova.add(var);
             localVariables.put(methodName, nova);
         }
