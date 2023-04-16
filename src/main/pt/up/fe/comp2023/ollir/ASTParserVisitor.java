@@ -1,13 +1,16 @@
 package pt.up.fe.comp2023.ollir;
 
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
+import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp2023.SymbolTableCR;
-import pt.up.fe.comp2023.ollir.ASTDict;
 
-public class ASTParserVisitor extends PreorderJmmVisitor<StringBuilder,Integer> {
+public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
     private final SymbolTableCR symbolTable;
+    private int indent = 0;
+
     public ASTParserVisitor(SymbolTableCR symbolTable){
         this.symbolTable = symbolTable;
         this.buildVisitor();
@@ -15,9 +18,11 @@ public class ASTParserVisitor extends PreorderJmmVisitor<StringBuilder,Integer> 
     @Override
     protected void buildVisitor() {
 
-        addVisit(ASTDict.IMPORT_DECL, this::importDeclarationVisit);
+        setDefaultVisit(this::defaultVisit);
+
         addVisit(ASTDict.CLASS_DECL,this::classDeclarationVisit);
-        addVisit(ASTDict.VAR_DECL, this::varDeclarationVisit);
+        addVisit(ASTDict.VAR_CREATION, this::varCreationVisit);
+        addVisit(ASTDict.VAR_CREATION_ASSIGN, this::varCreationAssignVisit);
         addVisit(ASTDict.METHOD_DECL, this::methodDeclarationVisit);
         addVisit(ASTDict.VAR_TYPE, this::varTypeVisit);
         addVisit(ASTDict.THEN_STATEMENT, this::thenStatementVisit);
@@ -32,88 +37,144 @@ public class ASTParserVisitor extends PreorderJmmVisitor<StringBuilder,Integer> 
         addVisit(ASTDict.ARRAY_INDEX, this::arrayIndexVisit);
         addVisit(ASTDict.ARRAY_LENGTH, this::arrayLengthVisit);
         addVisit(ASTDict.METHOD_CALL, this::methodCallVisit);
-        addVisit(ASTDict.INTEGER, this::integerVisit);
+        addVisit(ASTDict.INTEGER, this::VoidVisit);
         addVisit(ASTDict.IDENTIFIER, this::identifierVisit);
         addVisit(ASTDict.NEW_INT_ARRAY, this::newIntArrayVisit);
         addVisit(ASTDict.NEW_OBJECT, this::newObjectVisit);
         addVisit(ASTDict.BOOL, this::booleanVisit);
         addVisit(ASTDict.THIS, this::thisVisit);
 
-        setDefaultVisit(this::defaultVisit);
     }
 
-    private Integer defaultVisit(JmmNode jmmNode, StringBuilder ollirCode) {
+    private Void defaultVisit(JmmNode jmmNode, StringBuilder ollirCode) {
+        for(JmmNode child : jmmNode.getChildren()){
+            if(child.getKind().equals(ASTDict.CLASS_DECL))
+                visit(child, ollirCode);
+        }
         return null;
     }
 
-    private Integer importDeclarationVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void classDeclarationVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+        //Imports
+        for(String importModule : this.symbolTable.getImports())
+            ollirCode.append("import %s;\n".formatted(importModule));
+        ollirCode.append("\n");
+
+        //Class declaration with "extends"
+        ollirCode.append(symbolTable.getClassName()).append(symbolTable.getSuper().equals("") ? " {" : " extends %s {\n".formatted(symbolTable.getSuper()));
+        this.indent++;
+
+        //Field declaration
+        for(Symbol field : symbolTable.getFields()){
+            Type field_type = field.getType();
+            String field_name = field_type.getName();
+            boolean is_array = field_type.isArray();
+            String type = Utils.toOllirType(field_name, is_array);
+            ollirCode.append("\t".repeat(indent)).append(".field ").append(field.getName()).append(type).append(";\n");
+        }
+
+        //Visit children: Only need to visit method declarations because fields already dealt with
+        for(JmmNode child : jmmNode.getChildren()){
+            if(child.getKind().equals(ASTDict.METHOD_DECL))
+                visit(child, ollirCode);
+        }
+
+        ollirCode.append("}");
+
         return null;
     }
-    private Integer classDeclarationVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    //A var creation only needs to be converted to ollir if it's a field. If it's a local var it's converted to ollir only when a value is assigned
+    private Void varCreationVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer varDeclarationVisit(JmmNode jmmNode, StringBuilder ollirCode){
+    
+    private Void varCreationAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer methodDeclarationVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void methodDeclarationVisit(JmmNode jmmNode, StringBuilder ollirCode){
+        this.indent++;
         return null;
     }
-    private Integer varTypeVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void varTypeVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer thenStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void thenStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer ifStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void ifStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer expressionStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void expressionStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer varAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void varAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer arrayAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void arrayAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer parenthesesVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void parenthesesVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer notOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void notOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer binaryOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void binaryOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer comparisonOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void comparisonOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer arrayIndexVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void arrayIndexVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer arrayLengthVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void arrayLengthVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer methodCallVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void methodCallVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer integerVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void VoidVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer identifierVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void identifierVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer newIntArrayVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void newIntArrayVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer newObjectVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void newObjectVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer booleanVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void booleanVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
-    private Integer thisVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    private Void thisVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
+
 
 }

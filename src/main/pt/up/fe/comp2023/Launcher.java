@@ -38,6 +38,7 @@ public class Launcher {
         SimpleParser parser = new SimpleParser();
 
         // Parse stage
+        System.out.println("\n!--AST--!");
         JmmParserResult parserResult = parser.parse(code, config);
 
         // Check if there are parsing errors
@@ -52,12 +53,12 @@ public class Launcher {
         // Check if there are analysis errors
         TestUtils.noErrors(analysisResult.getReports());
         System.out.println(parserResult.getRootNode().toTree());
-        System.out.println("Symbol table:\n"+analysisResult.getSymbolTable());
+        System.out.println("!--Symbol table--!\n"+analysisResult.getSymbolTable());
 
         //Ollir generation
         ASTParser astParser = new ASTParser();
         OllirResult ollir = astParser.toOllir(analysisResult);
-        System.out.println(ollir.getOllirCode());
+        System.out.println("!--Ollir--!\n"+ollir.getOllirCode());
     }
 
     private static Map<String, String> parseArgs(String[] args) {
