@@ -60,14 +60,17 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         }
 
         if(Objects.equals(valueType.getName(),"this")) {
-            JmmNode var = value.getJmmParent();
-            Type temp = this.getNodeType(var,symbolTable);
             String classe = symbolTable.getClassName();
             String superClass = symbolTable.getSuper();
-            String tipo = temp.getName();
-            if(!(Objects.equals(tipo, classe) || (Objects.equals(tipo, superClass) && parsedImports(symbolTable).contains(superClass)))){
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"This is not valid for object assignment!"));
+            String tipo = varType.getName();
+            if(Objects.equals(tipo,classe)) {
                 return 1;
+            }
+            else if(Objects.equals(tipo,superClass)) {
+                return 1;
+            }
+            else {
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable type for this is wrong!"));
             }
             return 1;
         }
