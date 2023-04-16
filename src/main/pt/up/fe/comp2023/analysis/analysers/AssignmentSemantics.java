@@ -50,32 +50,6 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
             return 1;
         }
 
-        if(Objects.equals(valueType.getName(),"this")) {
-            if(Objects.equals(varType.getName(), classe)) {
-                return 1;
-            }
-            else if(Objects.equals(varType.getName(), superClass) && symbolTable.getImports().contains(superClass)) {
-                return 1;
-            }
-            else {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
-            }
-            return 1;
-        }
-
-        if(Objects.equals(value.getKind(), "MethodCall")) {
-            String methodCalled = value.get("var");
-            if(symbolTable.getMethods().contains(methodCalled)) {
-                Type returnType = symbolTable.getReturnType(methodCalled);
-                if(!Objects.equals(varType.getName(), returnType.getName())) {
-                    reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Method doesn't return the correct type!"));
-                    return 1;
-                }
-            }
-            else {
-                return 1;
-            }
-        }
 
         if(parsedImports(symbolTable).contains(varType.getName()) && Objects.equals(symbolTable.getSuper(), varType.getName()) && (Objects.equals(valueType.getName(), symbolTable.getClassName()))) {
             return 1;
