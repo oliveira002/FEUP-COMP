@@ -34,8 +34,8 @@ classDeclaration
     ;
 
 varDeclaration
-    : type var=ID ';'
-    | type var=ID '=' expression ';'
+    : type var=ID ';' #VarCreation
+    | type var=ID '=' expression ';' #VarCreationWithAssign
     ;
 
 methodDeclaration
@@ -46,7 +46,7 @@ methodDeclaration
 type locals[boolean isArray = false, boolean isClass = false]
     : value='int' ('['']' {$isArray=true;})?
     | value='boolean'
-    | value='String' ('['']' {$isArray=true;})?
+    | value='String'
     | value='int'
     | value=ID
     ;

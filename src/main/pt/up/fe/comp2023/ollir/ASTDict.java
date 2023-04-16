@@ -3,7 +3,8 @@ package pt.up.fe.comp2023.ollir;
 public class ASTDict {
     public static final String IMPORT_DECL = "ImportDeclaration";
     public static final String CLASS_DECL = "ClassDeclaration";
-    public static final String VAR_DECL = "VarDeclaration";
+    public static final String VAR_CREATION = "VarCreation";
+    public static final String VAR_CREATION_ASSIGN = "VarCreationWithAssign";
     public static final String METHOD_DECL = "MethodDeclaration";
     public static final String VAR_TYPE = "Type";
     public static final String STATEMENT = "Statement";
