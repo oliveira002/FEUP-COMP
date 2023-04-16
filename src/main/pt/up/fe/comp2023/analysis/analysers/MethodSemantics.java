@@ -141,3 +141,4 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
         return reports;
     }
 }
+
