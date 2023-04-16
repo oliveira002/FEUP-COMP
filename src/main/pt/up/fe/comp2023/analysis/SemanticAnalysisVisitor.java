@@ -76,10 +76,11 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
     }
 
     public Type getMethodCallType(JmmNode node, SymbolTableCR symbolTable) {
-        JmmNode parent= node.getJmmParent();
-
-        String methodName = getMethodName(parent);
-
+        String methodName = node.get("var");
+        Type returned = symbolTable.getReturnType(methodName);
+        if(Objects.equals(returned.getName(), "void")) {
+            return new Type("inexistent",false);
+        }
         return symbolTable.getReturnType(methodName);
     }
 
