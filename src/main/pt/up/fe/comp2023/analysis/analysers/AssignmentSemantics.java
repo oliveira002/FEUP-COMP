@@ -75,15 +75,6 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
             return 1;
         }
 
-
-        if(parsedImports(symbolTable).contains(varType.getName()) && Objects.equals(symbolTable.getSuper(), varType.getName()) && (Objects.equals(valueType.getName(), symbolTable.getClassName()))) {
-            return 1;
-        }
-
-        if(parsedImports(symbolTable).contains(varType.getName()) && parsedImports(symbolTable).contains(valueType.getName())) {
-            return 1;
-        }
-
         if(!Objects.equals(valueType.getName(), varType.getName()) || valueType.isArray() != varType.isArray()) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Types in the assignment don't match!"));
         }
