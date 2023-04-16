@@ -42,23 +42,6 @@ public class ThisSemantics extends SemanticAnalysisVisitor {
             return 1;
         }
 
-        if(Objects.equals(varType.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
-            return 1;
-        }
-
-
-        if(Objects.equals(jmmNode.getJmmParent().getKind(), "MethodCall")) {
-            String method = jmmNode.getJmmParent().get("var");
-            if(symbolTable.methodExists(method)) {
-                return 1;
-            }
-        }
-
-
-        if(!((Objects.equals(className, varType.getName())) || (Objects.equals(classSuper, varType.getName()) && parsedImports(symbolTable).contains(classSuper)))) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Cannot use this with this object type!"));
-        }
         return 1;
     }
 
