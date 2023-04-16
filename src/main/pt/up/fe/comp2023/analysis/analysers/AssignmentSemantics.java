@@ -60,7 +60,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         }
 
         if(!Objects.equals(valueType.getName(), varType.getName()) || valueType.isArray() != varType.isArray()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Types in the assignment don't match!"));
+            //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Types in the assignment don't match!"));
         }
 
         return 1;
