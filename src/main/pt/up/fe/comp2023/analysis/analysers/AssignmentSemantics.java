@@ -51,12 +51,14 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         }
 
         if(Objects.equals(valueType.getName(),"this")) {
-            JmmNode var = value.getJmmParent();
-            Type temp = this.getNodeType(var,symbolTable);
-            String tipo = temp.getName();
-            if(!(Objects.equals(tipo, classe) || (Objects.equals(tipo, superClass) && parsedImports(symbolTable).contains(superClass)))){
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"This is not valid for object assignment!"));
+            if(Objects.equals(varType.getName(), classe)) {
                 return 1;
+            }
+            else if(Objects.equals(varType.getName(), superClass) && symbolTable.getImports().contains(superClass)) {
+                return 1;
+            }
+            else {
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
             }
             return 1;
         }
@@ -65,7 +67,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
             String methodCalled = value.get("var");
             if(symbolTable.getMethods().contains(methodCalled)) {
                 Type returnType = symbolTable.getReturnType(methodCalled);
-                if(!Objects.equals(varType.getName(), returnType.getName()) || varType.isArray() != returnType.isArray()) {
+                if(!Objects.equals(varType.getName(), returnType.getName())) {
                     reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Method doesn't return the correct type!"));
                     return 1;
                 }
