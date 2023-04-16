@@ -48,6 +48,17 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
             return 1;
         }
 
+        if(Objects.equals(methodName, "main")) {
+            String temp = "";
+            if(Objects.equals(value.getKind(), "Identifier")) {
+                temp = value.get("var");
+            }
+            if(symbolTable.fieldExists(varName) || symbolTable.fieldExists(temp)) {
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Field in static!"));
+                return 1;
+            }
+        }
+
         if(Objects.equals(value.getKind(), "MethodCall")) {
             if(Objects.equals(valueType.getName(), "inexistent")) {
                 return 1;
