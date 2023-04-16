@@ -37,6 +37,8 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         Type varType = this.getVariableType(varName,methodName,symbolTable);
         JmmNode value = jmmNode.getJmmChild(0);
         Type valueType = this.getNodeType(value,symbolTable);
+        String classe = symbolTable.getClassName();
+        String superClass = symbolTable.getSuper();
 
         if(Objects.equals(varType.getName(), "unknown")) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
@@ -51,8 +53,6 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         if(Objects.equals(valueType.getName(),"this")) {
             JmmNode var = value.getJmmParent();
             Type temp = this.getNodeType(var,symbolTable);
-            String classe = symbolTable.getClassName();
-            String superClass = symbolTable.getSuper();
             String tipo = temp.getName();
             if(!(Objects.equals(tipo, classe) || (Objects.equals(tipo, superClass) && parsedImports(symbolTable).contains(superClass)))){
                 reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"This is not valid for object assignment!"));
@@ -61,8 +61,18 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
             return 1;
         }
 
-        if(Objects.equals(value.getKind(), "MethodCall") && !symbolTable.methodExists(value.get("var"))) {
-            return 1;
+        if(Objects.equals(value.getKind(), "MethodCall")) {
+            String methodCalled = value.get("var");
+            if(symbolTable.getMethods().contains(methodCalled)) {
+                Type returnType = symbolTable.getReturnType(methodCalled);
+                if(!Objects.equals(varType.getName(), returnType.getName()) || varType.isArray() != returnType.isArray()) {
+                    reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Method doesn't return the correct type!"));
+                    return 1;
+                }
+            }
+            else {
+                return 1;
+            }
         }
 
         if(parsedImports(symbolTable).contains(varType.getName()) && Objects.equals(symbolTable.getSuper(), varType.getName()) && (Objects.equals(valueType.getName(), symbolTable.getClassName()))) {
