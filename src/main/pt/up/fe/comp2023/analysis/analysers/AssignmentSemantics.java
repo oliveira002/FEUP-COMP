@@ -71,6 +71,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         String methodName = jmmNode.getJmmParent().get("name");
         Type varType = this.getVariableType(varName,methodName,symbolTable);
 
+        /*
         if(Objects.equals(varType.getName(), "unknown")) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
             return 1;
@@ -108,7 +109,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Value isn't an integer!"));
             return 1;
         }
-
+        */
         return 1;
     }
 
