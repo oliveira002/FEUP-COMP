@@ -37,10 +37,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         Type varType = this.getVariableType(varName,methodName,symbolTable);
         JmmNode value = jmmNode.getJmmChild(0);
         Type valueType = this.getNodeType(value,symbolTable);
-        String classe = symbolTable.getClassName();
-        String superClass = symbolTable.getSuper();
 
-        /*
         if(Objects.equals(varType.getName(), "unknown")) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
             return 1;
@@ -49,8 +46,31 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         if(Objects.equals(valueType.getName(), "unknown")) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
             return 1;
-        }*/
+        }
 
+        if(Objects.equals(valueType.getName(),"this")) {
+            JmmNode var = value.getJmmParent();
+            Type temp = this.getNodeType(var,symbolTable);
+            String classe = symbolTable.getClassName();
+            String superClass = symbolTable.getSuper();
+            String tipo = temp.getName();
+            if(!(Objects.equals(tipo, classe) || (Objects.equals(tipo, superClass) && parsedImports(symbolTable).contains(superClass)))){
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"This is not valid for object assignment!"));
+                return 1;
+            }
+            return 1;
+        }
+
+        if(Objects.equals(value.getKind(), "MethodCall")) {
+            String methodCalled = value.get("var");
+            if(symbolTable.getMethods().contains(methodCalled)) {
+                Type returnType = symbolTable.getReturnType(methodCalled);
+                if(!Objects.equals(varType.getName(), returnType.getName()) || varType.isArray() != returnType.isArray()) {
+                    reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"This is not valid for object assignment!"));
+                    return 1;
+                }
+            }
+        }
 
         if(parsedImports(symbolTable).contains(varType.getName()) && Objects.equals(symbolTable.getSuper(), varType.getName()) && (Objects.equals(valueType.getName(), symbolTable.getClassName()))) {
             return 1;
@@ -60,10 +80,9 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
             return 1;
         }
 
-        /*
         if(!Objects.equals(valueType.getName(), varType.getName()) || valueType.isArray() != varType.isArray()) {
-            //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Types in the assignment don't match!"));
-        }*/
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Types in the assignment don't match!"));
+        }
 
         return 1;
     }
@@ -73,7 +92,6 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         String methodName = jmmNode.getJmmParent().get("name");
         Type varType = this.getVariableType(varName,methodName,symbolTable);
 
-        /*
         if(Objects.equals(varType.getName(), "unknown")) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
             return 1;
@@ -111,7 +129,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Value isn't an integer!"));
             return 1;
         }
-        */
+
         return 1;
     }
 
