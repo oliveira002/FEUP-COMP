@@ -45,10 +45,6 @@ public class ReturnSemantics extends SemanticAnalysisVisitor {
                 return 1;
             }
 
-            if(Objects.equals(returnExp.getKind(), "MethodCall")) {
-                methodName = returnExp.get("var");
-            }
-
             Type originalType = symbolTable.getReturnType(methodName);
             if(!Objects.equals(returnedType.getName(), originalType.getName()) || returnedType.isArray() != originalType.isArray()) {
                 reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Return type doesn't  match with what is being returned!"));

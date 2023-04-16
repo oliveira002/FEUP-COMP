@@ -56,7 +56,22 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
                 reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
                 return 1;
             }
+            return 1;
         }
+
+        if(Objects.equals(valueType.getName(),"this")) {
+            JmmNode var = value.getJmmParent();
+            Type temp = this.getNodeType(var,symbolTable);
+            String classe = symbolTable.getClassName();
+            String superClass = symbolTable.getSuper();
+            String tipo = temp.getName();
+            if(!(Objects.equals(tipo, classe) || (Objects.equals(tipo, superClass) && parsedImports(symbolTable).contains(superClass)))){
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"This is not valid for object assignment!"));
+                return 1;
+            }
+            return 1;
+        }
+
 
         if(parsedImports(symbolTable).contains(varType.getName()) && Objects.equals(symbolTable.getSuper(), varType.getName()) && (Objects.equals(valueType.getName(), symbolTable.getClassName()))) {
             return 1;
