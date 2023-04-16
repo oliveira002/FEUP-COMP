@@ -35,12 +35,11 @@ classDeclaration
 
 varDeclaration
     : type var=ID ';' #VarCreation
-    | type var=ID '=' expression ';' #VarCreationWithAssign
     ;
 
 methodDeclaration
-    : (modifier = 'public')? type name=ID '(' (type param+=ID (',' type param+=ID )*)? ')' '{' (varDeclaration)* (statement)* 'return' expression ';' '}'
-    | (modifier = 'public')? 'static' 'void' name='main' '(' type '[' ']' param+=ID ')' '{' (varDeclaration)* (statement)* '}'
+    : (modifier='public')? type name=ID '(' (type param+=ID (',' type param+=ID )*)? ')' '{' (varDeclaration)* (statement)* 'return' expression ';' '}'
+    | (modifier='public')? 'static' 'void' name='main' '(' type '[' ']' param+=ID ')' '{' (varDeclaration)* (statement)* '}'
     ;
 
 type locals[boolean isArray = false, boolean isClass = false]
@@ -53,8 +52,8 @@ type locals[boolean isArray = false, boolean isClass = false]
 
 statement
     : '{' (statement)* '}' #ThenStmt
-    | 'if' '(' expression ')' statement 'else' statement #ConditionStmt
-    | 'while' '(' expression ')' statement #ConditionStmt
+    | conditional='if' '(' expression ')' statement 'else' statement #ConditionStmt
+    | conditional='while' '(' expression ')' statement #ConditionStmt
     | expression ';' #ExpStmt
     | var=ID '=' expression ';' #VarAssign
     | var=ID '[' expression ']' '=' expression ';' #ArrayAssign
