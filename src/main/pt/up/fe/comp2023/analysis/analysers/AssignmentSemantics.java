@@ -66,7 +66,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
             if(Objects.equals(tipo,classe)) {
                 return 1;
             }
-            else if(Objects.equals(tipo,superClass)) {
+            else if(Objects.equals(tipo,superClass) && parsedImports(symbolTable).contains(superClass)) {
                 return 1;
             }
             else {

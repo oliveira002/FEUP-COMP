@@ -68,7 +68,16 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
             return 1;
         }
 
+
         List<String> parsedImports = this.parsedImports(symbolTable);
+
+        if(Objects.equals(objType.getName(), "this")) {
+            if(!parsedImports.contains(superClass)) {
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class extended is not in imports!"));
+                return 1;
+            }
+            return 1;
+        }
 
         if(Objects.equals(objType.getName(), className)) {
             if(!(!Objects.equals(superClass, "") && parsedImports.contains(superClass))) {
