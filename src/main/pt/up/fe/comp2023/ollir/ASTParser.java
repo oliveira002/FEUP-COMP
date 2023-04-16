@@ -17,7 +17,6 @@ public class ASTParser implements JmmOptimization {
         StringBuilder ollirCode = new StringBuilder();
 
         visitor.visit(root,ollirCode);
-        System.out.println("Ollir: "+ollirCode);
 
         //OllirResult has 3 constructors: in the second there's no access to the symbol table.
         //The third constructor, this one, does the same as the first but programmatically.

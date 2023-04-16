@@ -105,4 +105,12 @@ public class SymbolTableCR implements SymbolTable {
     public String toString() {
         return print();
     }
+
+    public String getFieldType(String field) {
+        for(Symbol aux : fields){
+            if(Objects.equals(aux.getName(), field))
+                return aux.getType().getName();
+        }
+        return null;
+    }
 }
