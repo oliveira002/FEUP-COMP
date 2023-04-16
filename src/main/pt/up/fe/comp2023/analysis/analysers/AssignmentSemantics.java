@@ -40,6 +40,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         String classe = symbolTable.getClassName();
         String superClass = symbolTable.getSuper();
 
+        /*
         if(Objects.equals(varType.getName(), "unknown")) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
             return 1;
@@ -48,7 +49,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         if(Objects.equals(valueType.getName(), "unknown")) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
             return 1;
-        }
+        }*/
 
 
         if(parsedImports(symbolTable).contains(varType.getName()) && Objects.equals(symbolTable.getSuper(), varType.getName()) && (Objects.equals(valueType.getName(), symbolTable.getClassName()))) {
@@ -59,9 +60,10 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
             return 1;
         }
 
+        /*
         if(!Objects.equals(valueType.getName(), varType.getName()) || valueType.isArray() != varType.isArray()) {
             //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Types in the assignment don't match!"));
-        }
+        }*/
 
         return 1;
     }
