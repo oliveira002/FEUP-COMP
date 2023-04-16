@@ -63,7 +63,8 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
         ollirCode.append("\n");
 
         //Class declaration with "extends"
-        ollirCode.append(symbolTable.getClassName()).append(symbolTable.getSuper().equals("") ? " {" : " extends %s {\n".formatted(symbolTable.getSuper()));
+        ollirCode.append(symbolTable.getClassName())
+                 .append(symbolTable.getSuper().equals("") ? " {" : " extends %s {\n".formatted(symbolTable.getSuper()));
         this.indent++;
 
         //Field declaration
@@ -72,8 +73,25 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
             String field_name = field_type.getName();
             boolean is_array = field_type.isArray();
             String type = Utils.toOllirType(field_name, is_array);
-            ollirCode.append("\t".repeat(indent)).append(".field ").append(field.getName()).append(type).append(";\n");
+
+            ollirCode.append("\t".repeat(indent))
+                     .append(".field ")
+                     .append(field.getName())
+                     .append(type)
+                     .append(";\n");
         }
+        ollirCode.append("\n");
+
+        //Class constructor
+        ollirCode.append("\t".repeat(indent))
+                 .append(".construct ")
+                 .append(symbolTable.getClassName())
+                 .append("().V {\n")
+                 .append("\t".repeat(++indent))
+                 .append("invokespecial(this, \"<init>\").V;\n")
+                 .append("\t".repeat(--indent))
+                 .append("}\n\n");
+        indent--;
 
         //Visit children: Only need to visit method declarations because fields already dealt with
         for(JmmNode child : jmmNode.getChildren()){
@@ -96,6 +114,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
     }
 
     private Void methodDeclarationVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
         this.indent++;
         return null;
     }
