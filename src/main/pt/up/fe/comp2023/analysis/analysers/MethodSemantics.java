@@ -62,6 +62,7 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
         JmmNode obj = jmmNode.getJmmChild(0);
         Type objType = this.getNodeType(obj,symbolTable);
 
+        /*
         if(obj.hasAttribute("var")) {
             if(parsedImports(symbolTable).contains(obj.get("var"))) {
                 return 1;
@@ -97,11 +98,12 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
                 return 1;
             }
         }
-
+        */
         return 1;
     }
 
     public Integer methodExists(JmmNode jmmNode, SymbolTableCR symbolTable) {
+        /*
         String methodName = jmmNode.get("var");
         String className = symbolTable.getClassName();
 
@@ -148,7 +150,7 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
                 return 1;
             }
         }
-
+        */
         return 1;
     }
 
