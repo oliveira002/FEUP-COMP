@@ -109,10 +109,12 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
         Type objType = this.getNodeType(obj,symbolTable);
 
         // invalid type
-        if(Objects.equals(objType.getName(), "unknown") || (!Objects.equals(objType.getName(), className) && !Objects.equals(objType.getName(), "this")) ) {
+        if(Objects.equals(objType.getName(), "unknown")) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
             return 1;
         }
+
+
 
         int num_children = jmmNode.getNumChildren();
         List<JmmNode> args = jmmNode.getChildren().subList(1,num_children);
