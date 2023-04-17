@@ -62,8 +62,8 @@ statement
 
 expression
     : value=('true' | 'false') #Boolean
-    | var=ID #Identifier
     | value=INTEGER #Integer
+    | var=ID #Identifier
     | 'this' #This
     | START_PAR expression END_PAR #Parentheses
     | expression '[' expression ']' #ArrayIndex
