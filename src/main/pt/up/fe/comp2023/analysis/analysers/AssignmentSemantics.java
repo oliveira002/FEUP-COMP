@@ -64,7 +64,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
                 return 1;
             }
             if(!Objects.equals(valueType.getName(), varType.getName())) {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
+                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
                 return 1;
             }
             return 1;
@@ -81,9 +81,9 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
                 return 1;
             }
             else {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable type for this is wrong!"));
+                return 1;
+                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable type for this is wrong!"));
             }
-            return 1;
         }
 
 
