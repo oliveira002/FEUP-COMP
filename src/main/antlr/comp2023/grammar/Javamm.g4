@@ -61,19 +61,19 @@ statement
     ;
 
 expression
-    : START_PAR expression END_PAR #Parentheses
-    | '!' expression #Not
+    : value=('true' | 'false') #Boolean
+    | var=ID #Identifier
+    | value=INTEGER #Integer
+    | 'this' #This
+    | START_PAR expression END_PAR #Parentheses
     | expression '[' expression ']' #ArrayIndex
+    | expression '.' var=ID '(' (expression (',' expression)*)? ')' #MethodCall
+    | expression '.' 'length' #ArrayLength
+    | 'new' var=ID '('')' #NewObj
+    | 'new' 'int' '[' expression ']' #NewIntArray
+    | '!' expression #Not
     | expression op=(MULT | DIV) expression #BinaryOp
     | expression op=(SUM | DIFFERENCE) expression #BinaryOp
     | expression op=LESS expression #CompareOp
     | expression op=(LOGICAL_AND | LOGICAL_OR) expression #LogicalOp
-    | expression '.' 'length' #ArrayLength
-    | expression '.' var=ID '(' (expression (',' expression)*)? ')' #MethodCall
-    | value=INTEGER #Integer
-    | var=ID #Identifier
-    | 'new' 'int' '[' expression ']' #NewIntArray
-    | 'new' var=ID '('')' #NewObj
-    | value=('true' | 'false') #Boolean
-    | 'this' #This
     ;
