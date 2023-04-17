@@ -87,13 +87,13 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
 
         if(Objects.equals(objType.getName(), className)) {
             if(!(!Objects.equals(superClass, "") && parsedImports.contains(superClass))) {
-                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class extended is not in imports or doesn't extend anything!"));
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class extended is not in imports or doesn't extend anything!"));
                 return 1;
             }
         }
         else {
             if(!parsedImports.contains(objType.getName())) {
-                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class is not imported!"));
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class is not imported!"));
                 return 1;
             }
         }
