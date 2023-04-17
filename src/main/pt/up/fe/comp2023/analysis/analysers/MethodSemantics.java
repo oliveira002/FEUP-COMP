@@ -110,7 +110,7 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
 
         // invalid type
         if(Objects.equals(objType.getName(), "unknown") || !(Objects.equals(objType.getName(), className) || Objects.equals(objType.getName(), "this")) ) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
+            //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
             return 1;
         }
 
