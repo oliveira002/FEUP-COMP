@@ -109,7 +109,7 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
         Type objType = this.getNodeType(obj,symbolTable);
 
         // invalid type
-        if(Objects.equals(objType.getName(), "unknown") || (!Objects.equals(objType.getName(), className) && !Objects.equals(objType.getName(), "this")) ) {
+        if(Objects.equals(objType.getName(), "unknown") || !(Objects.equals(objType.getName(), className) || Objects.equals(objType.getName(), "this")) ) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
             return 1;
         }
@@ -126,17 +126,17 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
 
         // check if size of args match
         if(currArgs.size() != originalArgs.size()) {
-            //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Number of arguments doesn't match!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Number of arguments doesn't match!"));
             return 1;
         }
 
         for(int i = 0; i < originalArgs.size(); i++) {
             if(Objects.equals(originalArgs.get(i).getName(),"unknown")) {
-                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
                 return 1;
             }
             if(Objects.equals(currArgs.get(i).getName(),"unknown")) {
-                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
                 return 1;
             }
         }
@@ -144,7 +144,7 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
         // check args one by one to see if their type match
         for(int i = 0; i < originalArgs.size(); i++) {
             if(!Objects.equals(originalArgs.get(i).getName(),currArgs.get(i).getName()) || originalArgs.get(i).isArray() != currArgs.get(i).isArray()) {
-                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
                 return 1;
             }
         }
