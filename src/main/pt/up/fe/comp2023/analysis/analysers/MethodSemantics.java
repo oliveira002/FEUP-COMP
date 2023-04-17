@@ -114,6 +114,10 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
             return 1;
         }
 
+        if(!objType.getName().equals("this") && !objType.getName().equals(className)) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
+            return 1;
+        }
 
 
         int num_children = jmmNode.getNumChildren();
