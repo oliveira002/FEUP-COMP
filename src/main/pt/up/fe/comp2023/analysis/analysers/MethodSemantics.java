@@ -143,8 +143,11 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
 
         // check args one by one to see if their type match
         for(int i = 0; i < originalArgs.size(); i++) {
+            if(currArgs.get(i).getName().equals("this")) {
+                currArgs.set(i, new Type(className, false));
+            }
             if(!Objects.equals(originalArgs.get(i).getName(),currArgs.get(i).getName()) || originalArgs.get(i).isArray() != currArgs.get(i).isArray()) {
-                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
                 return 1;
             }
         }
