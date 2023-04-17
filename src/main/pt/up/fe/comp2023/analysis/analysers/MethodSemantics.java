@@ -109,8 +109,8 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
         Type objType = this.getNodeType(obj,symbolTable);
 
         // invalid type
-        if(Objects.equals(objType.getName(), "unknown") || !(Objects.equals(objType.getName(), className) || Objects.equals(objType.getName(), "this")) ) {
-            //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
+        if(Objects.equals(objType.getName(), "unknown") || (!Objects.equals(objType.getName(), className) && !Objects.equals(objType.getName(), "this")) ) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
             return 1;
         }
 
