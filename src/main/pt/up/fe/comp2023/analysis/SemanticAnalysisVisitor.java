@@ -41,6 +41,7 @@ public abstract class SemanticAnalysisVisitor extends PreorderJmmVisitor <Symbol
             }
         }
 
+
         return new Type("unknown",false);
     }
 
