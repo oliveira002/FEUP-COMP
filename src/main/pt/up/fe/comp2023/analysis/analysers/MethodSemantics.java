@@ -70,7 +70,7 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
 
         // invalid type
         if(Objects.equals(objType.getName(), "unknown") || Objects.equals(objType.getName(), "int") || Objects.equals(objType.getName(), "boolean")) {
-            //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
             return 1;
         }
 
@@ -79,7 +79,7 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
 
         if(Objects.equals(objType.getName(), "this")) {
             if(!parsedImports.contains(superClass)) {
-                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class extended is not in imports!"));
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class extended is not in imports!"));
                 return 1;
             }
             return 1;
