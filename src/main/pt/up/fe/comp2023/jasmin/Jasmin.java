@@ -4,17 +4,17 @@ import org.specs.comp.ollir.*;
 import pt.up.fe.comp.jmm.jasmin.JasminBackend;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
-import pt.up.fe.specs.util.SpecsIo;
+import pt.up.fe.comp2023.jasmin.operations.UnaryOpsCode;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.StringJoiner;
 
 public class Jasmin implements JasminBackend {
     private ClassUnit OllirCode;
     private HashMap<String, String>  importsMap = new HashMap<>();
     private String defaultSuperClass = "java/lang/Object";
+    private int numLabel = 0;
+
     public Jasmin(){
 
     }
@@ -157,7 +157,7 @@ public class Jasmin implements JasminBackend {
             if (instruction instanceof ReturnInstruction) {
                 hasReturnInstruction = true;
             }
-            code.append(this.routeInstruction(instruction));
+            code.append(this.routeInstruction(instruction, method.getVarTable()));
         }
 
         if (!hasReturnInstruction) {
@@ -175,46 +175,57 @@ public class Jasmin implements JasminBackend {
 
         return code.toString();
     }
-    public String routeInstruction(Instruction instruction){
+    public String routeInstruction(Instruction instruction, HashMap<String, Descriptor> varTable){
 
         if (instruction instanceof CallInstruction) {
-            return routeInstruction((CallInstruction) instruction);
+            //return routeInstruction((CallInstruction) instruction);
+            return "";
         }
 
         if (instruction instanceof AssignInstruction) {
-            return routeInstruction((AssignInstruction) instruction);
+            return "";
+            //return routeInstruction((AssignInstruction) instruction);
         }
 
         if (instruction instanceof GotoInstruction) {
-            return routeInstruction((GotoInstruction) instruction);
+            //return routeInstruction((GotoInstruction) instruction);
+            return "";
         }
 
         if (instruction instanceof ReturnInstruction) {
-            return routeInstruction((ReturnInstruction) instruction);
+            //return routeInstruction((ReturnInstruction) instruction);
+            return "";
         }
 
         if (instruction instanceof SingleOpInstruction) {
-            return routeInstruction((SingleOpInstruction) instruction);
+            //return routeInstruction((SingleOpInstruction) instruction);
+            return "";
         }
 
         if (instruction instanceof PutFieldInstruction) {
-            return routeInstruction((PutFieldInstruction) instruction);
+            //return routeInstruction((PutFieldInstruction) instruction);
+            return "";
         }
 
         if (instruction instanceof GetFieldInstruction) {
-            return routeInstruction((GetFieldInstruction) instruction);
+            //return routeInstruction((GetFieldInstruction) instruction);
+            return "";
         }
 
         if (instruction instanceof BinaryOpInstruction) {
-            return routeInstruction((BinaryOpInstruction) instruction);
+            //return routeInstruction((BinaryOpInstruction) instruction);
+            return "";
         }
 
         if (instruction instanceof CondBranchInstruction) {
-            return routeInstruction((CondBranchInstruction) instruction);
+            //return routeInstruction((CondBranchInstruction) instruction);
+            return "";
         }
 
         if (instruction instanceof UnaryOpInstruction) {
-            return routeInstruction((UnaryOpInstruction) instruction);
+            UnaryOpsCode code = new UnaryOpsCode((UnaryOpInstruction) instruction, varTable, this.numLabel);
+            this.numLabel = code.getLabelCounter();
+            return code.toJasmin();
         }
 
         throw new RuntimeException("no instruction");
