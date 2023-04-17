@@ -20,7 +20,7 @@ public class JmmSimpleAnalysis implements JmmAnalysis {
         List<Report> reps = symbolTable.getReports();
         stVisitor.visit(root,symbolTable);
 
-        List<SemanticAnalysisVisitor> visitors = Arrays.asList(new ArrayAccess(),new OperationSemantics(), new ConditionSemantics());
+        List<SemanticAnalysisVisitor> visitors = Arrays.asList(new ArrayAccess(), new ConditionSemantics());
         for(SemanticAnalysisVisitor v: visitors) {
             v.visit(root,symbolTable);
             reps.addAll(v.getReports());
