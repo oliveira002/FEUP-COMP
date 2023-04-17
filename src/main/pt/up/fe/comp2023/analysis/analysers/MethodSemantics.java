@@ -70,7 +70,7 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
 
         // invalid type
         if(Objects.equals(objType.getName(), "unknown") || Objects.equals(objType.getName(), "int") || Objects.equals(objType.getName(), "boolean")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
+            //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
             return 1;
         }
 
@@ -79,7 +79,7 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
 
         if(Objects.equals(objType.getName(), "this")) {
             if(!parsedImports.contains(superClass)) {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class extended is not in imports!"));
+                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class extended is not in imports!"));
                 return 1;
             }
             return 1;
@@ -87,13 +87,13 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
 
         if(Objects.equals(objType.getName(), className)) {
             if(!(!Objects.equals(superClass, "") && parsedImports.contains(superClass))) {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class extended is not in imports or doesn't extend anything!"));
+                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class extended is not in imports or doesn't extend anything!"));
                 return 1;
             }
         }
         else {
             if(!parsedImports.contains(objType.getName())) {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class is not imported!"));
+                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Class is not imported!"));
                 return 1;
             }
         }
@@ -110,7 +110,7 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
 
         // invalid type
         if(Objects.equals(objType.getName(), "unknown") || (!Objects.equals(objType.getName(), className) && !Objects.equals(objType.getName(), "this")) ) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
+            //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
             return 1;
         }
 
@@ -126,17 +126,17 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
 
         // check if size of args match
         if(currArgs.size() != originalArgs.size()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Number of arguments doesn't match!"));
+            //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Number of arguments doesn't match!"));
             return 1;
         }
 
         for(int i = 0; i < originalArgs.size(); i++) {
             if(Objects.equals(originalArgs.get(i).getName(),"unknown")) {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
+                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
                 return 1;
             }
             if(Objects.equals(currArgs.get(i).getName(),"unknown")) {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
+                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
                 return 1;
             }
         }
@@ -144,7 +144,7 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
         // check args one by one to see if their type match
         for(int i = 0; i < originalArgs.size(); i++) {
             if(!Objects.equals(originalArgs.get(i).getName(),currArgs.get(i).getName()) || originalArgs.get(i).isArray() != currArgs.get(i).isArray()) {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
+                //reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Argument Number %d doesn't match!".formatted(i+1)));
                 return 1;
             }
         }
