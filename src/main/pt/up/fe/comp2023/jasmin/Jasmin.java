@@ -4,6 +4,9 @@ import org.specs.comp.ollir.*;
 import pt.up.fe.comp.jmm.jasmin.JasminBackend;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp2023.jasmin.operations.CallOps.InvokeVirtualOps;
+import pt.up.fe.comp2023.jasmin.operations.CallOpsCode;
+import pt.up.fe.comp2023.jasmin.operations.ReturnOpsCode;
 import pt.up.fe.comp2023.jasmin.operations.UnaryOpsCode;
 
 import java.util.Collections;
@@ -75,7 +78,7 @@ public class Jasmin implements JasminBackend {
         return code.toString();
     }
 
-    public String getParseType(Type type) {
+    public static String getParseType(Type type) {
         ElementType eType = type.getTypeOfElement();
         if(eType == ElementType.INT32){
             return "I";
@@ -175,11 +178,21 @@ public class Jasmin implements JasminBackend {
 
         return code.toString();
     }
+    public String CallRouter(CallInstruction instruction, HashMap<String, Descriptor> varTable){
+        StringBuilder jasminCode = new StringBuilder();
+
+        if(instruction.getInvocationType() == CallType.invokevirtual){
+            InvokeVirtualOps code = new InvokeVirtualOps(instruction, this.VarTable, this.LabelCounter, this.ThisClassName, this.importsMap);
+            jasminCode.append(code.toJasmin());
+        }
+        throw new RuntimeException("Call type not supported");
+    }
     public String routeInstruction(Instruction instruction, HashMap<String, Descriptor> varTable){
 
         if (instruction instanceof CallInstruction) {
-            //return routeInstruction((CallInstruction) instruction);
-            return "";
+            CallOpsCode code = new CallOpsCode((CallInstruction) instruction, varTable, this.numLabel);
+            this.numLabel = code.getLabelCounter();
+            return code.toJasmin();
         }
 
         if (instruction instanceof AssignInstruction) {
@@ -193,8 +206,9 @@ public class Jasmin implements JasminBackend {
         }
 
         if (instruction instanceof ReturnInstruction) {
-            //return routeInstruction((ReturnInstruction) instruction);
-            return "";
+            ReturnOpsCode code = new ReturnOpsCode((ReturnInstruction) instruction, varTable, this.numLabel);
+            this.numLabel = code.getLabelCounter();
+            return code.toJasmin();
         }
 
         if (instruction instanceof SingleOpInstruction) {
