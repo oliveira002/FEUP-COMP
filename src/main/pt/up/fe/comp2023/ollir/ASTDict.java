@@ -9,7 +9,7 @@ public class ASTDict {
     public static final String VAR_TYPE = "Type";
     public static final String STATEMENT = "Statement";
     public static final String THEN_STATEMENT = "ThenStmt";
-    public static final String IF_STATEMENT = "ConditionStmt";
+    public static final String CONDITIONAL_STATEMENT = "ConditionStmt";
     public static final String EXP_STATEMENT = "ExpStmt";
     public static final String VAR_ASSIGN = "VarAssign";
     public static final String ARRAY_ASSIGN = "ArrayAssign";

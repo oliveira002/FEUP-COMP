@@ -6,11 +6,13 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp2023.SymbolTableCR;
 
+import java.util.Arrays;
 import java.util.List;
 
-public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
+public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
     private final SymbolTableCR symbolTable;
     private int indent = 0;
+    private String method = "";
 
     public ASTParserVisitor(SymbolTableCR symbolTable){
         this.symbolTable = symbolTable;
@@ -22,32 +24,30 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
         setDefaultVisit(this::defaultVisit);
 
         addVisit(ASTDict.CLASS_DECL,this::classDeclarationVisit);
-        addVisit(ASTDict.VAR_CREATION, this::varCreationVisit);
-        addVisit(ASTDict.VAR_CREATION_ASSIGN, this::varCreationAssignVisit);
         addVisit(ASTDict.METHOD_DECL, this::methodDeclarationVisit);
-        addVisit(ASTDict.VAR_TYPE, this::varTypeVisit);
-        addVisit(ASTDict.THEN_STATEMENT, this::thenStatementVisit);
-        addVisit(ASTDict.IF_STATEMENT, this::ifStatementVisit);
-        addVisit(ASTDict.EXP_STATEMENT, this::expressionStatementVisit);
+        //addVisit(ASTDict.VAR_TYPE, this::varTypeVisit);
+        //addVisit(ASTDict.THEN_STATEMENT, this::thenStatementVisit);
+        addVisit(ASTDict.CONDITIONAL_STATEMENT, this::condStatementVisit);
+        //addVisit(ASTDict.EXP_STATEMENT, this::expressionStatementVisit);
         addVisit(ASTDict.VAR_ASSIGN, this::varAssignVisit);
         addVisit(ASTDict.ARRAY_ASSIGN, this::arrayAssignVisit);
-        addVisit(ASTDict.PARENTHESES, this::parenthesesVisit);
-        addVisit(ASTDict.NOT_OP, this::notOperatorVisit);
+        //addVisit(ASTDict.PARENTHESES, this::parenthesesVisit);
+        //addVisit(ASTDict.NOT_OP, this::notOperatorVisit);
         addVisit(ASTDict.BINARY_OP, this::binaryOperatorVisit);
-        addVisit(ASTDict.COMPARE_OP, this::comparisonOperatorVisit);
-        addVisit(ASTDict.ARRAY_INDEX, this::arrayIndexVisit);
-        addVisit(ASTDict.ARRAY_LENGTH, this::arrayLengthVisit);
+        //addVisit(ASTDict.COMPARE_OP, this::comparisonOperatorVisit);
+        //addVisit(ASTDict.ARRAY_INDEX, this::arrayIndexVisit);
+        //addVisit(ASTDict.ARRAY_LENGTH, this::arrayLengthVisit);
         addVisit(ASTDict.METHOD_CALL, this::methodCallVisit);
-        addVisit(ASTDict.INTEGER, this::VoidVisit);
-        addVisit(ASTDict.IDENTIFIER, this::identifierVisit);
-        addVisit(ASTDict.NEW_INT_ARRAY, this::newIntArrayVisit);
-        addVisit(ASTDict.NEW_OBJECT, this::newObjectVisit);
-        addVisit(ASTDict.BOOL, this::booleanVisit);
-        addVisit(ASTDict.THIS, this::thisVisit);
+        addVisit(ASTDict.INTEGER, this::integerVisit);
+        //addVisit(ASTDict.IDENTIFIER, this::identifierVisit);
+        //addVisit(ASTDict.NEW_INT_ARRAY, this::newIntArrayVisit);
+        //addVisit(ASTDict.NEW_OBJECT, this::newObjectVisit);
+        //addVisit(ASTDict.BOOL, this::booleanVisit);
+        //addVisit(ASTDict.THIS, this::thisVisit);
 
     }
 
-    private Void defaultVisit(JmmNode jmmNode, StringBuilder ollirCode) {
+    private List<String> defaultVisit(JmmNode jmmNode, StringBuilder ollirCode) {
         for(JmmNode child : jmmNode.getChildren()){
             if(child.getKind().equals(ASTDict.CLASS_DECL))
                 visit(child, ollirCode);
@@ -56,7 +56,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
     }
 
 
-    private Void classDeclarationVisit(JmmNode jmmNode, StringBuilder ollirCode){
+    private List<String>  classDeclarationVisit(JmmNode jmmNode, StringBuilder ollirCode){
 
         //Imports
         for(String importModule : this.symbolTable.getImports())
@@ -104,27 +104,18 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
         return null;
     }
 
-    //A var creation only needs to be converted to ollir if it's a field. If it's a local var it's converted to ollir only when a value is assigned
-    private Void varCreationVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-    
-    private Void varCreationAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
+    private List<String>  methodDeclarationVisit(JmmNode jmmNode, StringBuilder ollirCode){
 
-    private Void methodDeclarationVisit(JmmNode jmmNode, StringBuilder ollirCode){
-
-        String method = jmmNode.get("name");
-        Type return_type = symbolTable.getReturnType(method);
+        this.method = jmmNode.get("name");
+        Type return_type = symbolTable.getReturnType(this.method);
 
         ollirCode.append("\n")
                  .append("\t".repeat(indent))
                  .append(".method ")
                  .append(jmmNode.get("modifier"))
-                 .append(method.equals("main")? " static main(" : " %s(".formatted(method));
+                 .append(this.method.equals("main")? " static main(" : " %s(".formatted(this.method));
 
-        List<Symbol> params = symbolTable.getParameters(method);
+        List<Symbol> params = symbolTable.getParameters(this.method);
 
         for(Symbol param : params) {
             String param_name = param.getName();
@@ -142,17 +133,22 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
 
         ollirCode.append(")")
                  .append(Utils.toOllirType(return_type.getName(), return_type.isArray()))
-                 .append(" {\n");
+                 .append(" {");
 
-        //Visit children: Only need to visit local var declarations, statements because types already dealt with and expressions are dealt after
+        this.indent++;
+
+        //Visit children: Only need to visit statements because types already dealt with, local var declarations don't matter and expressions are dealt after
         for(JmmNode child : jmmNode.getChildren()){
-            if(!child.getKind().equals(ASTDict.VAR_TYPE) || !child.getKind().equals(ASTDict.EXPRESSION))
+            //if(child.getKind().equals(ASTDict.STATEMENT))
                 visit(child, ollirCode);
         }
 
         //Return statement
-        ollirCode.append("ret")
-                  .append(Utils.toOllirType(return_type.getName(), return_type.isArray()));
+        ollirCode.append("\n")
+                 .append("\t".repeat(indent))
+                 .append("ret")
+                 .append(Utils.toOllirType(return_type.getName(), return_type.isArray()))
+                 .append(";");
 
         //Visit children: Only need to visit expressions, because types, local var declarations and statements already dealt with
         for(JmmNode child : jmmNode.getChildren()){
@@ -160,86 +156,83 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,Void> {
                 visit(child, ollirCode);
         }
 
-        ollirCode.append("\t".repeat(indent))
+        ollirCode.append("\n")
+                 .append("\t".repeat(--indent))
                  .append("}\n");
+
         return null;
     }
 
-    private Void varTypeVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+    //TODO: Cp3
+    private List<String>  condStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
+        String conditional_type = jmmNode.get("conditional");
+
+        switch (conditional_type){
+            case "if" -> {
+
+            }
+            case "while" -> {
+
+            }
+        }
+
         return null;
     }
 
-    private Void thenStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
+    //TODO: Cp2
+    private List<String>  varAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
+        String var_name = jmmNode.get("var");
+        String var_type = symbolTable.getLocalVarType(var_name, this.method);
+
+        JmmNode child = jmmNode.getChildren().get(0);
+        if(child.getKind().equals(ASTDict.BINARY_OP)){
+            List<String> binary_op_code = visit(child, ollirCode);
+            ollirCode.append("\n")
+                     .append(binary_op_code.get(1).replace(binary_op_code.get(0), var_name));
+        }
+
         return null;
     }
 
-    private Void ifStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
+    //TODO: Cp2
+    private List<String>  arrayAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
 
-    private Void expressionStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
+    private List<String> binaryOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
+        var lhs = jmmNode.getJmmChild(0);
+        var rhs = jmmNode.getJmmChild(1);
+
+        List<String> lhsCode = visit(lhs);
+        List<String> rhsCode = visit(rhs);
+        StringBuilder prefixCode = new StringBuilder();
+
+        String temp = Utils.nextTemp();
+
+        prefixCode.append(lhsCode.get(1))
+                  .append(rhsCode.get(1))
+                  .append("\t".repeat(indent))
+                  .append(temp)
+                  .append(".i32 :=.i32 ")
+                  .append(lhsCode.get(0))
+                  .append(".i32 ")
+                  .append(jmmNode.get("op"))
+                  .append(".i32 ")
+                  .append(rhsCode.get(0))
+                  .append(".i32;")
+                  .append("\n");
+
+        return List.of(temp, prefixCode.toString());
+    }
+
+    //TODO: Cp2
+    private List<String>  methodCallVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return null;
     }
 
-    private Void varAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
+    private List<String>  integerVisit(JmmNode jmmNode, StringBuilder ollirCode){
+        return List.of(jmmNode.get("value"), "");
     }
-
-    private Void arrayAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
-    private Void parenthesesVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
-    private Void notOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
-    private Void binaryOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
-    private Void comparisonOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
-    private Void arrayIndexVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
-    private Void arrayLengthVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
-    private Void methodCallVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
-    private Void VoidVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
-    private Void identifierVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
-    private Void newIntArrayVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
-    private Void newObjectVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
-    private Void booleanVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
-    private Void thisVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        return null;
-    }
-
 
 }
