@@ -210,6 +210,7 @@ public class Jasmin implements JasminBackend {
             NewOps code = new NewOps(instruction, varTable, this.numLabel, this.OllirCode.getSuperClass(), this.importsMap,this);
             jasminCode.append(code.toJasmin());
         }
+
         return jasminCode.toString();
     }
     public String routeInstruction(Instruction instruction, HashMap<String, Descriptor> varTable, String MethodName){
