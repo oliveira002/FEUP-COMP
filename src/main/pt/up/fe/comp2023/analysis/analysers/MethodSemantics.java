@@ -108,6 +108,12 @@ public class MethodSemantics extends SemanticAnalysisVisitor {
         JmmNode obj = jmmNode.getJmmChild(0);
         Type objType = this.getNodeType(obj,symbolTable);
 
+        // case where a method is called from another class, but exists with the same name on the current class
+        if(obj.hasAttribute("var")) {
+            if(parsedImports(symbolTable).contains(obj.get("var")) || (parsedImports(symbolTable).contains(obj.get("var")) && symbolTable.getSuper().equals(obj.get("var")))) {
+                return 1;
+            }
+        }
         // invalid type
         if(Objects.equals(objType.getName(), "unknown") || (!Objects.equals(objType.getName(), className) && !Objects.equals(objType.getName(), "this")) ) {
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Invalid object!"));
