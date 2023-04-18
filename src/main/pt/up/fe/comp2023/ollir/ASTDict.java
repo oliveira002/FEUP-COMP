@@ -18,6 +18,7 @@ public class ASTDict {
     public static final String NOT_OP = "Not";
     public static final String BINARY_OP = "BinaryOp";
     public static final String COMPARE_OP = "CompareOp";
+    public static final String LOGICAL_OP = "LogicalOp";
     public static final String ARRAY_INDEX = "ArrayIndex";
     public static final String ARRAY_LENGTH = "ArrayLength";
     public static final String METHOD_CALL = "MethodCall";
