@@ -1,13 +1,14 @@
 package pt.up.fe.comp2023.jasmin.operations;
 
 import org.specs.comp.ollir.*;
+import pt.up.fe.comp2023.jasmin.Jasmin;
 
 import java.util.HashMap;
 
 public class ReturnOpsCode extends InstructionClass{
 
-    public ReturnOpsCode(ReturnInstruction instruction, HashMap<String, Descriptor> VarTable, int LabelCounter) {
-        super(instruction, VarTable, LabelCounter);
+    public ReturnOpsCode(ReturnInstruction instruction, HashMap<String, Descriptor> VarTable, int LabelCounter, Jasmin jasmin) {
+        super(instruction, VarTable, LabelCounter, jasmin);
     }
 
     @Override

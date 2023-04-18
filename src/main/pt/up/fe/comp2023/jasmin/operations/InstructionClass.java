@@ -1,6 +1,7 @@
 package pt.up.fe.comp2023.jasmin.operations;
 
 import org.specs.comp.ollir.*;
+import pt.up.fe.comp2023.jasmin.Jasmin;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
 
 import java.awt.*;
@@ -10,11 +11,12 @@ abstract public class InstructionClass {
     public Instruction instruction;
     public HashMap<String, Descriptor> VarTable;
     public int LabelCounter;
-
-    public InstructionClass(Instruction instruction, HashMap<String, Descriptor> VarTable, int LabelCounter) {
+    public Jasmin jasmin;
+    public InstructionClass(Instruction instruction, HashMap<String, Descriptor> VarTable, int LabelCounter, Jasmin jasmin) {
         this.instruction = instruction;
         this.VarTable = VarTable;
         this.LabelCounter = LabelCounter;
+        this.jasmin = jasmin;
     }
 
     public Instruction getInstruction() {
@@ -36,15 +38,15 @@ abstract public class InstructionClass {
         int reg = descriptor.getVirtualReg();
         if (elementType == ElementType.INT32 || elementType == ElementType.BOOLEAN) {
             if (reg <= 3) {
-                return "\t" + "aload_" + reg;
+                return "\t" + "iload_" + reg + "\n";
             } else {
-                return "\t" + "aload " + reg;
+                return "\t" + "iload " + reg + "\n";
             }
         } else {
             if (reg <= 3) {
-                return "\t" + "aload_" + reg;
+                return "\t" + "aload_" + reg + "\n";
             } else {
-                return "\t" + "aload " + reg;
+                return "\t" + "aload " + reg + "\n";
             }
         }
     }
@@ -89,8 +91,8 @@ abstract public class InstructionClass {
         Descriptor d = this.VarTable.get(((Operand) e).getName());
         if (e.getType().getTypeOfElement() != ElementType.ARRAYREF && d.getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
             ArrayOperand arrayOp = (ArrayOperand) e;
-            Element index = arrayOp.getIndexOperands().get(0);
-            return this.getDescriptor(d) + loadElement(index) + "\tiaload\n";
+            Element i = arrayOp.getIndexOperands().get(0);
+            return this.getDescriptor(d) + loadElement(i) + "\tiaload\n";
         }
 
         return this.getDescriptor(d);

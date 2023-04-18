@@ -2,14 +2,13 @@ package pt.up.fe.comp2023.jasmin.operations.CallOps;
 
 import org.specs.comp.ollir.*;
 import pt.up.fe.comp2023.jasmin.Jasmin;
-import pt.up.fe.comp2023.jasmin.operations.CallOpsCode;
 
 import java.util.HashMap;
 
 public class InvokeVirtualOps extends InvokeAbstract{
     public InvokeVirtualOps(CallInstruction instruction, HashMap<String, Descriptor> VarTable,
-                            int LabelCounter, String ThisClassName, HashMap<String, String> importsMap) {
-        super(instruction, VarTable, LabelCounter, ThisClassName, importsMap);
+                            int LabelCounter, String ThisClassName, HashMap<String, String> importsMap, Jasmin jasmin) {
+        super(instruction, VarTable, LabelCounter, ThisClassName, importsMap, jasmin);
     }
 
     @Override
@@ -20,21 +19,28 @@ public class InvokeVirtualOps extends InvokeAbstract{
         for (Element e : instruction.getListOfOperands())
             jasminCode.append(loadElement(e));
 
-        jasminCode.append("\tinvokevirtual ").append(instruction.getFirstArg().getType().getTypeOfElement() == ElementType.THIS ?
-                        ThisClassName
-                        :
-                        this.importsMap.getOrDefault(
-                                ((ClassType) instruction.getFirstArg().getType()).getName(),
-                                ((ClassType) instruction.getFirstArg().getType()).getName()
-                        )
-                )
-                .append("/").append(((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", ""))
-                .append("(");
+        ElementType firstArgType = instruction.getFirstArg().getType().getTypeOfElement();
+        String invokedClass;
+
+        if (firstArgType == ElementType.THIS) {
+            invokedClass = ThisClassName;
+        } else {
+            ClassType classType = (ClassType) instruction.getFirstArg().getType();
+            String className = classType.getName();
+            invokedClass = this.importsMap.getOrDefault(className, className);
+        }
+
+        String jasminCallCode = "\tinvokevirtual " +
+                invokedClass +
+                "/" +
+                ((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "") +
+                "(";
+        jasminCode.append(jasminCallCode);
 
         for (Element e : instruction.getListOfOperands())
-            jasminCode.append(Jasmin.getParseType(e.getType()));
+            jasminCode.append(new Jasmin().getParseType(e.getType()));
 
-        jasminCode.append(")").append(Jasmin.getParseType(instruction.getReturnType())).append("\n");
+        jasminCode.append(")").append(jasmin.getParseType(instruction.getReturnType())).append("\n");
 
         return jasminCode.toString();
     }
