@@ -32,6 +32,8 @@ class CompileBasic extends Quicksort {
         b = 2;
         c = a;
 
+        //io.println(c);
+
         return a + b;
     }
 
@@ -47,5 +49,7 @@ class CompileBasic extends Quicksort {
     }
 
     public static void main(String[] args) {
+        //CompileBasic test;
+        //test = new CompileBasic();
     }
 }
