@@ -43,14 +43,6 @@ public class SymbolTableVisitor extends PreorderJmmVisitor <SymbolTableCR,Intege
 
         String importName = String.join(".",importModuleString);
 
-        List<Object> importModule = jmmNode.getObjectAsList("importModule");
-        List<String> importModuleString = new ArrayList<>(importModule.size());
-        for(Object object : importModule){
-            importModuleString.add(Objects.toString(object, null));
-        }
-
-        String importName = String.join(".",importModuleString);
-
         symbolTable.addImport(importName);
         return 1;
     }

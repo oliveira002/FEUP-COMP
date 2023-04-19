@@ -4,7 +4,7 @@ import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
-import pt.up.fe.comp2023.SymbolTableCR;
+import pt.up.fe.comp2023.analysis.SymbolTableCR;
 
 public class ASTParser implements JmmOptimization {
     @Override
