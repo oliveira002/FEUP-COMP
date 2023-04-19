@@ -52,6 +52,7 @@ public class SemanticAnalysisTest {
     @Test
     public void arrayIndexNotInt() {
         var result = TestUtils.analyse(SpecsIo.getResource("pt/up/fe/comp/cp2/semanticanalysis/ArrayIndexNotInt.jmm"));
+        System.out.println(result.getReports());
         TestUtils.mustFail(result);
     }
 

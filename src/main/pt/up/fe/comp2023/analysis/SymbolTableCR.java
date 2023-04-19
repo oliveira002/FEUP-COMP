@@ -1,16 +1,18 @@
-package pt.up.fe.comp2023;
+package pt.up.fe.comp2023.analysis;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.*;
 
 public class SymbolTableCR implements SymbolTable {
     private String className = "";
     private String classSuper = "";
-    private List<Report> reports;
+    private final List<Report> reports;
 
     private List<String> methods = new ArrayList<>();
     private List<String> imports = new ArrayList<>();
@@ -19,6 +21,9 @@ public class SymbolTableCR implements SymbolTable {
     private Map<String, List<Symbol>> parameters = new HashMap<>();
     private Map<String, List<Symbol>> localVariables = new HashMap<>();
 
+    public SymbolTableCR() {
+        this.reports = new ArrayList<>();
+    }
     @Override
     public List<String> getImports() {
         var imports = this.imports;
@@ -55,10 +60,27 @@ public class SymbolTableCR implements SymbolTable {
     }
 
     public void addField(Symbol s) {
+        if(fieldExists(s.getName())) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Duplicated Field!"));
+            return;
+        };
         this.fields.add(s);
     }
 
+    public boolean fieldExists(String var) {
+        for(Symbol s: fields) {
+            if(Objects.equals(s.getName(), var)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void addMethod(String methodName, Type returnType, List<Symbol> parameters) {
+        if (methodExists(methodName)) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Duplicated Method!"));
+            return;
+        }
         this.methods.add(methodName);
         this.returnTypes.put(methodName,returnType);
         this.parameters.put(methodName,parameters);
@@ -71,6 +93,10 @@ public class SymbolTableCR implements SymbolTable {
     }
 
     public void addLocalVar(String methodName, Symbol var) {
+        if (localVarExists(var.getName(), methodName)) {
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Duplicated Local Vars!"));
+            return;
+        }
         if(localVariables.containsKey(methodName)) {
             List<Symbol> curr_variables = localVariables.get(methodName);
             curr_variables.add(var);
@@ -99,6 +125,42 @@ public class SymbolTableCR implements SymbolTable {
     public List<Symbol> getLocalVariables(String s) {
         var vars = this.localVariables.get(s);
         return vars != null ? vars : Collections.emptyList();
+    }
+
+    public Type getLocalVariableType(String id, String methodName) {
+        List<Symbol> methodVars = this.localVariables.get(methodName);
+        for(Symbol s : methodVars) {
+            if(Objects.equals(s.getName(), id)) {
+                return s.getType();
+            }
+        }
+        return new Type("unknown",false);
+    }
+
+    public boolean methodExists(String methodName) {
+        for(String x : methods) {
+            if(Objects.equals(x, methodName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean localVarExists(String var, String methodName) {
+        if(localVariables.containsKey(methodName)) {
+            List<Symbol> locals = getLocalVariables(methodName);
+            for(Symbol s : locals) {
+                if(Objects.equals(s.getName(), var)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    public List<Report> getReports() {
+        return reports;
     }
 
     @Override

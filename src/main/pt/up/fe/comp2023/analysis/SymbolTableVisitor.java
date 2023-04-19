@@ -1,4 +1,4 @@
-package pt.up.fe.comp2023;
+package pt.up.fe.comp2023.analysis;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
@@ -8,13 +8,15 @@ import pt.up.fe.comp.jmm.report.Report;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class SymbolTableVisitor extends PreorderJmmVisitor <SymbolTableCR,Integer> {
 
-    final List<Report> reports = new ArrayList<>();
+    private final List<Report> reports;
     public SymbolTableVisitor() {
         this.buildVisitor();
+        this.reports = new ArrayList<>();
     }
 
     @Override
@@ -32,6 +34,14 @@ public class SymbolTableVisitor extends PreorderJmmVisitor <SymbolTableCR,Intege
 
 
     private Integer visitImport(JmmNode jmmNode, SymbolTableCR symbolTable) {
+
+        List<Object> importModule = jmmNode.getObjectAsList("importModule");
+        List<String> importModuleString = new ArrayList<>(importModule.size());
+        for(Object object : importModule){
+            importModuleString.add(Objects.toString(object, null));
+        }
+
+        String importName = String.join(".",importModuleString);
 
         List<Object> importModule = jmmNode.getObjectAsList("importModule");
         List<String> importModuleString = new ArrayList<>(importModule.size());
