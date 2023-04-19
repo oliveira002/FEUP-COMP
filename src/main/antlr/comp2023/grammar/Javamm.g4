@@ -34,27 +34,26 @@ classDeclaration
     ;
 
 varDeclaration
-    : type var=ID ';'
-    | type var=ID '=' expression ';'
+    : type var=ID ';' #VarCreation
     ;
 
 methodDeclaration
-    : ('public')? type name=ID '(' (type param+=ID (',' type param+=ID )*)? ')' '{' (varDeclaration)* (statement)* 'return' expression ';' '}'
-    | ('public')? 'static' 'void' name='main' '(' type '[' ']' param+=ID ')' '{' (varDeclaration)* (statement)* '}'
+    : (modifier='public')? type name=ID '(' (type param+=ID (',' type param+=ID )*)? ')' '{' (varDeclaration)* (statement)* 'return' expression ';' '}'
+    | (modifier='public')? 'static' 'void' name='main' '(' type '[' ']' param+=ID ')' '{' (varDeclaration)* (statement)* '}'
     ;
 
 type locals[boolean isArray = false, boolean isClass = false]
     : value='int' ('['']' {$isArray=true;})?
     | value='boolean'
-    | value='String' ('['']' {$isArray=true;})?
+    | value='String'
     | value='int'
     | value=ID
     ;
 
 statement
     : '{' (statement)* '}' #ThenStmt
-    | 'if' '(' expression ')' statement 'else' statement #ConditionStmt
-    | 'while' '(' expression ')' statement #ConditionStmt
+    | conditional='if' '(' expression ')' statement 'else' statement #ConditionStmt
+    | conditional='while' '(' expression ')' statement #ConditionStmt
     | expression ';' #ExpStmt
     | var=ID '=' expression ';' #VarAssign
     | var=ID '[' expression ']' '=' expression ';' #ArrayAssign

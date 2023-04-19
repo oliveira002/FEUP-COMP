@@ -8,6 +8,8 @@ import pt.up.fe.comp.jmm.report.Report;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class SymbolTableVisitor extends PreorderJmmVisitor <SymbolTableCR,Integer> {
 
@@ -32,6 +34,7 @@ public class SymbolTableVisitor extends PreorderJmmVisitor <SymbolTableCR,Intege
 
 
     private Integer visitImport(JmmNode jmmNode, SymbolTableCR symbolTable) {
+
         List<Object> importModule = jmmNode.getObjectAsList("importModule");
         List<String> importModuleString = new ArrayList<>(importModule.size());
         for(Object object : importModule){

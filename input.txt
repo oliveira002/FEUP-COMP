@@ -1,18 +1,51 @@
 import io;
+import Quicksort;
 
-class Fac {
-    public int computeFac (int num){
-        int a = 2;
-        int b = 3;
+class CompileBasic extends Quicksort {
 
-        if (num < 1)
-            num_aux = 23;
-        else
-            num_aux = num * (this.computeFac(num - 1));
-        return num_aux;
+    int intField;
+    boolean boolField;
+    int[] boas;
+    String boas2;
+    CompileBasic boas3;
+
+    public int method1() {
+        int intLocal1;
+        boolean boolLocal1;
+
+        intLocal1 = 1 + 2 * 3 + 4;
+        boolLocal1 = true;
+
+        return 0;
     }
 
-    public static void main (String[] args ){
-        io.println(new Fac().computeFac(10));
+    public boolean method2(int intParam1, boolean boolParam1) {
+        return boolParam1;
+    }
+
+    public int method3() {
+        int a;
+        int b;
+        int c;
+
+        a = 1;
+        b = 2;
+        c = a;
+
+        return a + b;
+    }
+
+    public int method4() {
+        int[] intLocal2;
+
+        intLocal2 = new int[1+2];
+        //intLocal2[0] = 1;
+        //intLocal2[1] = 2;
+        //intLocal2[2] = 3;
+
+        return 0;
+    }
+
+    public static void main(String[] args) {
     }
 }

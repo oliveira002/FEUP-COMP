@@ -103,7 +103,7 @@ public class SymbolTableCR implements SymbolTable {
             localVariables.put(methodName,curr_variables);
         }
         else {
-            List<Symbol> nova = new ArrayList();
+            List<Symbol> nova = new ArrayList<>();
             nova.add(var);
             localVariables.put(methodName, nova);
         }
@@ -166,5 +166,24 @@ public class SymbolTableCR implements SymbolTable {
     @Override
     public String toString() {
         return print();
+    }
+
+    public String getFieldType(String field) {
+        for(Symbol aux : fields){
+            if(Objects.equals(aux.getName(), field))
+                return aux.getType().getName();
+        }
+        return null;
+    }
+
+    public List<Object> getLocalVarType(String localVar, String method){
+
+        List<Symbol> localVariablesAux = localVariables.get(method);
+
+        for(Symbol aux : localVariablesAux){
+            if(Objects.equals(aux.getName(), localVar))
+                return List.of(aux.getType().getName(), aux.getType().isArray());
+        }
+        return null;
     }
 }
