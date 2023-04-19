@@ -62,7 +62,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
         addVisit(ASTDict.IDENTIFIER, this::identifierVisit);
         addVisit(ASTDict.NEW_INT_ARRAY, this::newIntArrayVisit);
         //addVisit(ASTDict.NEW_OBJECT, this::newObjectVisit);
-        //addVisit(ASTDict.BOOL, this::booleanVisit);
+        addVisit(ASTDict.BOOL, this::booleanVisit);
         //addVisit(ASTDict.THIS, this::thisVisit);
 
     }
@@ -232,7 +232,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
                 ollirCode.deleteCharAt(ollirCode.length() - 1); //Remove x2 last \n
                 Utils.currentTemp--;
             }
-            case ASTDict.INTEGER, ASTDict.IDENTIFIER -> ollirCode.append("\t".repeat(indent))
+            case ASTDict.INTEGER, ASTDict.IDENTIFIER, ASTDict.BOOL -> ollirCode.append("\t".repeat(indent))
                                                                  .append(var_name)
                                                                  .append(var_type)
                                                                  .append(" :=")
@@ -326,6 +326,10 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
             }
         }
         return List.of("new(array, %s.i32).array.i32;".formatted(inside), before);
+    }
+
+    private List<String> booleanVisit(JmmNode jmmNode, StringBuilder ollirCode){
+        return List.of(jmmNode.get("value").equals("true") ? "1" : "0", "");
     }
 
 }

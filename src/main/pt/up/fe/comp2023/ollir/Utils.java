@@ -20,7 +20,7 @@ public class Utils {
     }
 
     public static String boolToOllir(boolean value){
-        return value ? "1.bool" : "0.bool";
+        return value ? "1" : "0";
     }
 
     public static String nextTemp(){
