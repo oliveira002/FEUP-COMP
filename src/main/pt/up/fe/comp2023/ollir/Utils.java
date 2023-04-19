@@ -2,7 +2,7 @@ package pt.up.fe.comp2023.ollir;
 
 public class Utils {
 
-    static int currentTemp = 1;
+    static int currentTemp = 0;
 
     public static String toOllirType(String type, boolean is_array){
 

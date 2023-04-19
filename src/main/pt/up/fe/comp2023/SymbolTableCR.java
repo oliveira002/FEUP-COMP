@@ -114,13 +114,13 @@ public class SymbolTableCR implements SymbolTable {
         return null;
     }
 
-    public String getLocalVarType(String localVar, String method){
+    public List<Object> getLocalVarType(String localVar, String method){
 
         List<Symbol> localVariablesAux = localVariables.get(method);
 
         for(Symbol aux : localVariablesAux){
             if(Objects.equals(aux.getName(), localVar))
-                return aux.getType().getName();
+                return List.of(aux.getType().getName(), aux.getType().isArray());
         }
         return null;
     }

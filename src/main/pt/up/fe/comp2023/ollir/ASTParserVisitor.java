@@ -60,7 +60,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
         addVisit(ASTDict.METHOD_CALL, this::methodCallVisit);
         addVisit(ASTDict.INTEGER, this::integerVisit);
         addVisit(ASTDict.IDENTIFIER, this::identifierVisit);
-        //addVisit(ASTDict.NEW_INT_ARRAY, this::newIntArrayVisit);
+        addVisit(ASTDict.NEW_INT_ARRAY, this::newIntArrayVisit);
         //addVisit(ASTDict.NEW_OBJECT, this::newObjectVisit);
         //addVisit(ASTDict.BOOL, this::booleanVisit);
         //addVisit(ASTDict.THIS, this::thisVisit);
@@ -219,7 +219,8 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
     //TODO: Cp2
     private List<String> varAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
         String var_name = jmmNode.get("var");
-        String var_type = Utils.toOllirType(symbolTable.getLocalVarType(var_name, this.method), false);
+        List<Object> local_var_info = symbolTable.getLocalVarType(var_name, this.method);
+        String var_type = Utils.toOllirType((String) local_var_info.get(0), (boolean) local_var_info.get(1));
 
         ollirCode.append("\n");
 
@@ -240,12 +241,26 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
                                                                  .append(visit(child, ollirCode).get(0))
                                                                  .append(var_type)
                                                                  .append(";");
+            case ASTDict.NEW_INT_ARRAY -> {
+
+                List<String> code = visit(child, ollirCode);
+                ollirCode.append(code.get(1))
+                         .append("\t".repeat(indent))
+                         .append(var_name)
+                         .append(var_type)
+                         .append(" :=")
+                         .append(var_type)
+                         .append(" ")
+                         .append(code.get(0))
+                         .append("\n");
+            }
+            //case ASTDict.NEW_OBJECT ->
         }
         return null;
     }
 
-    //TODO: Cp2
     private List<String> arrayAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
         return null;
     }
 
@@ -286,6 +301,31 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
 
     private List<String> identifierVisit(JmmNode jmmNode, StringBuilder ollirCode){
         return List.of(jmmNode.get("var"), "");
+    }
+
+    private List<String> newIntArrayVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+        String inside = "";
+        String before = "";
+
+        JmmNode child = jmmNode.getChildren().get(0);
+        switch(child.getKind()){
+            case ASTDict.BINARY_OP, ASTDict.IDENTIFIER -> {
+                List<String> code = visit(child, ollirCode);
+
+                inside = code.get(0);
+                before = code.get(1);
+
+            }
+            case ASTDict.INTEGER -> {
+                List<String> int_code = visit(child, ollirCode);
+                String temp = Utils.nextTemp();
+
+                inside = temp;
+                before = "\t".repeat(indent) + temp+".i32 :=.i32 "+int_code.get(0)+".i32;\n";
+            }
+        }
+        return List.of("new(array, %s.i32).array.i32;".formatted(inside), before);
     }
 
 }
