@@ -47,7 +47,7 @@ class CompileBasic extends Quicksort {
         e = 2;
         f = 2;
 
-        intLocal2 = new int[1+2];
+        intLocal2 = new int[1+2+3];
         intLocal2[0] = 1;
         intLocal2[0+1] = d+e;
         intLocal2[f] = 3;
