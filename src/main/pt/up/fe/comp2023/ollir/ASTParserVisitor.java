@@ -6,6 +6,7 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp2023.analysis.SymbolTableCR;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -260,6 +261,37 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
     }
 
     private List<String> arrayAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+        var index = jmmNode.getChildren().get(0);
+        var value = jmmNode.getChildren().get(1);
+        var name = jmmNode.get("var");
+
+        List<String> index_code = new ArrayList<>();
+        List<String> value_code;
+
+        switch(index.getKind()){
+            case ASTDict.BINARY_OP, ASTDict.IDENTIFIER -> {
+                index_code = visit(index, ollirCode);
+            }
+            case ASTDict.INTEGER ->{
+                List<String> int_var = visit(index, ollirCode);
+                String temp = Utils.nextTemp();
+                String prefix_code = "\t".repeat(indent)+temp + ".i32 :=.i32 "+int_var.get(0)+".i32;\n";
+                index_code = List.of(temp, prefix_code);
+            }
+        }
+
+        value_code = visit(value, ollirCode);
+
+        ollirCode.append(index_code.get(1))
+                 .append(value_code.get(1))
+                 .append("\t".repeat(indent))
+                 .append(name)
+                 .append("[")
+                 .append(index_code.get(0))
+                 .append(".i32].i32 :=.i32 ")
+                 .append(value_code.get(0))
+                 .append(".i32;\n");
 
         return null;
     }
