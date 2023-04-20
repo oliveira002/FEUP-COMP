@@ -56,7 +56,7 @@ class CompileBasic extends Quicksort {
     }
 
     public static void main(String[] args) {
-        //CompileBasic test;
-        //test = new CompileBasic();
+        CompileBasic test;
+        test = new CompileBasic();
     }
 }

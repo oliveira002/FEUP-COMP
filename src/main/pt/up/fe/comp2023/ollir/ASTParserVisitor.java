@@ -255,7 +255,22 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
                          .append(code.get(0))
                          .append("\n");
             }
-            //case ASTDict.NEW_OBJECT ->
+            case ASTDict.NEW_OBJECT -> {
+                ollirCode.append("\t".repeat(indent))
+                         .append(var_name)
+                         .append(var_type)
+                         .append(" :=")
+                         .append(var_type)
+                         .append(" new(")
+                         .append(var_type.replace(".", ""))
+                         .append(")")
+                         .append(var_type).append(";\n")
+                         .append("\t".repeat(indent))
+                         .append("invokespecial(")
+                         .append(var_name)
+                         .append(var_type)
+                         .append(",\"<init>\").V;\n");
+            }
         }
         return null;
     }
