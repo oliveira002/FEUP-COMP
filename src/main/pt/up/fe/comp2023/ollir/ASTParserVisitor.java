@@ -283,7 +283,8 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
 
         value_code = visit(value, ollirCode);
 
-        ollirCode.append(index_code.get(1))
+        ollirCode.append("\n")
+                 .append(index_code.get(1))
                  .append(value_code.get(1))
                  .append("\t".repeat(indent))
                  .append(name)
@@ -357,7 +358,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
                 before = "\t".repeat(indent) + temp+".i32 :=.i32 "+int_code.get(0)+".i32;\n";
             }
         }
-        return List.of("new(array, %s.i32).array.i32;".formatted(inside), before);
+        return List.of("new(array, %s.i32).array.i32;".formatted(inside), "\n"+before);
     }
 
     private List<String> booleanVisit(JmmNode jmmNode, StringBuilder ollirCode){
