@@ -233,9 +233,9 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
 
         JmmNode child = jmmNode.getChildren().get(0);
         switch(child.getKind()){
-            case ASTDict.BINARY_OP -> {
-                List<String> binary_op_code = visit(child, ollirCode);
-                ollirCode.append(binary_op_code.get(1).replace(binary_op_code.get(0), var_name));
+            case ASTDict.BINARY_OP, ASTDict.METHOD_CALL -> {
+                List<String> code = visit(child, ollirCode);
+                ollirCode.append(code.get(1).replace(code.get(0), var_name));
                 ollirCode.deleteCharAt(ollirCode.length() - 1); //Remove x2 last \n
                 Utils.currentTemp--;
             }
@@ -350,6 +350,48 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
         String method = jmmNode.get("var");
         List<JmmNode> params = jmmNode.getChildren();
         params = params.subList(1, params.size());
+        String return_type =".V";
+
+        //Var assign
+        if(jmmNode.getJmmParent().getKind().equals(ASTDict.VAR_ASSIGN)){
+            String temp = Utils.nextTemp();
+            Type return_type_aux = symbolTable.getReturnType(this.method);
+            return_type = Utils.toOllirType(return_type_aux.getName(), return_type_aux.isArray());
+
+            List<Object> var_type = symbolTable.getLocalVarType(called, this.method);
+
+            if(var_type == null){
+                var_type = symbolTable.getParamType(called, this.method);
+            }
+
+            StringBuilder prefix_code = new StringBuilder("\t".repeat(indent) + temp + return_type + " :=" + return_type + " invokevirtual("
+                    + called + Utils.toOllirType((String) var_type.get(0), (boolean) var_type.get(1)) + ", " + "\"" + method + "\"");
+
+            for(JmmNode param : params){
+
+                String param_value = visit(param, ollirCode).get(0);
+                String param_type;
+
+                //Int
+                if(param.getKind().equals(ASTDict.INTEGER)){
+                    param_type = ".i32";
+                }
+                //Identifier
+                else{
+
+                    List<Object> param_type_aux = symbolTable.getFieldType(param_value);
+                    if(param_type_aux == null){
+                        param_type_aux = symbolTable.getLocalVarType(param_value, this.method);
+                    }
+                    param_type = Utils.toOllirType((String) param_type_aux.get(0), (boolean) param_type_aux.get(1));
+                }
+
+                prefix_code.append(", ").append(param_value).append(param_type);
+            }
+
+            prefix_code.append(")").append(return_type).append(";\n");
+            return List.of(temp, prefix_code.toString());
+        }
 
         //Import, class -> invokestatic
         if(symbolTable.getParsedImports().contains(called) || symbolTable.getClassName().equals(called)){
@@ -360,6 +402,9 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
         }
         //local var, method params -> invokevirtual
         else{
+
+            Type return_type_aux = symbolTable.getReturnType(this.method);
+            return_type = Utils.toOllirType(return_type_aux.getName(), return_type_aux.isArray());
 
             List<Object> var_type = symbolTable.getLocalVarType(called, this.method);
 
@@ -399,7 +444,9 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
                      .append(param_value).append(param_type);
         }
 
-        ollirCode.append(").V;");
+        ollirCode.append(")")
+                 .append(return_type)
+                 .append(";");
 
         return null;
     }
