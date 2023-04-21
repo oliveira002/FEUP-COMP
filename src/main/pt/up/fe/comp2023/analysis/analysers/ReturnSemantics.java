@@ -37,7 +37,7 @@ public class ReturnSemantics extends SemanticAnalysisVisitor {
             Type returnedType = this.getNodeType(returnExp,symbolTable);
 
             if(Objects.equals(returnedType.getName(), "unknown")) {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable is not defined!"));
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Variable is not defined!"));
                 return 1;
             }
 
@@ -47,7 +47,7 @@ public class ReturnSemantics extends SemanticAnalysisVisitor {
 
             Type originalType = symbolTable.getReturnType(methodName);
             if(!Objects.equals(returnedType.getName(), originalType.getName()) || returnedType.isArray() != originalType.isArray()) {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Return type doesn't  match with what is being returned!"));
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Return type doesn't  match with what is being returned!"));
             }
         }
         return 1;

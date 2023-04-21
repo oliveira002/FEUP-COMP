@@ -38,7 +38,7 @@ public class ThisSemantics extends SemanticAnalysisVisitor {
         Type varType = this.getNodeType(var,symbolTable);
 
         if(Objects.equals(methodName, "main")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"This cannot be used inside static methods!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"This cannot be used inside static methods!"));
             return 1;
         }
 

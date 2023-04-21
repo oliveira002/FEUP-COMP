@@ -35,7 +35,7 @@ public class ConditionSemantics extends SemanticAnalysisVisitor {
         Type conditionType = this.getNodeType(condition,symbolTable);
 
         if(Objects.equals(conditionType.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable is not defined!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Variable is not defined!"));
             return 1;
         }
 
@@ -44,7 +44,7 @@ public class ConditionSemantics extends SemanticAnalysisVisitor {
         }
 
         if(!Objects.equals(conditionType, new Type("boolean", false))) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Condition must be of type boolean!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Condition must be of type boolean!"));
         }
         return 1;
     }
