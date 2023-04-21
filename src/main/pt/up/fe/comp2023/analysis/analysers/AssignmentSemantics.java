@@ -53,7 +53,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
             if(Objects.equals(value.getKind(), "Identifier")) {
                 temp = value.get("var");
             }
-            if(symbolTable.fieldExists(varName) || symbolTable.fieldExists(temp)) {
+            if((symbolTable.fieldExists(varName) || symbolTable.fieldExists(temp)) && !symbolTable.localVarExists(varName,"main")) {
                 reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Field in static!"));
                 return 1;
             }
