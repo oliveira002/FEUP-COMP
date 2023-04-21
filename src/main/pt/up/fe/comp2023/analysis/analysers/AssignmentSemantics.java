@@ -39,12 +39,12 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         Type valueType = this.getNodeType(value,symbolTable);
 
         if(Objects.equals(varType.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Variable assigned doesn't not exist!"));
             return 1;
         }
 
         if(Objects.equals(valueType.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Variable assigned doesn't not exist!"));
             return 1;
         }
 
@@ -54,7 +54,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
                 temp = value.get("var");
             }
             if(symbolTable.fieldExists(varName) || symbolTable.fieldExists(temp)) {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Field in static!"));
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Field in static!"));
                 return 1;
             }
         }
@@ -64,7 +64,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
                 return 1;
             }
             if(!Objects.equals(valueType.getName(), varType.getName())) {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Variable assigned doesn't not exist!"));
                 return 1;
             }
             return 1;
@@ -81,7 +81,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
                 return 1;
             }
             else {
-                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable type for this is wrong!"));
+                reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Variable type for this is wrong!"));
             }
             return 1;
         }
@@ -96,7 +96,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         }
 
         if(!Objects.equals(valueType.getName(), varType.getName()) || valueType.isArray() != varType.isArray()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Types in the assignment don't match!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Types in the assignment don't match!"));
         }
 
         return 1;
@@ -108,12 +108,12 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         Type varType = this.getVariableType(varName,methodName,symbolTable);
 
         if(Objects.equals(varType.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Variable assigned doesn't not exist!"));
             return 1;
         }
 
         if(!Objects.equals(varType.getName(), "int") || !varType.isArray()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned isn't an integer array!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Variable assigned isn't an integer array!"));
             return 1;
         }
 
@@ -122,12 +122,12 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         Type idxType = this.getNodeType(index,symbolTable);
 
         if(Objects.equals(idxType.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Variable assigned doesn't not exist!"));
             return 1;
         }
 
         if(!Objects.equals(idxType.getName(), "int") || idxType.isArray()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Index isn't an integer!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Index isn't an integer!"));
             return 1;
         }
 
@@ -136,12 +136,12 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
         Type valType = this.getNodeType(value,symbolTable);
 
         if(Objects.equals(valType.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable assigned doesn't not exist!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Variable assigned doesn't not exist!"));
             return 1;
         }
 
         if(!Objects.equals(valType.getName(), "int") || valType.isArray()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Value isn't an integer!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Value isn't an integer!"));
             return 1;
         }
 

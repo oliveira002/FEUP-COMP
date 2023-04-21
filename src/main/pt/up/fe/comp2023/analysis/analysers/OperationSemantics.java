@@ -42,20 +42,20 @@ public class OperationSemantics extends SemanticAnalysisVisitor {
         Type snd = this.getNodeType(secOperand,symbolTable);
 
         if(Objects.equals(fst.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Var is not defined!"));
             return 1;
         }
 
         if(Objects.equals(snd.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Var is not defined!"));
             return 1;
         }
 
         if(!Objects.equals(fst.getName(), "int") || fst.isArray()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type integer"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"First Operand must be of type integer"));
         }
         if(!Objects.equals(snd.getName(), "int") || snd.isArray()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type integer"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"First Operand must be of type integer"));
         }
 
         return 1;
@@ -70,20 +70,20 @@ public class OperationSemantics extends SemanticAnalysisVisitor {
         Type snd = this.getNodeType(secOperand,symbolTable);
 
         if(Objects.equals(fst.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Var is not defined!"));
             return 1;
         }
 
         if(Objects.equals(snd.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Var is not defined!"));
             return 1;
         }
 
         if(!Objects.equals(fst.getName(), "boolean")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type boolean"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"First Operand must be of type boolean"));
         }
         if(!Objects.equals(snd.getName(), "boolean")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"First Operand must be of type boolean"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"First Operand must be of type boolean"));
         }
 
         return 1;
@@ -98,17 +98,17 @@ public class OperationSemantics extends SemanticAnalysisVisitor {
         Type snd = this.getNodeType(secOperand,symbolTable);
 
         if(Objects.equals(fst.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Var is not defined!"));
             return 1;
         }
 
         if(Objects.equals(snd.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Var is not defined!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Var is not defined!"));
             return 1;
         }
 
         if(!Objects.equals(fst.getName(),"int")  || !Objects.equals(snd.getName(),"int") || fst.isArray() || snd.isArray()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Types don't match in the comparison (<)"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Types don't match in the comparison (<)"));
         }
 
         return 1;
@@ -119,12 +119,12 @@ public class OperationSemantics extends SemanticAnalysisVisitor {
         Type varType = this.getNodeType(var,symbolTable);
 
         if(Objects.equals(varType.getName(), "unknown")) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Index is not defined!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Index is not defined!"));
             return 1;
         }
 
         if(!Objects.equals(varType.getName(), "boolean") || varType.isArray()) {
-            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0,0,"Variable is not an integer array!"));
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")),Integer.parseInt(jmmNode.get("colStart")),"Variable is not an integer array!"));
         }
 
         return 1;
