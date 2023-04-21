@@ -168,13 +168,6 @@ public class SymbolTableCR implements SymbolTable {
         return print();
     }
 
-    public String getFieldType(String field) {
-        for(Symbol aux : fields){
-            if(Objects.equals(aux.getName(), field))
-                return aux.getType().getName();
-        }
-        return null;
-    }
 
     public List<Object> getLocalVarType(String localVar, String method){
 
@@ -186,4 +179,25 @@ public class SymbolTableCR implements SymbolTable {
         }
         return null;
     }
+
+    public List<Object> getFieldType(String field){
+
+        for(Symbol aux : fields){
+            if(Objects.equals(aux.getName(), field))
+                return List.of(aux.getType().getName(), aux.getType().isArray());
+        }
+        return null;
+    }
+
+    public List<String> getParsedImports() {
+        List <String> parsedImports = new ArrayList<>();
+
+        for (String s : imports) {
+            int lastDotIndex = s.lastIndexOf(".");
+            parsedImports.add(s.substring(lastDotIndex + 1));
+        }
+
+        return parsedImports;
+    }
+
 }

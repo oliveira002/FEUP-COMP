@@ -21,6 +21,11 @@ CompileBasic extends Quicksort {
 	}
 
 	.method public method2(intParam1.i32, boolParam1.bool).bool {
+
+	    //putfield(this, intField.i32, 5.i32).V;
+        //putfield(this, boolField.bool, 0.bool).V;
+
+        //temp2.bool :=.bool getfield(this, boolField.bool).bool;
 		ret.bool boolParam1.bool;
 	}
 
@@ -31,8 +36,14 @@ CompileBasic extends Quicksort {
 
         invokestatic(io,"println",c.i32).V;
 
-		temp2.i32 :=.i32 a.i32 +.i32 b.i32;
-		ret.i32 temp2.i32;
+        //temp3.CompileBasic :=.CompileBasic new(CompileBasic).CompileBasic;
+        //invokespecial(temp3.CompileBasic,"<init>").V;
+        //temp4.i32 :=.i32 invokevirtual(temp2.CompileBasic,"method1").i32;
+        //invokestatic(io, "println", temp4.i32).V;
+
+
+		temp5.i32 :=.i32 a.i32 +.i32 b.i32;
+		ret.i32 temp5.i32;
 	}
 
 	.method public method4().i32 {
@@ -40,16 +51,16 @@ CompileBasic extends Quicksort {
 		e.i32 :=.i32 2.i32;
 		f.i32 :=.i32 2.i32;
 
-		temp3.i32 :=.i32 1.i32 +.i32 2.i32;
-		temp4.i32 :=.i32 temp3.i32 +.i32 3.i32;
-		intLocal2.array.i32 :=.array.i32 new(array, temp4.i32).array.i32;
+		temp6.i32 :=.i32 1.i32 +.i32 2.i32;
+		temp7.i32 :=.i32 temp6.i32 +.i32 3.i32;
+		intLocal2.array.i32 :=.array.i32 new(array, temp6.i32).array.i32;
 
-		temp5.i32 :=.i32 0.i32;
-		intLocal2[temp5.i32].i32 :=.i32 1.i32;
+		temp8.i32 :=.i32 0.i32;
+		intLocal2[temp8.i32].i32 :=.i32 1.i32;
 
-		temp6.i32 :=.i32 0.i32 +.i32 1.i32;
-		temp7.i32 :=.i32 d.i32 +.i32 e.i32;
-		intLocal2[temp6.i32].i32 :=.i32 temp7.i32;
+		temp9.i32 :=.i32 0.i32 +.i32 1.i32;
+		temp10.i32 :=.i32 d.i32 +.i32 e.i32;
+		intLocal2[temp9.i32].i32 :=.i32 temp10i32;
 
 		intLocal2[f.i32].i32 :=.i32 3.i32;
 
@@ -59,6 +70,7 @@ CompileBasic extends Quicksort {
 	.method public static main(args.array.String).V {
 		test.CompileBasic :=.CompileBasic new(CompileBasic).CompileBasic;
 		invokespecial(test.CompileBasic,"<init>").V;
+        invokevirtual(test.CompileBasic,"method4",10.i32).V;
 
 		ret.V;
 	}

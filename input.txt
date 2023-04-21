@@ -9,6 +9,7 @@ class CompileBasic extends Quicksort {
     String boas2;
     CompileBasic boas3;
 
+
     public int method1() {
         int intLocal1;
         boolean boolLocal1;
@@ -20,6 +21,8 @@ class CompileBasic extends Quicksort {
     }
 
     public boolean method2(int intParam1, boolean boolParam1) {
+        //intField = 4;
+        //boolField = true;
         return boolParam1;
     }
 
@@ -32,12 +35,13 @@ class CompileBasic extends Quicksort {
         b = 2;
         c = a;
 
-        //io.println(c);
+        io.println(c);
+        //io.println(new CompileBasic().method1());
 
         return a + b;
     }
 
-    public int method4() {
+    public int method4(int nr) {
         int d;
         int e;
         int f;
@@ -58,5 +62,6 @@ class CompileBasic extends Quicksort {
     public static void main(String[] args) {
         CompileBasic test;
         test = new CompileBasic();
+        test.method4(10);
     }
 }

@@ -49,7 +49,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
         //addVisit(ASTDict.VAR_TYPE, this::varTypeVisit);
         //addVisit(ASTDict.THEN_STATEMENT, this::thenStatementVisit);
         addVisit(ASTDict.CONDITIONAL_STATEMENT, this::condStatementVisit);
-        //addVisit(ASTDict.EXP_STATEMENT, this::expressionStatementVisit);
+        addVisit(ASTDict.EXP_STATEMENT, this::expressionStatementVisit);
         addVisit(ASTDict.VAR_ASSIGN, this::varAssignVisit);
         addVisit(ASTDict.ARRAY_ASSIGN, this::arrayAssignVisit);
         //addVisit(ASTDict.PARENTHESES, this::parenthesesVisit);
@@ -217,6 +217,12 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
         return null;
     }
 
+    private  List<String> expressionStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
+        for(JmmNode child : jmmNode.getChildren())
+            visit(child, ollirCode);
+        return null;
+    }
+
     //TODO: Cp2
     private List<String> varAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
         String var_name = jmmNode.get("var");
@@ -340,6 +346,58 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
 
     //TODO: Cp2
     private List<String> methodCallVisit(JmmNode jmmNode, StringBuilder ollirCode){
+        String called = jmmNode.getJmmChild(0).get("var");
+        String method = jmmNode.get("var");
+        List<JmmNode> params = jmmNode.getChildren();
+        params = params.subList(1, params.size());
+
+        //Import, class -> invokestatic
+        if(symbolTable.getParsedImports().contains(called) || symbolTable.getClassName().equals(called)){
+            ollirCode.append("\n")
+                     .append("\t".repeat(indent))
+                     .append("invokestatic(");
+
+        }
+        //local var -> invokevirtual
+        else{
+
+            List<Object> var_type = symbolTable.getLocalVarType(called, this.method);
+
+            ollirCode.append("\t".repeat(indent))
+                     .append("invokevirtual(")
+                     .append(called).append(Utils.toOllirType((String) var_type.get(0), (boolean) var_type.get(1)));
+        }
+
+         ollirCode.append(called)
+                   .append(", \"")
+                   .append(method)
+                   .append("\"");
+
+        for(JmmNode param : params){
+
+            String param_value = visit(param, ollirCode).get(0);
+            String param_type;
+
+            //Int
+            if(param.getKind().equals(ASTDict.INTEGER)){
+                 param_type = ".i32";
+            }
+            //Identifier
+            else{
+
+                List<Object> param_type_aux = symbolTable.getFieldType(param_value);
+                if(param_type_aux == null){
+                    param_type_aux = symbolTable.getLocalVarType(param_value, this.method);
+                }
+                param_type = Utils.toOllirType((String) param_type_aux.get(0), (boolean) param_type_aux.get(1));
+            }
+
+            ollirCode.append(", ")
+                     .append(param_value).append(param_type);
+        }
+
+        ollirCode.append(").V;");
+
         return null;
     }
 
