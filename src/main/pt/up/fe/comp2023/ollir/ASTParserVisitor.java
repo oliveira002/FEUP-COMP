@@ -355,23 +355,26 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
         if(symbolTable.getParsedImports().contains(called) || symbolTable.getClassName().equals(called)){
             ollirCode.append("\n")
                      .append("\t".repeat(indent))
-                     .append("invokestatic(");
+                     .append("invokestatic(").append(called);
 
         }
-        //local var -> invokevirtual
+        //local var, method params -> invokevirtual
         else{
 
             List<Object> var_type = symbolTable.getLocalVarType(called, this.method);
+
+            if(var_type == null){
+                var_type = symbolTable.getParamType(called, this.method);
+            }
 
             ollirCode.append("\t".repeat(indent))
                      .append("invokevirtual(")
                      .append(called).append(Utils.toOllirType((String) var_type.get(0), (boolean) var_type.get(1)));
         }
 
-         ollirCode.append(called)
-                   .append(", \"")
-                   .append(method)
-                   .append("\"");
+         ollirCode.append(", \"")
+                  .append(method)
+                  .append("\"");
 
         for(JmmNode param : params){
 

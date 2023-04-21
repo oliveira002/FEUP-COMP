@@ -173,8 +173,27 @@ public class SymbolTableCR implements SymbolTable {
 
         List<Symbol> localVariablesAux = localVariables.get(method);
 
+        if(localVariablesAux == null){
+            return null;
+        }
+
         for(Symbol aux : localVariablesAux){
             if(Objects.equals(aux.getName(), localVar))
+                return List.of(aux.getType().getName(), aux.getType().isArray());
+        }
+        return null;
+    }
+
+    public List<Object> getParamType(String param, String method){
+
+        List<Symbol> params_aux = parameters.get(method);
+
+        if(params_aux == null){
+            return null;
+        }
+
+        for(Symbol aux : params_aux){
+            if(Objects.equals(aux.getName(), param))
                 return List.of(aux.getType().getName(), aux.getType().isArray());
         }
         return null;
