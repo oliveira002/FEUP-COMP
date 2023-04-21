@@ -169,6 +169,15 @@ public class Jasmin implements JasminBackend {
                 hasReturnInstruction = true;
             }
             code.append(this.routeInstruction(instruction, method.getVarTable(), method.getMethodName()));
+            if(!Flag && instruction instanceof CallInstruction){
+                CallInstruction i = (CallInstruction) instruction;
+                if(i.getReturnType().getTypeOfElement() != ElementType.VOID
+                        &&(i.getInvocationType() == CallType.invokestatic ||
+                        i.getInvocationType() == CallType.invokespecial ||
+                        i.getInvocationType() == CallType.invokevirtual)){
+                    code.append("\tpop\n");
+                }
+            }
         }
 
         if (!hasReturnInstruction) {
