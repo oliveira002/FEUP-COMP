@@ -98,7 +98,7 @@ public class Jasmin implements JasminBackend {
             return "[" + this.getParseType(new Type(((ArrayType) type).getArrayType()));
         }
         else if(eType == ElementType.OBJECTREF){
-            return "L" + this.importsMap.getOrDefault(eType.getClass().getName(), eType.getClass().getName()) + ";";
+            return "L" + this.importsMap.getOrDefault(((ClassType) type).getName(), ((ClassType) type).getName()) + ";";
         }
         else{
             throw new RuntimeException("no include");
@@ -145,9 +145,11 @@ public class Jasmin implements JasminBackend {
         if (method.getMethodAccessModifier() != AccessModifiers.DEFAULT) {
             code.append(method.getMethodAccessModifier().toString().toLowerCase()).append(" ");
         }
+
         if (method.isStaticMethod()) {
             code.append("static ");
         }
+
         if (method.isFinalMethod()) {
             code.append("final ");
         }
