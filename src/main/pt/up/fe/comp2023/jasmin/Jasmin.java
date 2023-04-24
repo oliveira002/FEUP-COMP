@@ -32,7 +32,7 @@ public class Jasmin implements JasminBackend {
 
         for (String importString : this.OllirCode.getImports()) {
             var splittedImport = importString.split("\\.");
-            this.importsMap.put(splittedImport[splittedImport.length - 1], String.join("/", splittedImport));
+            this.importsMap.put(splittedImport.length == 0 ? importString : splittedImport[splittedImport.length - 1], String.join("/", splittedImport));
         }
 
         jasminCode.append(this.jasminHeader());
