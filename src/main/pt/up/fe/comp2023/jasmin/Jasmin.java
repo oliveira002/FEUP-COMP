@@ -200,7 +200,7 @@ public class Jasmin implements JasminBackend {
         StringBuilder jasminCode = new StringBuilder();
 
         if(instruction.getInvocationType() == CallType.invokevirtual){
-            InvokeVirtualOps code = new InvokeVirtualOps(instruction, varTable, this.numLabel, MethodName, this.importsMap,this);
+            InvokeVirtualOps code = new InvokeVirtualOps(instruction, varTable, this.numLabel, this.OllirCode.getClassName(), this.importsMap,this);
             jasminCode.append(code.toJasmin());
         }
         else if(instruction.getInvocationType() == CallType.invokespecial){
@@ -208,7 +208,7 @@ public class Jasmin implements JasminBackend {
             String code2 = code.toJasmin();
             if(Flag){
                 Flag = false;
-                //code2 = code2.replaceFirst("invokespecial", "invokenonvirtual");
+                code2 = code2.replaceFirst("invokespecial", "invokenonvirtual");
             }
             jasminCode.append(code2);
         }
