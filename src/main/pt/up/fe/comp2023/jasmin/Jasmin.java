@@ -213,7 +213,7 @@ public class Jasmin implements JasminBackend {
             jasminCode.append(code2);
         }
         else if(instruction.getInvocationType() == CallType.invokestatic){
-            InvokeStaticOps code = new InvokeStaticOps(instruction, varTable, this.numLabel,this.OllirCode.getSuperClass(), this.importsMap,this);
+            InvokeStaticOps code = new InvokeStaticOps(instruction, varTable, this.numLabel,this.OllirCode.getClassName(), this.importsMap,this);
             jasminCode.append(code.toJasmin());
         } else if (instruction.getInvocationType() == CallType.NEW) {
             NewOps code = new NewOps(instruction, varTable, this.numLabel, this.OllirCode.getSuperClass(), this.importsMap,this);
