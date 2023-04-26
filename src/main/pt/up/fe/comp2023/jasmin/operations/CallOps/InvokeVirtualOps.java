@@ -25,8 +25,7 @@ public class InvokeVirtualOps extends InvokeAbstract{
         if (firstArgType == ElementType.THIS) {
             invokedClass = ThisClassName;
         } else {
-            ClassType classType = (ClassType) instruction.getFirstArg().getType();
-            String className = classType.getName();
+            String className = ((ClassType) instruction.getFirstArg().getType()).getName();
             invokedClass = this.importsMap.getOrDefault(className, className);
         }
 
@@ -38,7 +37,7 @@ public class InvokeVirtualOps extends InvokeAbstract{
         jasminCode.append(jasminCallCode);
 
         for (Element e : instruction.getListOfOperands())
-            jasminCode.append(new Jasmin().getParseType(e.getType()));
+            jasminCode.append(jasmin.getParseType(e.getType()));
 
         jasminCode.append(")").append(jasmin.getParseType(instruction.getReturnType())).append("\n");
 

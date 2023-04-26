@@ -32,7 +32,7 @@ public class Jasmin implements JasminBackend {
 
         for (String importString : this.OllirCode.getImports()) {
             var splittedImport = importString.split("\\.");
-            this.importsMap.put(splittedImport[splittedImport.length - 1], String.join("/", splittedImport));
+            this.importsMap.put(splittedImport.length == 0 ? importString : splittedImport[splittedImport.length - 1], String.join("/", splittedImport));
         }
 
         jasminCode.append(this.jasminHeader());
@@ -98,7 +98,7 @@ public class Jasmin implements JasminBackend {
             return "[" + this.getParseType(new Type(((ArrayType) type).getArrayType()));
         }
         else if(eType == ElementType.OBJECTREF){
-            return "L" + this.importsMap.getOrDefault(eType.getClass().getName(), eType.getClass().getName()) + ";";
+            return "L" + this.importsMap.getOrDefault(((ClassType) type).getName(), ((ClassType) type).getName()) + ";";
         }
         else{
             throw new RuntimeException("no include");
@@ -145,9 +145,11 @@ public class Jasmin implements JasminBackend {
         if (method.getMethodAccessModifier() != AccessModifiers.DEFAULT) {
             code.append(method.getMethodAccessModifier().toString().toLowerCase()).append(" ");
         }
+
         if (method.isStaticMethod()) {
             code.append("static ");
         }
+
         if (method.isFinalMethod()) {
             code.append("final ");
         }
@@ -200,7 +202,7 @@ public class Jasmin implements JasminBackend {
         StringBuilder jasminCode = new StringBuilder();
 
         if(instruction.getInvocationType() == CallType.invokevirtual){
-            InvokeVirtualOps code = new InvokeVirtualOps(instruction, varTable, this.numLabel, MethodName, this.importsMap,this);
+            InvokeVirtualOps code = new InvokeVirtualOps(instruction, varTable, this.numLabel, this.OllirCode.getClassName(), this.importsMap,this);
             jasminCode.append(code.toJasmin());
         }
         else if(instruction.getInvocationType() == CallType.invokespecial){
@@ -213,7 +215,7 @@ public class Jasmin implements JasminBackend {
             jasminCode.append(code2);
         }
         else if(instruction.getInvocationType() == CallType.invokestatic){
-            InvokeStaticOps code = new InvokeStaticOps(instruction, varTable, this.numLabel,this.OllirCode.getSuperClass(), this.importsMap,this);
+            InvokeStaticOps code = new InvokeStaticOps(instruction, varTable, this.numLabel,this.OllirCode.getClassName(), this.importsMap,this);
             jasminCode.append(code.toJasmin());
         } else if (instruction.getInvocationType() == CallType.NEW) {
             NewOps code = new NewOps(instruction, varTable, this.numLabel, this.OllirCode.getSuperClass(), this.importsMap,this);

@@ -34,7 +34,7 @@ public class InvokeStaticOps extends InvokeAbstract{
                 .append("(");
 
         for (Element e : instruction.getListOfOperands())
-            jasminCode.append(new Jasmin().getParseType(e.getType()));
+            jasminCode.append(jasmin.getParseType(e.getType()));
 
         jasminCode.append(")").append(jasmin.getParseType(instruction.getReturnType())).append("\n");
 
