@@ -573,13 +573,19 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
             params_prefix.append(code.get(1)).append("");
             params_code.append(", ").append(code.get(0)).append(param_type);
         }
-        params_code.append(")").append(return_type).append(";\n\n");
 
         //Var assign
-        if(jmmNode.getJmmParent().getKind().equals(ASTDict.VAR_ASSIGN)){
+        JmmNode parent;
+        if((parent = jmmNode.getJmmParent()).getKind().equals(ASTDict.VAR_ASSIGN)){
+
+            String parent_type = Utils.toOllirType(symbolTable.getAnyType(parent.get("var"), this.method).getName(), symbolTable.getAnyType(parent.get("var"), this.method).isArray());
+
+            params_code.append(")").append(parent_type).append(";\n\n");
             called_code.append(params_code);
             return List.of(" " + called_code.substring(indent),params_prefix.toString());
         }
+
+        params_code.append(")").append(return_type).append(";\n\n");
 
         //Regular statement
         ollirCode.append(params_prefix).append(called_code).append(params_code);
