@@ -537,11 +537,14 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
         }
         //local var, method params, class field -> invokevirtual
         else{
-
-            String called_type = Utils.toOllirType(symbolTable.getAnyType(called, this.method).getName(),symbolTable.getAnyType(called, this.method).isArray());
+            Type called_type_aux = symbolTable.getAnyType(called, this.method);
+            String called_type = Utils.toOllirType(called_type_aux.getName(),called_type_aux.isArray());
 
             called_code.append("\t".repeat(indent)).append("invokevirtual(").append(called).append(called_type).append(",").append("\"").append(method).append("\"");
-            return_type = Utils.toOllirType(symbolTable.getReturnType(method).getName(), symbolTable.getReturnType(method).isArray());
+
+            //TODO fix return type, check var
+            if(!symbolTable.getParsedImports().contains(called_type_aux.getName()))
+                return_type = Utils.toOllirType(symbolTable.getReturnType(method).getName(), symbolTable.getReturnType(method).isArray());
         }
 
         //Deal with parameters
