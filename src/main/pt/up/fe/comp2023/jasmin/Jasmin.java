@@ -210,7 +210,7 @@ public class Jasmin implements JasminBackend {
             String code2 = code.toJasmin();
             if(Flag){
                 Flag = false;
-                //code2 = code2.replaceFirst("invokespecial", "invokenonvirtual");
+                code2 = code2.replaceFirst("invokespecial", "invokenonvirtual");
             }
             jasminCode.append(code2);
         }
