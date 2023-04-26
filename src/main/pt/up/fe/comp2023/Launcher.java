@@ -16,6 +16,7 @@ import pt.up.fe.comp2023.jasmin.Jasmin;
 import pt.up.fe.comp2023.ollir.ASTParser;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
+import pt.up.fe.specs.util.SpecsStrings;
 import pt.up.fe.specs.util.SpecsSystem;
 
 public class Launcher {
@@ -65,9 +66,12 @@ public class Launcher {
         System.out.println("!--Ollir--!\n"+ollir.getOllirCode());
 
         //Jasmin generation
+        System.out.println("\n\n!--Jasmin--!\n");
         JasminBackend jasmin = new Jasmin();
-        JasminResult temp = jasmin.toJasmin(ollir);
-        var output = temp.run();
+        JasminResult jasminResult = jasmin.toJasmin(ollir);
+        var output = TestUtils.runJasmin(jasminResult.getJasminCode());
+        System.out.println(output);
+
     }
 
     private static Map<String, String> parseArgs(String[] args) {
