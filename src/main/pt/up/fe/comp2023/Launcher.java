@@ -66,6 +66,7 @@ public class Launcher {
         //Jasmin generation
         Jasmin jasmin = new Jasmin();
         JasminResult temp = jasmin.toJasmin(ollir);
+        var output = temp.run();
     }
 
     private static Map<String, String> parseArgs(String[] args) {
