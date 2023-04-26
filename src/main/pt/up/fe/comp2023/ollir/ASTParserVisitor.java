@@ -432,8 +432,8 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
         var lhs = jmmNode.getJmmChild(0);
         var rhs = jmmNode.getJmmChild(1);
 
-        List<String> lhsCode = visit(lhs);
-        List<String> rhsCode = visit(rhs);
+        List<String> lhsCode = visit(lhs, ollirCode);
+        List<String> rhsCode = visit(rhs, ollirCode);
         StringBuilder prefixCode = new StringBuilder();
 
         String temp = Utils.nextTemp();
@@ -639,15 +639,21 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
             params_code.append(", ").append(code.get(0)).append(param_type);
         }
 
-        //Var assign
-        JmmNode parent;
-        if((parent = jmmNode.getJmmParent()).getKind().equals(ASTDict.VAR_ASSIGN)){
+        //Var assign or binary op
+        JmmNode parent = jmmNode.getJmmParent();
+        if(parent.getKind().equals(ASTDict.VAR_ASSIGN)){
 
             String parent_type = Utils.toOllirType(symbolTable.getAnyType(parent.get("var"), this.method).getName(), symbolTable.getAnyType(parent.get("var"), this.method).isArray());
 
             params_code.append(")").append(parent_type).append(";\n\n");
             called_code.append(params_code);
             return List.of(" " + called_code.substring(indent),params_prefix.toString());
+        }
+        else if(parent.getKind().equals(ASTDict.BINARY_OP)){
+            String temp = Utils.nextTemp();
+            params_code.append(")").append(return_type).append(";\n\n");
+            called_code.append(params_code);
+            return List.of(temp+return_type,params_prefix.toString()+"\t".repeat(indent)+temp+return_type+" :="+return_type+" "+called_code.substring(indent));
         }
 
         params_code.append(")").append(return_type).append(";\n\n");
