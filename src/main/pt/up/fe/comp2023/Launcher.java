@@ -7,6 +7,7 @@ import java.util.Map;
 
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.jasmin.JasminBackend;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
@@ -64,7 +65,7 @@ public class Launcher {
         System.out.println("!--Ollir--!\n"+ollir.getOllirCode());
 
         //Jasmin generation
-        Jasmin jasmin = new Jasmin();
+        JasminBackend jasmin = new Jasmin();
         JasminResult temp = jasmin.toJasmin(ollir);
         var output = temp.run();
     }
