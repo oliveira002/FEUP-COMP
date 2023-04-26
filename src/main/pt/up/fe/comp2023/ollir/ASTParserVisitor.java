@@ -271,11 +271,15 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
 
             JmmNode child = jmmNode.getChildren().get(0);
             switch (child.getKind()) {
-                case ASTDict.BINARY_OP, ASTDict.METHOD_CALL -> {
+                case ASTDict.BINARY_OP -> {
                     List<String> code = visit(child, ollirCode);
                     ollirCode.append(code.get(1).replace(code.get(0), var_name));
                     ollirCode.deleteCharAt(ollirCode.length() - 1); //Remove x2 last \n
                     Utils.currentTemp--;
+                }
+                case ASTDict.METHOD_CALL -> {
+                    List<String> code = visit(child, ollirCode);
+                    ollirCode.append(code.get(1)).append("\t".repeat(indent)).append(var_name).append(var_type).append(" :=").append(var_type).append(code.get(0));
                 }
                 case ASTDict.INTEGER, ASTDict.IDENTIFIER, ASTDict.BOOL -> {
                     List<String> code = visit(child, ollirCode);
@@ -573,7 +577,8 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
 
         //Var assign
         if(jmmNode.getJmmParent().getKind().equals(ASTDict.VAR_ASSIGN)){
-            return List.of();
+            called_code.append(params_code);
+            return List.of(" " + called_code.substring(indent),params_prefix.toString());
         }
 
         //Regular statement
