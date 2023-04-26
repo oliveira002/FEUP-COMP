@@ -246,9 +246,11 @@ public class SymbolTableCR implements SymbolTable {
 
     public Type getAnyType(String var, String method){
         List<Object> type;
-        if((type = getFieldType(var)) != null) return new Type((String) type.get(0), (boolean) type.get(1));
-        if((type = getParamType(var, method)) != null) return new Type((String) type.get(0), (boolean) type.get(1));
+
         if((type = getLocalVarType(var, method)) != null) return new Type((String) type.get(0), (boolean) type.get(1));
+        if((type = getParamType(var, method)) != null) return new Type((String) type.get(0), (boolean) type.get(1));
+        if((type = getFieldType(var)) != null) return new Type((String) type.get(0), (boolean) type.get(1));
+
         return null;
     }
 
