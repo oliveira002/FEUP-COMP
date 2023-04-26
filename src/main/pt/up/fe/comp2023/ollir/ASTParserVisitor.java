@@ -383,7 +383,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
                     //Maybe later lmao
                 }
                 case ASTDict.NEW_OBJECT -> {
-                    //Maybe later too
+                    //Maybe not later
                 }
             }
 
@@ -649,11 +649,11 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
             called_code.append(params_code);
             return List.of(" " + called_code.substring(indent),params_prefix.toString());
         }
-        else if(parent.getKind().equals(ASTDict.BINARY_OP)){
+        else if(parent.getKind().equals(ASTDict.BINARY_OP) || parent.getKind().equals(ASTDict.METHOD_CALL)) {
             String temp = Utils.nextTemp();
             params_code.append(")").append(return_type).append(";\n\n");
             called_code.append(params_code);
-            return List.of(temp+return_type,params_prefix.toString()+"\t".repeat(indent)+temp+return_type+" :="+return_type+" "+called_code.substring(indent));
+            return List.of(temp + return_type, params_prefix.toString() + "\t".repeat(indent) + temp + return_type + " :=" + return_type + " " + called_code.substring(indent));
         }
 
         params_code.append(")").append(return_type).append(";\n\n");
