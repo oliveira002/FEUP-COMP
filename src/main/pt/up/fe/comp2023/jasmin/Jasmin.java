@@ -108,7 +108,7 @@ public class Jasmin implements JasminBackend {
         StringBuilder code = new StringBuilder();
 
         for (Field field : this.OllirCode.getFields()) {
-            code.append(".field ");
+            code.append(".field private ");
 
             if (field.getFieldAccessModifier() != AccessModifiers.DEFAULT) {
                 code.append(field.getFieldAccessModifier().toString().toLowerCase()).append(" ");
