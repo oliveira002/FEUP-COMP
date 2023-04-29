@@ -159,6 +159,20 @@ public class SymbolTableCR implements SymbolTable {
         return false;
     }
 
+    public boolean paramExists(String param, String methodName) {
+        if(parameters.containsKey(methodName)) {
+            List<Symbol> locals = getParameters(methodName);
+            for(Symbol s : locals) {
+                if(Objects.equals(s.getName(), param)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+
     public List<Report> getReports() {
         return reports;
     }
@@ -217,6 +231,27 @@ public class SymbolTableCR implements SymbolTable {
         }
 
         return parsedImports;
+    }
+
+    public int getParamIndex(String param, String method){
+        int index = 1;
+        var methodParams = getParameters(method);
+        for(Symbol paramAux : methodParams){
+            if (paramAux.getName().equals(param)) return index;
+            index++;
+        }
+        //Is syntatic analysis is correct, this should never happen
+        return -1;
+    }
+
+    public Type getAnyType(String var, String method){
+        List<Object> type;
+
+        if((type = getLocalVarType(var, method)) != null) return new Type((String) type.get(0), (boolean) type.get(1));
+        if((type = getParamType(var, method)) != null) return new Type((String) type.get(0), (boolean) type.get(1));
+        if((type = getFieldType(var)) != null) return new Type((String) type.get(0), (boolean) type.get(1));
+
+        return null;
     }
 
 }
