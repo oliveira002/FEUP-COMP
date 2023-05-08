@@ -1,21 +1,10 @@
-import io;
+class PropSimple {
+    public int foo(){
+	  int a;
+	  a = 10;
+	  return a;
+	}
+    public static void main(String[] args) {
 
-class A {
-    boolean c;
-
-    public int x(){
-        int a;
-        int b;
-
-        a = 2;
-        b = a + 2;
-
-        return 2;
-    }
-
-    public static void main(String[] args){
-        A a;
-        a = new A();
-        a.x();
     }
 }

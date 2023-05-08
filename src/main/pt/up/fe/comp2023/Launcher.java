@@ -63,7 +63,9 @@ public class Launcher {
 
         // optimize
         JmmOptimization jmmOptimization = new JmmOptimizer();
-        analysisResult = jmmOptimization.optimize(analysisResult);
+        if (config.get("optimize").equals("true"))
+            analysisResult = jmmOptimization.optimize(analysisResult);
+
         //Ollir generation
         ASTParser astParser = new ASTParser();
         OllirResult ollir = astParser.toOllir(analysisResult);
@@ -82,8 +84,8 @@ public class Launcher {
         SpecsLogs.info("Executing with args: " + Arrays.toString(args));
 
         // Check if there is at least one argument
-        if (args.length != 1) {
-            throw new RuntimeException("Expected a single argument, a path to an existing input file.");
+        if (args.length < 1) {
+            throw new RuntimeException("Expected at least an argument, a path to an existing input file.");
         }
 
         // Create config with default values
