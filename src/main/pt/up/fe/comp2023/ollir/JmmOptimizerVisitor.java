@@ -7,10 +7,9 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp2023.analysis.SymbolTableCR;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
+public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>> {
     private final SymbolTableCR symbolTable;
     private int indent = 0;
     private String method = "";
@@ -35,7 +34,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
             ASTDict.BOOL,
             ASTDict.THIS);
 
-    public ASTParserVisitor(SymbolTableCR symbolTable){
+    public JmmOptimizerVisitor(SymbolTableCR symbolTable){
         this.symbolTable = symbolTable;
         this.buildVisitor();
     }

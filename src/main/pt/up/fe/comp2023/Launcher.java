@@ -9,13 +9,11 @@ import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.jasmin.JasminBackend;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
-import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp2023.analysis.JmmSimpleAnalysis;
-import pt.up.fe.comp2023.ollir.optimization.JmmOptimizer;
 import pt.up.fe.comp2023.jasmin.Jasmin;
-import pt.up.fe.comp2023.ollir.ASTParser;
+import pt.up.fe.comp2023.ollir.JmmOptimizer;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -62,8 +60,9 @@ public class Launcher {
         System.out.println("!--Symbol table--!\n"+analysisResult.getSymbolTable());
 
         //Ollir generation
-        ASTParser astParser = new ASTParser();
-        OllirResult ollir = astParser.toOllir(analysisResult);
+        JmmOptimizer jmmOptimizer = new JmmOptimizer();
+        analysisResult = jmmOptimizer.optimize(analysisResult);
+        OllirResult ollir = jmmOptimizer.toOllir(analysisResult);
         System.out.println("!--Ollir--!\n"+ollir.getOllirCode());
 
         //Jasmin generation
