@@ -61,11 +61,6 @@ public class Launcher {
         System.out.println(parserResult.getRootNode().toTree());
         System.out.println("!--Symbol table--!\n"+analysisResult.getSymbolTable());
 
-        // optimize
-        JmmOptimization jmmOptimization = new JmmOptimizer();
-        if (config.get("optimize").equals("true"))
-            analysisResult = jmmOptimization.optimize(analysisResult);
-
         //Ollir generation
         ASTParser astParser = new ASTParser();
         OllirResult ollir = astParser.toOllir(analysisResult);
