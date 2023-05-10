@@ -56,7 +56,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
         addVisit(ASTDict.BINARY_OP, this::binaryOperatorVisit);
         //addVisit(ASTDict.COMPARE_OP, this::comparisonOperatorVisit);
         addVisit(ASTDict.ARRAY_INDEX, this::arrayIndexVisit);
-        //addVisit(ASTDict.ARRAY_LENGTH, this::arrayLengthVisit);
+        addVisit(ASTDict.ARRAY_LENGTH, this::arrayLengthVisit);
         addVisit(ASTDict.METHOD_CALL, this::methodCallVisit);
         addVisit(ASTDict.INTEGER, this::integerVisit);
         addVisit(ASTDict.IDENTIFIER, this::identifierVisit);
@@ -491,6 +491,15 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
         return List.of(sufix.toString(), prefix.toString());
     }
 
+    private List<String> arrayLengthVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+        String temp = Utils.nextTemp();
+        List<String> array = visit(jmmNode.getJmmChild(0), ollirCode);
+        String prefix = array.get(1)+"\t".repeat(indent)+temp+".i32 :=.i32 arraylength(" + array.get(0)+  ".array.i32).i32;\n";
+
+        return List.of(temp, prefix);
+    }
+
     private List<String> methodCallVisit(JmmNode jmmNode, StringBuilder ollirCode){
         String called = jmmNode.getJmmChild(0).get("var");
         StringBuilder called_code = new StringBuilder();
@@ -533,7 +542,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
             switch(param.getKind()){
                 case ASTDict.BOOL -> param_type = ".bool";
-                case ASTDict.INTEGER, ASTDict.BINARY_OP -> param_type = ".i32";
+                case ASTDict.INTEGER, ASTDict.BINARY_OP, ASTDict.ARRAY_LENGTH -> param_type = ".i32";
                 //class field, local var, method params
                 case ASTDict.IDENTIFIER -> {
                     param_value = param.get("var");
