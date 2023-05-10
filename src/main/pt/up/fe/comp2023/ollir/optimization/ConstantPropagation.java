@@ -53,7 +53,7 @@ public class ConstantPropagation extends PreorderJmmVisitor<Integer,Integer> {
             String value = varMap.get(varName);
             String type = "";
             type = value.matches("-?\\d+") ? "Integer" : "Boolean";
-            JmmNode replacement = new JmmNodeImpl("Integer");
+            JmmNode replacement = new JmmNodeImpl(type);
             replacement.put("value", String.valueOf(value));
             replacement.put("lineStart",jmmNode.get("lineStart"));
             replacement.put("colStart",jmmNode.get("colStart"));
