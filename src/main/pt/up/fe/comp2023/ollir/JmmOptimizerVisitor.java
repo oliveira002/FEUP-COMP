@@ -474,13 +474,19 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
             }
             case ASTDict.INTEGER ->{
                 result = visit(index_child, ollirCode);
-                String temp2 = Utils.nextTemp();
-                result = List.of(temp2, result.get(1)+"\t".repeat(indent) + temp2 + ".i32 :=.i32 " + result.get(0) + ".i32;\n");
+                String temp = Utils.nextTemp();
+                result = List.of(temp, result.get(1)+"\t".repeat(indent) + temp + ".i32 :=.i32 " + result.get(0) + ".i32;\n");
             }
         }
 
         prefix.append(result.get(1));
         sufix.append(result.get(0)).append(".i32]");
+
+        if(jmmNode.getJmmParent().getKind().equals(ASTDict.BINARY_OP)){
+            String temp2 = Utils.nextTemp();
+            String sufix2 = "\t".repeat(indent)+temp2+".i32 :=.i32 "+ sufix+".i32;\n";
+            return List.of(temp2, prefix+sufix2);
+        }
 
         return List.of(sufix.toString(), prefix.toString());
     }
