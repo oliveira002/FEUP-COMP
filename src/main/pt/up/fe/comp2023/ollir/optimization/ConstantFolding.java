@@ -23,7 +23,7 @@ public class ConstantFolding extends PostorderJmmVisitor<Integer, Integer> {
         JmmNode left = jmmNode.getJmmChild(0);
         JmmNode right = jmmNode.getJmmChild(1);
 
-        if(left.getKind().equals("Integer") && left.getKind().equals("Integer")) {
+        if(left.getKind().equals("Integer") && right.getKind().equals("Integer")) {
             String op = jmmNode.get("op");
             int leftVal = Integer.parseInt(left.get("value"));
             int rightVal = Integer.parseInt(right.get("value"));
@@ -43,7 +43,7 @@ public class ConstantFolding extends PostorderJmmVisitor<Integer, Integer> {
         JmmNode left = jmmNode.getJmmChild(0);
         JmmNode right = jmmNode.getJmmChild(1);
 
-        if(left.getKind().equals("Boolean") && left.getKind().equals("Boolean")) {
+        if(left.getKind().equals("Boolean") && right.getKind().equals("Boolean")) {
             String op = jmmNode.get("op");
             boolean leftVal = Boolean.parseBoolean(left.get("value"));
             boolean rightVal = Boolean.parseBoolean(right.get("value"));
@@ -63,7 +63,7 @@ public class ConstantFolding extends PostorderJmmVisitor<Integer, Integer> {
         JmmNode left = jmmNode.getJmmChild(0);
         JmmNode right = jmmNode.getJmmChild(1);
 
-        if(left.getKind().equals("Integer") && left.getKind().equals("Integer")) {
+        if(left.getKind().equals("Integer") && right.getKind().equals("Integer")) {
             int leftVal = Integer.parseInt(left.get("value"));
             int rightVal = Integer.parseInt(right.get("value"));
             boolean result = leftVal < rightVal;
