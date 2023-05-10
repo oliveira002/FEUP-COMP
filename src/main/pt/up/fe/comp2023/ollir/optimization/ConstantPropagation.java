@@ -34,6 +34,11 @@ public class ConstantPropagation extends PreorderJmmVisitor<Integer,Integer> {
             varMap.put(jmmNode.get("var"),value);
             return 0;
         }
+        if(child.getKind().equals("Identifier")) {
+            if(varMap.containsKey(child.get("var"))) {
+                varMap.put(jmmNode.get("var"),varMap.get(child.get("var")));
+            }
+        }
         return 1;
     }
 
