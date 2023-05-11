@@ -472,7 +472,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
                 result = visit(index_child, ollirCode);
 
             }
-            case ASTDict.INTEGER ->{
+            case ASTDict.INTEGER, ASTDict.ARRAY_INDEX, ASTDict.METHOD_CALL ->{
                 result = visit(index_child, ollirCode);
                 String temp = Utils.nextTemp();
                 result = List.of(temp, result.get(1)+"\t".repeat(indent) + temp + ".i32 :=.i32 " + result.get(0) + ".i32;\n");
@@ -576,7 +576,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
             called_code.append(params_code);
             return List.of(" " + called_code.substring(indent),params_prefix.toString());
         }
-        else if(parent.getKind().equals(ASTDict.BINARY_OP) || parent.getKind().equals(ASTDict.METHOD_CALL)) {
+        else if(parent.getKind().equals(ASTDict.BINARY_OP) || parent.getKind().equals(ASTDict.METHOD_CALL) || parent.getKind().equals(ASTDict.ARRAY_INDEX) ) {
             String temp = Utils.nextTemp();
             params_code.append(")").append(return_type).append(";\n\n");
             called_code.append(params_code);

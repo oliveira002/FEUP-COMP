@@ -62,6 +62,10 @@ public class Launcher {
         //Ollir generation
         JmmOptimizer jmmOptimizer = new JmmOptimizer();
         analysisResult = jmmOptimizer.optimize(analysisResult);
+        if(parserResult.getConfig().getOrDefault("optimize", "false").equals("true")) {
+            System.out.println("\n!-- OPTIMIZED AST--!");
+            System.out.println(analysisResult.getRootNode().toTree());
+        }
         OllirResult ollir = jmmOptimizer.toOllir(analysisResult);
         System.out.println("!--Ollir--!\n"+ollir.getOllirCode());
 
