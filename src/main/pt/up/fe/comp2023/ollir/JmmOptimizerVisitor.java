@@ -482,7 +482,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
         prefix.append(result.get(1));
         sufix.append(result.get(0)).append(".i32]");
 
-        if(jmmNode.getJmmParent().getKind().equals(ASTDict.BINARY_OP)){
+        if(jmmNode.getJmmParent().getKind().equals(ASTDict.BINARY_OP) || jmmNode.getJmmParent().getKind().equals(ASTDict.METHOD_CALL)){
             String temp2 = Utils.nextTemp();
             String sufix2 = "\t".repeat(indent)+temp2+".i32 :=.i32 "+ sufix+".i32;\n";
             return List.of(temp2, prefix+sufix2);
@@ -542,10 +542,11 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
             switch(param.getKind()){
                 case ASTDict.BOOL -> param_type = ".bool";
-                case ASTDict.INTEGER, ASTDict.BINARY_OP, ASTDict.ARRAY_LENGTH -> param_type = ".i32";
+                case ASTDict.INTEGER, ASTDict.BINARY_OP, ASTDict.ARRAY_LENGTH, ASTDict.ARRAY_INDEX-> param_type = ".i32";
                 //class field, local var, method params
                 case ASTDict.IDENTIFIER -> {
                     param_value = param.get("var");
+
                     if(symbolTable.fieldExists(param_value)){
                         List<Object> param_type_aux = symbolTable.getFieldType(param_value);
                         param_type = Utils.toOllirType((String) param_type_aux.get(0), (boolean) param_type_aux.get(1));
