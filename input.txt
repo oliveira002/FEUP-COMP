@@ -1,13 +1,18 @@
-class PropSequential {
-    public int foo(int factor){
-	  int a;
-	  int b;
-	  a = 10;
-	  b = a;
-	  a = b * factor;
-	  return a;
-	}
-	public static void main(String[] args) {
-	}
+import ioPlus;
+class SimpleWhileStat {
+
+
+    public int func(int a){
+        int c;
+        int i;
+        i = 0;
+
+        //Boolean, Identifier, CompareOp, LogicalOp
+        while (i < a) {
+            i = i + 1;
+        }
+
+        return i;
+    }
 
 }
