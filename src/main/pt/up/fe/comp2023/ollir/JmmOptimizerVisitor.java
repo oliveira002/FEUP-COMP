@@ -52,8 +52,9 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
         addVisit(ASTDict.VAR_ASSIGN, this::varAssignVisit);
         addVisit(ASTDict.ARRAY_ASSIGN, this::arrayAssignVisit);
         //addVisit(ASTDict.PARENTHESES, this::parenthesesVisit);
-        //addVisit(ASTDict.NOT_OP, this::notOperatorVisit);
+        addVisit(ASTDict.NOT_OP, this::notOperatorVisit);
         addVisit(ASTDict.BINARY_OP, this::binaryOperatorVisit);
+        addVisit(ASTDict.LOGICAL_OP, this::logicalOperatorVisit);
         //addVisit(ASTDict.COMPARE_OP, this::comparisonOperatorVisit);
         addVisit(ASTDict.ARRAY_INDEX, this::arrayIndexVisit);
         addVisit(ASTDict.ARRAY_LENGTH, this::arrayLengthVisit);
@@ -210,10 +211,14 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
         this.indent++;
         switch (conditional_type){
             case "if" -> {
+                JmmNode condition = jmmNode.getJmmChild(0);
+                JmmNode ifThen = jmmNode.getJmmChild(1);
+                JmmNode elseThen = jmmNode.getJmmChild(2);
 
             }
             case "while" -> {
-
+                JmmNode condition = jmmNode.getJmmChild(0);
+                JmmNode whileDo = jmmNode.getJmmChild(1);
             }
         }
         this.indent--;
@@ -226,7 +231,6 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
         return null;
     }
 
-    //TODO: Cp2
     private List<String> varAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
         String var_name = jmmNode.get("var");
 
@@ -239,7 +243,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
             JmmNode child = jmmNode.getChildren().get(0);
             switch (child.getKind()) {
-                case ASTDict.BINARY_OP -> {
+                case ASTDict.BINARY_OP, ASTDict.LOGICAL_OP, ASTDict.NOT_OP -> {
                     List<String> code = visit(child, ollirCode);
                     ollirCode.append(code.get(1).replace(code.get(0), var_name));
                     ollirCode.deleteCharAt(ollirCode.length() - 1); //Remove x2 last \n
@@ -300,7 +304,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
             JmmNode child = jmmNode.getChildren().get(0);
             switch (child.getKind()) {
-                case ASTDict.BINARY_OP -> {
+                case ASTDict.BINARY_OP, ASTDict.LOGICAL_OP -> {
                     List<String> code = visit(child, ollirCode);
                     ollirCode.append(code.get(1).replace(code.get(0), var_name));
                     ollirCode.deleteCharAt(ollirCode.length() - 1); //Remove x2 last \n
@@ -365,7 +369,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
             JmmNode child = jmmNode.getChildren().get(0);
             switch (child.getKind()) {
-                case ASTDict.BINARY_OP, ASTDict.METHOD_CALL, ASTDict.INTEGER, ASTDict.IDENTIFIER, ASTDict.BOOL, ASTDict.ARRAY_INDEX -> {
+                case ASTDict.BINARY_OP, ASTDict.LOGICAL_OP, ASTDict.METHOD_CALL, ASTDict.INTEGER, ASTDict.IDENTIFIER, ASTDict.BOOL, ASTDict.ARRAY_INDEX -> {
 
                     List<String> result = visit(child, ollirCode);
 
@@ -427,6 +431,13 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
         return null;
     }
 
+    private List<String> notOperatorVisit (JmmNode jmmNode, StringBuilder ollirCode){
+        List<String> code = visit(jmmNode.getJmmChild(0), ollirCode);
+        String temp = Utils.nextTemp();
+
+        return List.of(temp, code.get(1)+"\t".repeat(indent)+temp+".bool :=.bool !.bool " + code.get(0) + ".bool;\n");
+    }
+
     private List<String> binaryOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
         var lhs = jmmNode.getJmmChild(0);
         var rhs = jmmNode.getJmmChild(1);
@@ -449,6 +460,32 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
                   .append(rhsCode.get(0))
                   .append(".i32;")
                   .append("\n");
+
+        return List.of(temp, prefixCode.toString());
+    }
+
+    private List<String> logicalOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
+        var lhs = jmmNode.getJmmChild(0);
+        var rhs = jmmNode.getJmmChild(1);
+
+        List<String> lhsCode = visit(lhs, ollirCode);
+        List<String> rhsCode = visit(rhs, ollirCode);
+        StringBuilder prefixCode = new StringBuilder();
+
+        String temp = Utils.nextTemp();
+
+        prefixCode.append(lhsCode.get(1))
+                .append(rhsCode.get(1))
+                .append("\t".repeat(indent))
+                .append(temp)
+                .append(".bool :=.bool ")
+                .append(lhsCode.get(0))
+                .append(".bool ")
+                .append(jmmNode.get("op"))
+                .append(".bool ")
+                .append(rhsCode.get(0))
+                .append(".bool;")
+                .append("\n");
 
         return List.of(temp, prefixCode.toString());
     }
