@@ -1,8 +1,12 @@
 package pt.up.fe.comp2023.ollir;
 
+
+import java.util.List;
+
 public class Utils {
 
     static int currentTemp = 0;
+    static int ifCounter = 0;
 
     public static String toOllirType(String type, boolean is_array){
 
@@ -25,5 +29,9 @@ public class Utils {
 
     public static String nextTemp(){
         return "temp" + currentTemp++;
+    }
+
+    public static List<String> nextThenEndIf(){
+        return List.of("THEN"+ifCounter++, "ENDIF"+ifCounter++);
     }
 }

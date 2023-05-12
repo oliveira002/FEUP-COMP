@@ -46,9 +46,9 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
         addVisit(ASTDict.CLASS_DECL,this::classDeclarationVisit);
         addVisit(ASTDict.METHOD_DECL, this::methodDeclarationVisit);
         //addVisit(ASTDict.VAR_TYPE, this::varTypeVisit);
-        //addVisit(ASTDict.THEN_STATEMENT, this::thenStatementVisit);
+        addVisit(ASTDict.THEN_STATEMENT, this::statementVisit);
         addVisit(ASTDict.CONDITIONAL_STATEMENT, this::condStatementVisit);
-        addVisit(ASTDict.EXP_STATEMENT, this::expressionStatementVisit);
+        addVisit(ASTDict.EXP_STATEMENT, this::statementVisit);
         addVisit(ASTDict.VAR_ASSIGN, this::varAssignVisit);
         addVisit(ASTDict.ARRAY_ASSIGN, this::arrayAssignVisit);
         //addVisit(ASTDict.PARENTHESES, this::parenthesesVisit);
@@ -208,24 +208,41 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
     //TODO: Cp3
     private List<String> condStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
         String conditional_type = jmmNode.get("conditional");
-        this.indent++;
         switch (conditional_type){
             case "if" -> {
                 JmmNode condition = jmmNode.getJmmChild(0);
                 JmmNode ifThen = jmmNode.getJmmChild(1);
                 JmmNode elseThen = jmmNode.getJmmChild(2);
+                List<String> thenEndif = Utils.nextThenEndIf();
+                List<String> cond_code = visit(condition,ollirCode);
+                //List<String> ifThen_code = visit(ifThen,ollirCode);
+                //List<String> elseThen_code = visit(elseThen,ollirCode);
 
+                ollirCode.append("\n")
+                         .append(cond_code.get(1))
+                         .append("\t".repeat(indent))
+                         .append("if(")
+                         .append(cond_code.get(0))
+                         .append(".bool) goto ")
+                         .append(thenEndif.get(0))
+                         .append(";\n");
+                this.indent++;
+                visit(elseThen,ollirCode);
+                ollirCode.append("\t".repeat(indent)).append("goto ").append(thenEndif.get(1)).append(";\n");
+                ollirCode.append("\t".repeat(--indent)).append(thenEndif.get(0)).append(":\n");
+                this.indent++;
+                visit(ifThen,ollirCode);
+                ollirCode.append("\t".repeat(--indent)).append(thenEndif.get(1)).append(":\n");
             }
             case "while" -> {
                 JmmNode condition = jmmNode.getJmmChild(0);
                 JmmNode whileDo = jmmNode.getJmmChild(1);
             }
         }
-        this.indent--;
         return null;
     }
 
-    private  List<String> expressionStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
+    private  List<String> statementVisit(JmmNode jmmNode, StringBuilder ollirCode){
         for(JmmNode child : jmmNode.getChildren())
             visit(child, ollirCode);
         return null;
