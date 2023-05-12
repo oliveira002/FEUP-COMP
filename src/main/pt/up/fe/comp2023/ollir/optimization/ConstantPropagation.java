@@ -65,6 +65,7 @@ public class ConstantPropagation extends PreorderJmmVisitor<Integer,Integer> {
     private Integer visitConditional(JmmNode node, Integer dummy) {
         if(node.get("conditional").equals("if")) {
             JmmNode exp = node.getJmmChild(0);
+            visit(exp, null);
             JmmNode ifExp = node.getJmmChild(1);
             JmmNode thenExp = node.getJmmChild(2);
 
@@ -73,20 +74,17 @@ public class ConstantPropagation extends PreorderJmmVisitor<Integer,Integer> {
             varsInIfAndThen.addAll(getConditionalAssignments(thenExp));
 
             for(String x : varsInIfAndThen) {
-                if(varMap.containsKey(x)) {
-                    varMap.remove(x);
-                }
+                varMap.remove(x);
             }
         }
         else if(node.get("conditional").equals("while")) {
             JmmNode exp = node.getJmmChild(0);
+            visit(exp, null);
             JmmNode whileExp = node.getJmmChild(1);
 
             List<String> varsInWhile = getConditionalAssignments(whileExp);
             for(String x : varsInWhile) {
-                if(varMap.containsKey(x)) {
-                    varMap.remove(x);
-                }
+                varMap.remove(x);
             }
         }
         return 1;
