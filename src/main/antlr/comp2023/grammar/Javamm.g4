@@ -66,13 +66,13 @@ expression
     | 'this' #This
     | START_PAR expression END_PAR #Parentheses
     | expression '.' var=ID '(' (expression (',' expression)*)? ')' #MethodCall
-    | expression '.' 'length' #ArrayLength
     | 'new' var=ID '('')' #NewObj
-    | 'new' 'int' '[' expression ']' #NewIntArray
     | '!' expression #Not
     | expression op=(MULT | DIV) expression #BinaryOp
     | expression op=(SUM | DIFFERENCE) expression #BinaryOp
     | expression op=LESS expression #CompareOp
     | expression op=(LOGICAL_AND | LOGICAL_OR) expression #LogicalOp
     | expression '[' expression ']' #ArrayIndex
+    | 'new' 'int' '[' expression ']' #NewIntArray
+    | expression '.' 'length' #ArrayLength
     ;
