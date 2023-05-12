@@ -604,6 +604,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
             List<String> code = visit(param, ollirCode);
 
+            //TODO: Not, compare or logical op as param
             switch(param.getKind()){
                 case ASTDict.BOOL -> param_type = ".bool";
                 case ASTDict.INTEGER, ASTDict.BINARY_OP, ASTDict.ARRAY_LENGTH, ASTDict.ARRAY_INDEX-> param_type = ".i32";
@@ -640,7 +641,8 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
             called_code.append(params_code);
             return List.of(" " + called_code.substring(indent),params_prefix.toString());
         }
-        else if(parent.getKind().equals(ASTDict.BINARY_OP) || parent.getKind().equals(ASTDict.METHOD_CALL) || parent.getKind().equals(ASTDict.ARRAY_INDEX) ) {
+        //This is really stupid, but I'm not changing it now
+        else if(parent.getKind().equals(ASTDict.BINARY_OP) || parent.getKind().equals(ASTDict.METHOD_CALL) || parent.getKind().equals(ASTDict.ARRAY_INDEX) || parent.getKind().equals(ASTDict.NOT_OP) || parent.getKind().equals(ASTDict.COMPARE_OP) || parent.getKind().equals(ASTDict.LOGICAL_OP)) {
             String temp = Utils.nextTemp();
             params_code.append(")").append(return_type).append(";\n\n");
             called_code.append(params_code);
