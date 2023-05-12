@@ -55,7 +55,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
         addVisit(ASTDict.NOT_OP, this::notOperatorVisit);
         addVisit(ASTDict.BINARY_OP, this::binaryOperatorVisit);
         addVisit(ASTDict.LOGICAL_OP, this::logicalOperatorVisit);
-        //addVisit(ASTDict.COMPARE_OP, this::comparisonOperatorVisit);
+        addVisit(ASTDict.COMPARE_OP, this::comparisonOperatorVisit);
         addVisit(ASTDict.ARRAY_INDEX, this::arrayIndexVisit);
         addVisit(ASTDict.ARRAY_LENGTH, this::arrayLengthVisit);
         addVisit(ASTDict.METHOD_CALL, this::methodCallVisit);
@@ -243,7 +243,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
             JmmNode child = jmmNode.getChildren().get(0);
             switch (child.getKind()) {
-                case ASTDict.BINARY_OP, ASTDict.LOGICAL_OP, ASTDict.NOT_OP -> {
+                case ASTDict.BINARY_OP, ASTDict.LOGICAL_OP, ASTDict.NOT_OP, ASTDict.COMPARE_OP -> {
                     List<String> code = visit(child, ollirCode);
                     ollirCode.append(code.get(1).replace(code.get(0), var_name));
                     ollirCode.deleteCharAt(ollirCode.length() - 1); //Remove x2 last \n
@@ -304,7 +304,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
             JmmNode child = jmmNode.getChildren().get(0);
             switch (child.getKind()) {
-                case ASTDict.BINARY_OP, ASTDict.LOGICAL_OP -> {
+                case ASTDict.BINARY_OP, ASTDict.LOGICAL_OP, ASTDict.NOT_OP, ASTDict.COMPARE_OP -> {
                     List<String> code = visit(child, ollirCode);
                     ollirCode.append(code.get(1).replace(code.get(0), var_name));
                     ollirCode.deleteCharAt(ollirCode.length() - 1); //Remove x2 last \n
@@ -369,7 +369,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
             JmmNode child = jmmNode.getChildren().get(0);
             switch (child.getKind()) {
-                case ASTDict.BINARY_OP, ASTDict.LOGICAL_OP, ASTDict.METHOD_CALL, ASTDict.INTEGER, ASTDict.IDENTIFIER, ASTDict.BOOL, ASTDict.ARRAY_INDEX -> {
+                case ASTDict.BINARY_OP, ASTDict.LOGICAL_OP, ASTDict.METHOD_CALL, ASTDict.INTEGER, ASTDict.IDENTIFIER, ASTDict.BOOL, ASTDict.ARRAY_INDEX, ASTDict.NOT_OP, ASTDict.COMPARE_OP-> {
 
                     List<String> result = visit(child, ollirCode);
 
@@ -485,6 +485,33 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
                 .append(".bool ")
                 .append(rhsCode.get(0))
                 .append(".bool;")
+                .append("\n");
+
+        return List.of(temp, prefixCode.toString());
+    }
+
+    private List<String> comparisonOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+        var lhs = jmmNode.getJmmChild(0);
+        var rhs = jmmNode.getJmmChild(1);
+
+        List<String> lhsCode = visit(lhs, ollirCode);
+        List<String> rhsCode = visit(rhs, ollirCode);
+        StringBuilder prefixCode = new StringBuilder();
+
+        String temp = Utils.nextTemp();
+
+        prefixCode.append(lhsCode.get(1))
+                .append(rhsCode.get(1))
+                .append("\t".repeat(indent))
+                .append(temp)
+                .append(".bool :=.bool ")
+                .append(lhsCode.get(0))
+                .append(".i32 ")
+                .append(jmmNode.get("op"))
+                .append(".bool ")
+                .append(rhsCode.get(0))
+                .append(".i32;")
                 .append("\n");
 
         return List.of(temp, prefixCode.toString());
