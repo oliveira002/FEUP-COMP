@@ -215,8 +215,6 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
                 JmmNode elseThen = jmmNode.getJmmChild(2);
                 List<String> thenEndif = Utils.nextThenEndIf();
                 List<String> cond_code = visit(condition,ollirCode);
-                //List<String> ifThen_code = visit(ifThen,ollirCode);
-                //List<String> elseThen_code = visit(elseThen,ollirCode);
 
                 ollirCode.append("\n")
                          .append(cond_code.get(1))
