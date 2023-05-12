@@ -71,8 +71,8 @@ expression
     | 'new' var=ID '('')' #NewObj
     | 'new' 'int' '[' expression ']' #NewIntArray
     | '!' expression #Not
-    | expression op=(MULT | DIV) expression #BinaryOp
-    | expression op=(SUM | DIFFERENCE) expression #BinaryOp
     | expression op=LESS expression #CompareOp
     | expression op=(LOGICAL_AND | LOGICAL_OR) expression #LogicalOp
+    | expression op=(MULT | DIV) expression #BinaryOp
+    | expression op=(SUM | DIFFERENCE) expression #BinaryOp
     ;
