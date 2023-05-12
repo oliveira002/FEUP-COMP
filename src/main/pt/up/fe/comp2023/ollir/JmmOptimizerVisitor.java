@@ -235,6 +235,19 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
             case "while" -> {
                 JmmNode condition = jmmNode.getJmmChild(0);
                 JmmNode whileDo = jmmNode.getJmmChild(1);
+                List<String> bodyEndloop = Utils.nextBodyEndLoop();
+                List<String> cond_code = visit(condition,ollirCode);
+
+                ollirCode.append("\n")
+                         .append(cond_code.get(1).replace("<", ">="))
+                         .append("\t".repeat(indent))
+                         .append("if(")
+                         .append(cond_code.get(0))
+                         .append(".bool) goto ")
+                         .append(bodyEndloop.get(1))
+                         .append(";\n");
+                ollirCode.append("\t".repeat(indent))
+                         .append(bodyEndloop.get(0)).append(":\n");
             }
         }
         return null;
