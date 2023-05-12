@@ -67,7 +67,9 @@ public class ConstantPropagation extends PreorderJmmVisitor<Integer,Integer> {
             JmmNode exp = node.getJmmChild(0);
             visit(exp, null);
             JmmNode ifExp = node.getJmmChild(1);
+            visit(ifExp, null);
             JmmNode thenExp = node.getJmmChild(2);
+            visit(thenExp, null);
 
             Set<String> varsInIfAndThen = new HashSet<>();
             varsInIfAndThen.addAll(getConditionalAssignments(ifExp));
