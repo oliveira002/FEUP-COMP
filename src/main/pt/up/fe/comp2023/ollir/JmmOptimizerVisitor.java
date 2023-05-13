@@ -714,7 +714,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
             params_code.append(")").append(parent_type).append(";\n\n");
             called_code.append(params_code);
-            return List.of(" " + called_code.substring(indent),params_prefix.toString());
+            return List.of(" " + called_code,params_prefix.toString());
         }
         //This is really stupid, but I'm not changing it now
         else if(parent.getKind().equals(ASTDict.BINARY_OP) || parent.getKind().equals(ASTDict.PARENTHESES) || parent.getKind().equals(ASTDict.METHOD_CALL) || parent.getKind().equals(ASTDict.ARRAY_INDEX) || parent.getKind().equals(ASTDict.NOT_OP) || parent.getKind().equals(ASTDict.COMPARE_OP) || parent.getKind().equals(ASTDict.LOGICAL_OP)) {
