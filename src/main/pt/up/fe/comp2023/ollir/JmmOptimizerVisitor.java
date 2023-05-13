@@ -609,10 +609,17 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
     private List<String> methodCallVisit(JmmNode jmmNode, StringBuilder ollirCode){
         JmmNode calledNode = jmmNode.getJmmChild(0);
+        String called;
         while (calledNode.getKind().equals(ASTDict.PARENTHESES)){
             calledNode = calledNode.getJmmChild(0);
         }
-        String called = calledNode.get("var");
+        if(calledNode.getKind().equals(ASTDict.THIS)){
+            called = "this";
+        }
+        else{
+            called = calledNode.get("var");
+        }
+
         StringBuilder called_code = new StringBuilder();
         StringBuilder called_prefix = new StringBuilder();
 
@@ -635,10 +642,15 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
                 return_type = Utils.toOllirType(symbolTable.getReturnType(method).getName(), symbolTable.getReturnType(method).isArray());
             }
         }
-        //local var, method params, class field -> invokevirtual
+        //local var, method params, class field, this -> invokevirtual
         else{
-            Type called_type_aux = symbolTable.getAnyType(called, this.method);
-            String called_type = Utils.toOllirType(called_type_aux.getName(),called_type_aux.isArray());
+            String called_type = "";
+            Type called_type_aux = new Type("", false);
+            if(!calledNode.getKind().equals(ASTDict.THIS)){
+                called_type_aux = symbolTable.getAnyType(called, this.method);
+                called_type = Utils.toOllirType(called_type_aux.getName(),called_type_aux.isArray());
+            }
+
 
             called_code.append("\t".repeat(indent)).append("invokevirtual(").append(called).append(called_type).append(",").append("\"").append(method).append("\"");
 
