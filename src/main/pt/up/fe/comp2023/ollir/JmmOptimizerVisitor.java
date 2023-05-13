@@ -608,7 +608,11 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
     }
 
     private List<String> methodCallVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        String called = jmmNode.getJmmChild(0).get("var");
+        JmmNode calledNode = jmmNode.getJmmChild(0);
+        while (calledNode.getKind().equals(ASTDict.PARENTHESES)){
+            calledNode = calledNode.getJmmChild(0);
+        }
+        String called = calledNode.get("var");
         StringBuilder called_code = new StringBuilder();
         StringBuilder called_prefix = new StringBuilder();
 
