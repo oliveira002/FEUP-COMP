@@ -233,7 +233,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
                 ollirCode.append("\t".repeat(--indent)).append(thenEndif.get(1)).append(":\n");
             }
             case "while" -> {
-                /*JmmNode condition = jmmNode.getJmmChild(0);
+                JmmNode condition = jmmNode.getJmmChild(0);
                 JmmNode whileDo = jmmNode.getJmmChild(1);
                 List<String> bodyEndloop = Utils.nextBodyEndLoop();
                 List<String> cond_code = visit(condition,ollirCode);
@@ -247,7 +247,18 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
                          .append(bodyEndloop.get(1))
                          .append(";\n");
                 ollirCode.append("\t".repeat(indent))
-                         .append(bodyEndloop.get(0)).append(":\n");*/
+                         .append(bodyEndloop.get(0)).append(":\n");
+                this.indent++;
+                visit(whileDo, ollirCode);
+                ollirCode.append("\n\t")
+                         .append(cond_code.get(1))
+                         .append("\t".repeat(indent))
+                         .append("if(")
+                         .append(cond_code.get(0))
+                         .append(".bool) goto ")
+                         .append(bodyEndloop.get(0))
+                         .append(";\n");
+                ollirCode.append("\t".repeat(--indent)).append(bodyEndloop.get(1)).append(":\n");
             }
         }
         return null;
