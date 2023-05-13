@@ -664,7 +664,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
             }
 
 
-            called_code.append("\t".repeat(indent)).append(called_prefix).append("invokevirtual(").append(called).append(called_type).append(",").append("\"").append(method).append("\"");
+            called_code.append("invokevirtual(").append(called).append(called_type).append(",").append("\"").append(method).append("\"");
 
             if(!symbolTable.getParsedImports().contains(called_type_aux.getName()))
                 return_type = Utils.toOllirType(symbolTable.getReturnType(method).getName(), symbolTable.getReturnType(method).isArray());
@@ -721,13 +721,15 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
             String temp = Utils.nextTemp();
             params_code.append(")").append(return_type).append(";\n\n");
             called_code.append(params_code);
-            return List.of(temp + return_type, params_prefix.toString() + "\t".repeat(indent) + temp + return_type + " :=" + return_type + " " + called_code.substring(indent));
+            String ret1 = temp + return_type;
+            String ret2 = called_prefix + params_prefix.toString() + "\t".repeat(indent) + temp + return_type + " :=" + return_type + " " + called_code;
+            return List.of(ret1, ret2);
         }
 
         params_code.append(")").append(return_type).append(";\n\n");
 
         //Regular statement
-        ollirCode.append(params_prefix).append(called_code).append(params_code);
+        ollirCode.append(params_prefix).append(called_prefix).append("\t".repeat(indent)).append(called_code).append(params_code);
 
         return null;
     }
