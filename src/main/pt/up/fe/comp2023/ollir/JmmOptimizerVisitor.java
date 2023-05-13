@@ -51,7 +51,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
         addVisit(ASTDict.EXP_STATEMENT, this::statementVisit);
         addVisit(ASTDict.VAR_ASSIGN, this::varAssignVisit);
         addVisit(ASTDict.ARRAY_ASSIGN, this::arrayAssignVisit);
-        //addVisit(ASTDict.PARENTHESES, this::parenthesesVisit);
+        addVisit(ASTDict.PARENTHESES, this::parenthesesVisit);
         addVisit(ASTDict.NOT_OP, this::notOperatorVisit);
         addVisit(ASTDict.BINARY_OP, this::binaryOperatorVisit);
         addVisit(ASTDict.LOGICAL_OP, this::logicalOperatorVisit);
@@ -468,6 +468,10 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
                  .append(".i32;\n");
 
         return null;
+    }
+
+    private List<String> parenthesesVisit(JmmNode jmmNode, StringBuilder ollirCode){
+        return visit(jmmNode.getJmmChild(0), ollirCode);
     }
 
     private List<String> notOperatorVisit (JmmNode jmmNode, StringBuilder ollirCode){

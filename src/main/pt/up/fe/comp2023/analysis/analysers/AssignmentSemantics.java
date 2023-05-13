@@ -108,7 +108,7 @@ public class AssignmentSemantics extends SemanticAnalysisVisitor {
 
     private Integer visitArrayAssign(JmmNode jmmNode, SymbolTableCR symbolTable) {
         String varName = jmmNode.get("var");
-        String methodName = jmmNode.getJmmParent().get("name");
+        String methodName = this.getMethodName(jmmNode);
         Type varType = this.getVariableType(varName,methodName,symbolTable);
 
         if(Objects.equals(varType.getName(), "unknown")) {
