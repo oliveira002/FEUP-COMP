@@ -643,15 +643,15 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
         }
 
         //Deal with parameters
+        int i = 0;
         for(JmmNode param : params){
 
             List<String> code = visit(param, ollirCode);
 
-            //TODO: Not, compare or logical op as param
             switch(param.getKind()){
                 case ASTDict.BOOL, ASTDict.NOT_OP, ASTDict.COMPARE_OP, ASTDict.LOGICAL_OP -> param_type = ".bool";
                 case ASTDict.INTEGER, ASTDict.BINARY_OP, ASTDict.ARRAY_LENGTH, ASTDict.ARRAY_INDEX-> param_type = ".i32";
-                //class field, local var, method params
+                //class field, local var or method params
                 case ASTDict.IDENTIFIER -> {
                     param_value = param.get("var");
 
@@ -668,10 +668,14 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
                         param_type = Utils.toOllirType((String) param_type_aux.get(0), (boolean) param_type_aux.get(1));
                     }
                 }
+                case ASTDict.METHOD_CALL -> {
+                    param_type = "";
+                }
             }
 
             params_prefix.append(code.get(1));
             params_code.append(", ").append(code.get(0)).append(param_type);
+            i++;
         }
 
         //Var assign or binary op
