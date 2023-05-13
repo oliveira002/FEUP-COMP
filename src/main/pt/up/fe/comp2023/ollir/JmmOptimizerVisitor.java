@@ -239,9 +239,9 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
                 List<String> cond_code = visit(condition,ollirCode);
 
                 ollirCode.append("\n")
-                         .append(cond_code.get(1).replace("<", ">="))
+                         .append(cond_code.get(1))
                          .append("\t".repeat(indent))
-                         .append("if(")
+                         .append("if(!.bool ")
                          .append(cond_code.get(0))
                          .append(".bool) goto ")
                          .append(bodyEndloop.get(1))
