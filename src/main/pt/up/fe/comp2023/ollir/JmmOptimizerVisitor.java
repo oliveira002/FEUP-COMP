@@ -645,7 +645,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
             //TODO: Not, compare or logical op as param
             switch(param.getKind()){
-                case ASTDict.BOOL -> param_type = ".bool";
+                case ASTDict.BOOL, ASTDict.NOT_OP, ASTDict.COMPARE_OP, ASTDict.LOGICAL_OP -> param_type = ".bool";
                 case ASTDict.INTEGER, ASTDict.BINARY_OP, ASTDict.ARRAY_LENGTH, ASTDict.ARRAY_INDEX-> param_type = ".i32";
                 //class field, local var, method params
                 case ASTDict.IDENTIFIER -> {
