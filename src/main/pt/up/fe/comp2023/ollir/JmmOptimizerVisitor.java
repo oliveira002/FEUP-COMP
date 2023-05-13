@@ -644,7 +644,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
         }
         //local var, method params, class field, this -> invokevirtual
         else{
-            String called_type = "";
+            String called_type = "."+symbolTable.getClassName();
             Type called_type_aux = new Type("", false);
             if(!calledNode.getKind().equals(ASTDict.THIS)){
                 called_type_aux = symbolTable.getAnyType(called, this.method);
