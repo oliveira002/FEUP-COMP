@@ -4,7 +4,9 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 import pt.up.fe.comp.jmm.ast.PostorderJmmVisitor;
 
-public class ConstantFolding extends PostorderJmmVisitor<Integer, Integer> {
+import java.security.BasicPermission;
+
+public class ConstantFolding extends PostorderJmmVisitor<Integer, Boolean> {
 
     @Override
     protected void buildVisitor() {
@@ -15,11 +17,11 @@ public class ConstantFolding extends PostorderJmmVisitor<Integer, Integer> {
         addVisit("Not", this::visitNot);
     }
 
-    private Integer defaultVisit(JmmNode jmmNode, Integer dummy) {
+    private Boolean defaultVisit(JmmNode jmmNode, Integer dummy) {
         return null;
     }
 
-    private Integer visitBinaryOp(JmmNode jmmNode, Integer dummy) {
+    private Boolean visitBinaryOp(JmmNode jmmNode, Integer dummy) {
         JmmNode left = jmmNode.getJmmChild(0);
         JmmNode right = jmmNode.getJmmChild(1);
 
@@ -34,12 +36,12 @@ public class ConstantFolding extends PostorderJmmVisitor<Integer, Integer> {
             replacement.put("lineStart",jmmNode.get("lineStart"));
             replacement.put("colStart",jmmNode.get("colStart"));
             jmmNode.replace(replacement);
-            return 1;
+            return true;
         }
-        return 1;
+        return false;
     }
 
-    private Integer visitLogicalOp(JmmNode jmmNode, Integer dummy) {
+    private Boolean visitLogicalOp(JmmNode jmmNode, Integer dummy) {
         JmmNode left = jmmNode.getJmmChild(0);
         JmmNode right = jmmNode.getJmmChild(1);
 
@@ -54,12 +56,12 @@ public class ConstantFolding extends PostorderJmmVisitor<Integer, Integer> {
             replacement.put("lineStart",jmmNode.get("lineStart"));
             replacement.put("colStart",jmmNode.get("colStart"));
             jmmNode.replace(replacement);
-            return 1;
+            return true;
         }
-        return 1;
+        return false;
     }
 
-    private Integer visitCompareOp(JmmNode jmmNode, Integer dummy) {
+    private Boolean visitCompareOp(JmmNode jmmNode, Integer dummy) {
         JmmNode left = jmmNode.getJmmChild(0);
         JmmNode right = jmmNode.getJmmChild(1);
 
@@ -73,12 +75,12 @@ public class ConstantFolding extends PostorderJmmVisitor<Integer, Integer> {
             replacement.put("lineStart",jmmNode.get("lineStart"));
             replacement.put("colStart",jmmNode.get("colStart"));
             jmmNode.replace(replacement);
-            return 1;
+            return true;
         }
-        return 1;
+        return false;
     }
 
-    private Integer visitNot(JmmNode jmmNode, Integer dummy) {
+    private Boolean visitNot(JmmNode jmmNode, Integer dummy) {
         JmmNode exp = jmmNode.getJmmChild(0);
 
         if(exp.getKind().equals("Boolean")) {
@@ -90,9 +92,9 @@ public class ConstantFolding extends PostorderJmmVisitor<Integer, Integer> {
             replacement.put("lineStart",jmmNode.get("lineStart"));
             replacement.put("colStart",jmmNode.get("colStart"));
             jmmNode.replace(replacement);
-            return 1;
+            return true;
         }
-        return 1;
+        return false;
     }
 
     public Integer getBinaryValue(String op, int leftVal, int rightVal) {
