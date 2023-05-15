@@ -62,7 +62,7 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
         addVisit(ASTDict.INTEGER, this::integerVisit);
         addVisit(ASTDict.IDENTIFIER, this::identifierVisit);
         addVisit(ASTDict.NEW_INT_ARRAY, this::newIntArrayVisit);
-        //addVisit(ASTDict.NEW_OBJECT, this::newObjectVisit);
+        addVisit(ASTDict.NEW_OBJECT, this::newObjectVisit);
         addVisit(ASTDict.BOOL, this::booleanVisit);
         //addVisit(ASTDict.THIS, this::thisVisit);
 
@@ -610,18 +610,23 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
     private List<String> methodCallVisit(JmmNode jmmNode, StringBuilder ollirCode){
         JmmNode calledNode = jmmNode.getJmmChild(0);
         String called;
+        StringBuilder called_code = new StringBuilder();
+        StringBuilder called_prefix = new StringBuilder();
         while (calledNode.getKind().equals(ASTDict.PARENTHESES)){
             calledNode = calledNode.getJmmChild(0);
         }
         if(calledNode.getKind().equals(ASTDict.THIS)){
             called = "this";
         }
+        else if(calledNode.getKind().equals(ASTDict.METHOD_CALL) || calledNode.getKind().equals(ASTDict.NEW_OBJECT)){
+            List<String> called_aux = visit(calledNode, ollirCode);
+            called = called_aux.get(0);
+            called_prefix = new StringBuilder(called_aux.get(1));
+        }
         else{
             called = calledNode.get("var");
         }
 
-        StringBuilder called_code = new StringBuilder();
-        StringBuilder called_prefix = new StringBuilder();
 
         String method = jmmNode.get("var");
         String return_type = ".V";
@@ -635,24 +640,31 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
         //Deal with called
         //Import, class -> invokestatic
-        if(symbolTable.getParsedImports().contains(called) || symbolTable.getClassName().equals(called)){
-            called_code.append("\t".repeat(indent)).append("invokestatic(").append(called).append(",").append("\"").append(method).append("\"");
+        if(symbolTable.getParsedImports().contains(called) || (symbolTable.getClassName().equals(called) && !calledNode.getKind().equals(ASTDict.NEW_OBJECT))){
+            called_code.append(called_prefix).append("\t".repeat(indent)).append("invokestatic(").append(called).append(",").append("\"").append(method).append("\"");
 
             if(symbolTable.getClassName().equals(called)){
                 return_type = Utils.toOllirType(symbolTable.getReturnType(method).getName(), symbolTable.getReturnType(method).isArray());
             }
         }
-        //local var, method params, class field, this -> invokevirtual
+        //local var, method params, class field, this, new obj() -> invokevirtual
         else{
-            String called_type = "."+symbolTable.getClassName();
-            Type called_type_aux = new Type("", false);
-            if(!calledNode.getKind().equals(ASTDict.THIS)){
+            String called_type;
+            Type called_type_aux = new Type("", false);;
+            if(calledNode.getKind().equals(ASTDict.THIS) || calledNode.getKind().equals(ASTDict.NEW_OBJECT)){
+                called_type = "." + symbolTable.getClassName();
+            }
+            else if(calledNode.getKind().equals(ASTDict.METHOD_CALL)){
+                called_type_aux = symbolTable.getReturnType(calledNode.get("var"));
+                called_type = "";
+            }
+            else{
                 called_type_aux = symbolTable.getAnyType(called, this.method);
                 called_type = Utils.toOllirType(called_type_aux.getName(),called_type_aux.isArray());
             }
 
 
-            called_code.append("\t".repeat(indent)).append("invokevirtual(").append(called).append(called_type).append(",").append("\"").append(method).append("\"");
+            called_code.append("invokevirtual(").append(called).append(called_type).append(",").append("\"").append(method).append("\"");
 
             if(!symbolTable.getParsedImports().contains(called_type_aux.getName()))
                 return_type = Utils.toOllirType(symbolTable.getReturnType(method).getName(), symbolTable.getReturnType(method).isArray());
@@ -702,20 +714,22 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
 
             params_code.append(")").append(parent_type).append(";\n\n");
             called_code.append(params_code);
-            return List.of(" " + called_code.substring(indent),params_prefix.toString());
+            return List.of(" " + called_code,params_prefix.toString());
         }
         //This is really stupid, but I'm not changing it now
-        else if(parent.getKind().equals(ASTDict.BINARY_OP) || parent.getKind().equals(ASTDict.METHOD_CALL) || parent.getKind().equals(ASTDict.ARRAY_INDEX) || parent.getKind().equals(ASTDict.NOT_OP) || parent.getKind().equals(ASTDict.COMPARE_OP) || parent.getKind().equals(ASTDict.LOGICAL_OP)) {
+        else if(parent.getKind().equals(ASTDict.BINARY_OP) || parent.getKind().equals(ASTDict.PARENTHESES) || parent.getKind().equals(ASTDict.METHOD_CALL) || parent.getKind().equals(ASTDict.ARRAY_INDEX) || parent.getKind().equals(ASTDict.NOT_OP) || parent.getKind().equals(ASTDict.COMPARE_OP) || parent.getKind().equals(ASTDict.LOGICAL_OP)) {
             String temp = Utils.nextTemp();
             params_code.append(")").append(return_type).append(";\n\n");
             called_code.append(params_code);
-            return List.of(temp + return_type, params_prefix.toString() + "\t".repeat(indent) + temp + return_type + " :=" + return_type + " " + called_code.substring(indent));
+            String ret1 = temp + return_type;
+            String ret2 = called_prefix + params_prefix.toString() + "\t".repeat(indent) + temp + return_type + " :=" + return_type + " " + called_code;
+            return List.of(ret1, ret2);
         }
 
         params_code.append(")").append(return_type).append(";\n\n");
 
         //Regular statement
-        ollirCode.append(params_prefix).append(called_code).append(params_code);
+        ollirCode.append(params_prefix).append(called_prefix).append("\t".repeat(indent)).append(called_code).append(params_code);
 
         return null;
     }
@@ -773,6 +787,14 @@ public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>>
             }*/
         }
         return List.of("new(array, %s.i32).array.i32;".formatted(inside), "\n"+before);
+    }
+
+    private List<String> newObjectVisit (JmmNode jmmNode, StringBuilder ollirCode){
+        String temp = Utils.nextTemp();
+        String type = jmmNode.get("var");
+        String prefix = "\t".repeat(indent)+ temp + "." + type + ":=." + type + " new(" + type +")." + type + ";\n"
+                + "\t".repeat(indent) + "invokespecial(" + temp +"."+type+",\"<init>\").V;\n";
+        return List.of(temp,prefix);
     }
 
     private List<String> booleanVisit(JmmNode jmmNode, StringBuilder ollirCode){
