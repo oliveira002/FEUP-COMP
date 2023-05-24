@@ -71,7 +71,7 @@ public class Launcher {
         System.out.println("!--Ollir--!\n"+ollir.getOllirCode());
 
         RegisterAllocation registerAllocation = new RegisterAllocation(ollir,10);
-        //registerAllocation.regAlloc();
+        registerAllocation.regAlloc();
         //Jasmin generation
         System.out.println("\n\n!--Jasmin--!\n");
         JasminBackend jasmin = new Jasmin();

@@ -1,17 +1,15 @@
-class PropWithLoop {
-    public int foo(){
-      int a;
-      int i;
-      int res;
+import ioPlus;
+class SimpleWhileStat {
 
-      a = 10;
-      i = 20;
-      i = i + a;
-      i = i + 10;
-      res = 1 + 10;
+    int h;
+    public int func(){
+        int a;
+        int b;
+        int c;
+        a = 10;
+        b = 20;
+        c = a + b;
+        return c;
+    }
 
-      return i;
-    }
-    public static void main(String[] args) {
-    }
 }
