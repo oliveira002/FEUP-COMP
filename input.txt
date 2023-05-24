@@ -1,22 +1,17 @@
 import ioPlus;
 class SimpleWhileStat {
 
-
+    int h;
     public int func(int a){
-        boolean c;
-        boolean i;
-        int a;
-        int d;
+        int c;
+        c = a;
 
-        c = a < 2;
-        if(a < 2) {
-           d = a + 2;
+        if(c < 2) {
+
         }
         else {
 
         }
-        i = !c;
-        a = 2 + 5;
 
         return 2;
     }

@@ -6,13 +6,13 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import java.util.*;
 
 public class LivenessAnalysis {
-    private final HashMap<Integer,HashSet<String>> def;
+    private final HashMap<Instruction,HashSet<String>> def;
 
-    private final HashMap<Integer,HashSet<String>> use;
+    private final HashMap<Instruction,HashSet<String>> use;
 
-    private final HashMap<Integer,HashSet<String>> in;
+    private final HashMap<Instruction,HashSet<String>> in;
 
-    private final HashMap<Integer,HashSet<String>> out;
+    private final HashMap<Instruction,HashSet<String>> out;
 
     private final Method method;
 
@@ -45,20 +45,20 @@ public class LivenessAnalysis {
             AssignInstruction assign = (AssignInstruction) inst;
             String definedVar = ((Operand) assign.getDest()).getName();
             int instId = inst.getId();
-            addVarToSet(this.def,instId,definedVar);
+            addVarToSet(this.def,inst,definedVar);
         }
     }
 
-    public void addVarToSet(HashMap<Integer, HashSet<String>> map, Integer id, String var) {
-        HashSet<String> tempDef = map.get(id);
+    public void addVarToSet(HashMap<Instruction, HashSet<String>> map, Instruction inst, String var) {
+        HashSet<String> tempDef = map.get(inst);
         if(tempDef != null) {
             tempDef.add(var);
-            map.put(id,tempDef);
+            map.put(inst,tempDef);
         }
         else {
             HashSet<String> tempiDef = new HashSet<>();
             tempiDef.add(var);
-            map.put(id,tempiDef);
+            map.put(inst,tempiDef);
         }
     }
 
@@ -68,12 +68,41 @@ public class LivenessAnalysis {
             case "RETURN" -> getReturnVars((ReturnInstruction) inst);
             case "BINARYOPER" -> getBinaryOpVars((BinaryOpInstruction) inst);
             case "UNARYOPER" -> getUnaryOpVar((UnaryOpInstruction) inst);
+            case "PUTFIELD" -> getPutField((PutFieldInstruction) inst);
+            case "GETFIELD" -> getField((GetFieldInstruction) inst);
+            case "NOPER" -> getNoper((SingleOpInstruction) inst);
+            case "CALL" -> getMethodCall((CallInstruction) inst);
+            case "BRANCH" -> getBranch((CondBranchInstruction) inst);
         };
     }
 
     public void getReturnVars(ReturnInstruction inst) {
         String varName = getVarName(inst.getOperand());
-        this.addVarToSet(this.use,inst.getId(),varName);
+        if(varName != null) {
+            this.addVarToSet(this.use,inst,varName);
+        }
+    }
+
+    public void getNoper(SingleOpInstruction inst) {
+        Element firstOp = inst.getSingleOperand();
+        if(!firstOp.isLiteral()) {
+            this.addVarToSet(this.use,inst,getVarName(firstOp));
+        }
+    }
+
+    public void getBranch(CondBranchInstruction inst) {
+        SingleOpCondInstruction sInst = (SingleOpCondInstruction) inst;
+        getReadVars(sInst.getCondition());
+    }
+
+    public void getMethodCall(CallInstruction inst) {
+        int a;
+        List<Element> params = inst.getListOfOperands();
+        for(Element param: params) {
+            if(!param.isLiteral()) {
+                this.addVarToSet(this.use,inst,getVarName(param));
+            }
+        }
     }
 
     public void getBinaryOpVars(BinaryOpInstruction inst) {
@@ -81,17 +110,36 @@ public class LivenessAnalysis {
         Element rightOp = inst.getRightOperand();
 
         if(!leftOp.isLiteral()) {
-            this.addVarToSet(this.use,inst.getId(),getVarName(leftOp));
+            this.addVarToSet(this.use,inst,getVarName(leftOp));
         }
         if(!rightOp.isLiteral()) {
-            this.addVarToSet(this.use,inst.getId(),getVarName(rightOp));
+            this.addVarToSet(this.use,inst,getVarName(rightOp));
         }
     }
 
     public void getUnaryOpVar(UnaryOpInstruction inst) {
         Element rightOp = inst.getOperand();
         if(!rightOp.isLiteral()) {
-            this.addVarToSet(this.use,inst.getId(),getVarName(rightOp));
+            this.addVarToSet(this.use,inst,getVarName(rightOp));
+        }
+    }
+
+    public void getField(GetFieldInstruction inst) {
+        Element secondOp = inst.getSecondOperand();
+        if(!secondOp.isLiteral()) {
+            this.addVarToSet(this.use,inst,getVarName(secondOp));
+        }
+    }
+
+    public void getPutField(PutFieldInstruction inst) {
+        Element secondOp = inst.getSecondOperand();
+        Element thirdOp = inst.getThirdOperand();
+
+        if(!secondOp.isLiteral()) {
+            this.addVarToSet(this.use,inst,getVarName(secondOp));
+        }
+        if(!thirdOp.isLiteral()) {
+            this.addVarToSet(this.use,inst,getVarName(thirdOp));
         }
     }
 
