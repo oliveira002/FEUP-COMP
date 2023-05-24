@@ -21,6 +21,10 @@ public class InterferenceNode {
         return register;
     }
 
+    public void addEdge(InterferenceNode to) {
+        this.edges.add(to);
+    }
+
     public String getVar() {
         return var;
     }

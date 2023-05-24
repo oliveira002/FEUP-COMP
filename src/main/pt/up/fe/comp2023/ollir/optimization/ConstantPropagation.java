@@ -9,6 +9,8 @@ import java.util.*;
 public class ConstantPropagation extends PreorderJmmVisitor<Integer,Boolean> {
     private final Map<String,String> varMap = new HashMap<>();
 
+    boolean testChanges = false;
+
     @Override
     protected void buildVisitor() {
         setDefaultVisit(this::defaultVisit);
@@ -16,11 +18,13 @@ public class ConstantPropagation extends PreorderJmmVisitor<Integer,Boolean> {
         addVisit("MethodDeclaration", this::visitMethod);
         addVisit("Identifier", this::visitIdentifier);
         addVisit("ConditionStmt", this::visitConditional);
-
     }
 
     private Boolean defaultVisit(JmmNode jmmNode, Integer dummy) {
-        return null;
+        for(JmmNode node: jmmNode.getChildren()) {
+            testChanges = visit(node,1) || testChanges;
+        }
+        return testChanges;
     }
 
     private Boolean visitAssignment(JmmNode jmmNode, Integer dummy) {
@@ -64,13 +68,14 @@ public class ConstantPropagation extends PreorderJmmVisitor<Integer,Boolean> {
     }
 
     private Boolean visitConditional(JmmNode node, Integer dummy) {
+        boolean changes = false;
         if(node.get("conditional").equals("if")) {
             JmmNode exp = node.getJmmChild(0);
             JmmNode ifExp = node.getJmmChild(1);
             JmmNode thenExp = node.getJmmChild(2);
-            visit(exp, null);
-            visit(ifExp, null);
-            visit(thenExp, null);
+            changes |= visit(exp, null);
+            changes |= visit(ifExp, null);
+            changes |= visit(thenExp, null);
 
             Set<String> varsInIfAndThen = new HashSet<>();
             varsInIfAndThen.addAll(getConditionalAssignments(ifExp));
@@ -80,18 +85,19 @@ public class ConstantPropagation extends PreorderJmmVisitor<Integer,Boolean> {
                 varMap.remove(x);
             }
 
-            return true;
+            return changes;
         }
         else if(node.get("conditional").equals("while")) {
             JmmNode exp = node.getJmmChild(0);
-            visit(exp, null);
+            changes |= visit(exp, null);
             JmmNode whileExp = node.getJmmChild(1);
+
 
             List<String> varsInWhile = getConditionalAssignments(whileExp);
             for(String x : varsInWhile) {
                 varMap.remove(x);
             }
-            return true;
+            return changes;
         }
         return false;
     }
@@ -106,5 +112,9 @@ public class ConstantPropagation extends PreorderJmmVisitor<Integer,Boolean> {
         }
 
         return vars;
+    }
+
+    public boolean isTestChanges() {
+        return testChanges;
     }
 }

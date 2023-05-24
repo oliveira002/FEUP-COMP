@@ -14,6 +14,10 @@ public class LivenessAnalysis {
 
     private final HashMap<Integer,HashSet<String>> out;
 
+    private HashSet<String> pairs;
+
+    private HashSet<String> variables;
+
     private final Method method;
 
     private final List<Instruction> instructionList;
@@ -23,6 +27,8 @@ public class LivenessAnalysis {
         this.use = new HashMap<>();
         this.in = new HashMap<>();
         this.out = new HashMap<>();
+        this.pairs = new HashSet<>();
+        this.variables = new HashSet<>();
         this.method = method;
         this.instructionList = method.getInstructions();
         this.initializeMaps(method.getInstructions().size());
@@ -50,7 +56,9 @@ public class LivenessAnalysis {
                 changes = !(tempIn.equals(this.in.get(inst.getId())) && tempOut.equals(this.out.get(inst.getId())));
             }
         } while(changes);
-        deadCodeFix(numInst);
+        this.deadCodeFix(numInst);
+        this.getInterferences();
+        this.findVariables();
         return;
     }
 
@@ -69,10 +77,10 @@ public class LivenessAnalysis {
 
     public void deadCodeFix(int numInst) {
         for(int i = 1; i <= numInst; i++) {
-            HashSet<String> def = new HashSet<>(this.def.get(i));
-            HashSet<String> out = new HashSet<>(this.out.get(i));
-            out.addAll(def);
-            this.out.put(numInst,out);
+            HashSet<String> tmpDef = new HashSet<>(this.def.get(i));
+            HashSet<String> tmpOut = new HashSet<>(this.out.get(i));
+            tmpOut.addAll(tmpDef);
+            this.out.put(i,tmpOut);
         }
     }
 
@@ -155,8 +163,10 @@ public class LivenessAnalysis {
     }
 
     public void getBranch(CondBranchInstruction inst) {
-        SingleOpCondInstruction sInst = (SingleOpCondInstruction) inst;
-        getReadVars(sInst.getCondition());
+        if(inst instanceof SingleOpCondInstruction) {
+            SingleOpCondInstruction sInst = (SingleOpCondInstruction) inst;
+            getReadVars(sInst.getCondition());
+        }
     }
 
     public void getMethodCall(CallInstruction inst) {
@@ -208,7 +218,56 @@ public class LivenessAnalysis {
     }
 
     public String getVarName(Element op) {
+        if(op == null) {
+            return null;
+        }
         return !op.isLiteral() ? ((Operand) op).getName() : null;
     }
 
+    public HashSet<String> getInterference(HashSet<String> set) {
+        HashSet<String> res = new HashSet<>();
+        String[] elements = set.toArray(new String[0]);
+        int size = elements.length;
+        for (int i = 0; i < size - 1; i++) {
+            // Iterate over the remaining elements
+            for (int j = i + 1; j < size; j++) {
+                // Create a combination string
+                String combination = elements[i] + "-" + elements[j];
+
+                // Add the combination to the result set
+                res.add(combination);
+            }
+        }
+        return res;
+    }
+
+    public void getInterferences() {
+        HashSet<String> res = new HashSet<>();
+        for(int i = 1; i <= instructionList.size(); i++) {
+            HashSet<String> tmpIn = new HashSet<>(getInterference(this.in.get(i)));
+            HashSet<String> tmpOut = new HashSet<>(getInterference(this.out.get(i)));
+            res.addAll(tmpIn);
+            res.addAll(tmpOut);
+        }
+        this.pairs = res;
+    }
+
+    public void findVariables() {
+        HashSet<String> res = new HashSet<>();
+        for(int i = 1; i <= instructionList.size(); i++) {
+            HashSet<String> tmpIn = new HashSet<>(this.in.get(i));
+            HashSet<String> tmpOut = new HashSet<>(this.out.get(i));
+            res.addAll(tmpIn);
+            res.addAll(tmpOut);
+        }
+        this.variables = res;
+    }
+
+    public HashSet<String> getPairs() {
+        return pairs;
+    }
+
+    public HashSet<String> getVariables() {
+        return variables;
+    }
 }
