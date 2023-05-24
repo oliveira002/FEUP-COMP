@@ -8,6 +8,7 @@ import java.security.BasicPermission;
 
 public class ConstantFolding extends PostorderJmmVisitor<Integer, Boolean> {
 
+    boolean testChanges = false;
     @Override
     protected void buildVisitor() {
         setDefaultVisit(this::defaultVisit);
@@ -18,11 +19,10 @@ public class ConstantFolding extends PostorderJmmVisitor<Integer, Boolean> {
     }
 
     private Boolean defaultVisit(JmmNode jmmNode, Integer dummy) {
-        boolean changes = false;
         for(JmmNode node: jmmNode.getChildren()) {
-            changes = visit(node,1) || changes;
+            testChanges = visit(node,1) || testChanges;
         }
-        return changes;
+        return testChanges;
     }
 
     private Boolean visitBinaryOp(JmmNode jmmNode, Integer dummy) {
@@ -126,5 +126,7 @@ public class ConstantFolding extends PostorderJmmVisitor<Integer, Boolean> {
         return true;
     }
 
-
+    public boolean isTestChanges() {
+        return testChanges;
+    }
 }
