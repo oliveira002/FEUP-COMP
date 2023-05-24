@@ -9,7 +9,6 @@ import java.util.*;
 public class ConstantPropagation extends PreorderJmmVisitor<Integer,Boolean> {
     private final Map<String,String> varMap = new HashMap<>();
 
-    boolean testChanges = false;
 
     @Override
     protected void buildVisitor() {
@@ -21,10 +20,11 @@ public class ConstantPropagation extends PreorderJmmVisitor<Integer,Boolean> {
     }
 
     private Boolean defaultVisit(JmmNode jmmNode, Integer dummy) {
+        boolean changes = false;
         for(JmmNode node: jmmNode.getChildren()) {
-            testChanges = visit(node,1) || testChanges;
+            changes = visit(node,1) || changes;
         }
-        return testChanges;
+        return changes;
     }
 
     private Boolean visitAssignment(JmmNode jmmNode, Integer dummy) {
@@ -112,9 +112,5 @@ public class ConstantPropagation extends PreorderJmmVisitor<Integer,Boolean> {
         }
 
         return vars;
-    }
-
-    public boolean isTestChanges() {
-        return testChanges;
     }
 }
