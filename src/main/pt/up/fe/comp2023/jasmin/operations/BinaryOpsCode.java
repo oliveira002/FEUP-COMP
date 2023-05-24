@@ -28,11 +28,9 @@ public class BinaryOpsCode extends InstructionClass{
             case LTH, LTE, GTH, GTE, EQ, NEQ -> jasminCode.append("\tisub\n\t")
                     .append(getLabelComp(op))
                     .append(getCompFormula());
-            case ANDB -> jasminCode.append("\tiadd\n").append("\ticonst_2\n")
-                    .append("\tisub\n").append("\tiflt Then").append(LabelCounter).append('\n')
-                    .append("\ticonst_1\n").append("\tgoto EndIf").append(LabelCounter).append("\n")
-                    .append("\tThen").append(LabelCounter).append(":\n").append("\ticonst_0\n")
-                    .append("\tEndIf").append(LabelCounter++).append(":\n");
+            case AND,ANDB -> {
+                jasminCode.append("\tiand\n");
+            }
             default -> {
                 return "";
             }

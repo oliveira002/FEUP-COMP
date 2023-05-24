@@ -41,12 +41,15 @@ public class ConditionalBranchOpsCode extends InstructionClass{
                         .append("\tifne ").append(((CondBranchInstruction) instruction).getLabel()).append('\n')
                         .append(loadElement(rightOperand))
                         .append("\tifne ").append(((CondBranchInstruction) instruction).getLabel()).append('\n');
-                case ANDB -> jasminCode.append(loadElement(leftOperand))
+                case ANDB -> {
+                    jasminCode.append(loadElement(leftOperand))
                         .append("\tifeq Then").append(LabelCounter).append('\n')
                         .append(loadElement(rightOperand))
                         .append("\tifeq Then").append(LabelCounter).append('\n')
                         .append("\tgoto ").append(((CondBranchInstruction) instruction).getLabel()).append('\n')
-                        .append("\tThen").append(LabelCounter++).append(":\n");
+                        .append("\tThen").append(LabelCounter).append(":\n");
+                    LabelCounter = LabelCounter + 1;
+                }
             }
         }else if (instruction instanceof SingleOpCondInstruction singleOp) {
             jasminCode.append(loadElement(singleOp.getOperands().get(0)))

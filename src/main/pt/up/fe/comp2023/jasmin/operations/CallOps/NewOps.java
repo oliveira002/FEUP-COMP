@@ -34,6 +34,7 @@ public class NewOps extends InvokeAbstract{
                 jasminCode.append("int\n");
             }
         }
+        jasminCode.append("\tdup\n");
         return jasminCode.toString();
     }
 }

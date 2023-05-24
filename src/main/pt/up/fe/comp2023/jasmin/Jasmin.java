@@ -248,54 +248,62 @@ public class Jasmin implements JasminBackend {
 
         else if (instruction instanceof AssignInstruction) {
             AssignOpsCode code = new AssignOpsCode((AssignInstruction) instruction, varTable, this.numLabel, MethodName,this);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
         else if (instruction instanceof ReturnInstruction) {
             ReturnOpsCode code = new ReturnOpsCode((ReturnInstruction) instruction, varTable, this.numLabel, this);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
         else if (instruction instanceof SingleOpInstruction) {
             SingleOpsCode code = new SingleOpsCode(instruction, varTable, this.numLabel,this);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
 
         else if (instruction instanceof GetFieldInstruction) {
             GetFieldOpsCode code = new GetFieldOpsCode(instruction, varTable,
                     this.numLabel,this,this.OllirCode.getClassName(),this.importsMap);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
 
         else if (instruction instanceof PutFieldInstruction) {
             PutFieldOpsCode code = new PutFieldOpsCode(instruction, varTable,
                     this.numLabel,this,this.OllirCode.getClassName(),this.importsMap);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
         else if (instruction instanceof BinaryOpInstruction) {
             BinaryOpsCode code = new BinaryOpsCode(instruction, varTable, this.numLabel,this);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
         else if (instruction instanceof UnaryOpInstruction) {
             UnaryOpsCode code = new UnaryOpsCode((UnaryOpInstruction) instruction, varTable, this.numLabel,this);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
         else if (instruction instanceof CondBranchInstruction) {
             ConditionalBranchOpsCode code = new ConditionalBranchOpsCode(instruction, varTable, this.numLabel,this);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
         throw new RuntimeException("no instruction");

@@ -23,6 +23,7 @@ public class UnaryOpsCode extends InstructionClass{
                     .append("\tThen").append(this.LabelCounter).append(":\n")
                     .append("\ticonst_0\n")
                     .append("\tEnd").append(this.LabelCounter).append(":\n");
+            LabelCounter = LabelCounter + 1;
         }
 
         return jasminCode.toString();
