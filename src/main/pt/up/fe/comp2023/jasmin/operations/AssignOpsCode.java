@@ -40,10 +40,10 @@ public class AssignOpsCode extends InstructionClass{
                 if (literal != null && operand != null) {
                     if (operand.getName().equals(op.getName())) {
                         int literalValue = Integer.parseInt((literal).getLiteral());
-                        if (literalValue >= -128 && literalValue <= 127) {
-                            if(binaryOp.getOperation().getOpType() == OperationType.SUB) {
-                                literalValue = -literalValue;
-                            }
+                        if(binaryOp.getOperation().getOpType() == OperationType.SUB) {
+                            literalValue = -literalValue;
+                        }
+                        if (literalValue >= -128 && literalValue <= 128) {
                             return "\tiinc " + VarTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
                         }
                     }
