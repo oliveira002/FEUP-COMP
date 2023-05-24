@@ -29,7 +29,7 @@ public class AssignOpsCode extends InstructionClass{
         else{
             if (rhs.getInstType() == InstructionType.BINARYOPER) {
                 BinaryOpInstruction binaryOp = ((BinaryOpInstruction) rhs);
-                if (binaryOp.getOperation().getOpType() == OperationType.ADD) {
+                if (binaryOp.getOperation().getOpType() == OperationType.ADD || binaryOp.getOperation().getOpType() == OperationType.SUB) {
                     boolean leftLiteral = binaryOp.getLeftOperand().isLiteral();
                     boolean rightLiteral = binaryOp.getRightOperand().isLiteral();
 
@@ -47,6 +47,9 @@ public class AssignOpsCode extends InstructionClass{
                         if (operand.getName().equals(op.getName())) {
                             int literalValue = Integer.parseInt((literal).getLiteral());
                             if (literalValue >= -128 && literalValue <= 127) {
+                                if(binaryOp.getOperation().getOpType() == OperationType.SUB) {
+                                    literalValue = -literalValue;
+                                }
                                 return "\tiinc " + VarTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
                             }
                         }
