@@ -29,19 +29,14 @@ public class JmmOptimizer implements JmmOptimization {
     public JmmSemanticsResult optimize(JmmSemanticsResult jmmSemanticsResult) {
         JmmNode root = jmmSemanticsResult.getRootNode();
         if(jmmSemanticsResult.getConfig().getOrDefault("optimize", "false").equals("true")) {
-            //boolean changes = true;
-
-            ConstantPropagation constantProp = new ConstantPropagation();
-            ConstantFolding constantFold = new ConstantFolding();
-            for(int i = 0; i < 100; i++) {
-                constantFold.visit(root);
-                constantProp.visit(root);
+            boolean changes = true;
+            while(changes) {
+                ConstantPropagation constantProp = new ConstantPropagation();
+                ConstantFolding constantFold = new ConstantFolding();
+                changes = constantFold.visit(root,1);
+                changes = constantProp.visit(root,1) || changes;
+                int a = 2;
             }
-
-            /*while(changes) {
-                changes = constantFold.visit(root);
-                changes |= constantProp.visit(root);
-            }*/
         }
         return jmmSemanticsResult;
     }
