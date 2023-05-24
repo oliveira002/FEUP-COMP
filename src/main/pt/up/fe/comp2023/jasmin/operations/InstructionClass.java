@@ -2,9 +2,6 @@ package pt.up.fe.comp2023.jasmin.operations;
 
 import org.specs.comp.ollir.*;
 import pt.up.fe.comp2023.jasmin.Jasmin;
-import pt.up.fe.specs.util.exceptions.NotImplementedException;
-
-import java.awt.*;
 import java.util.HashMap;
 
 abstract public class InstructionClass {
@@ -21,10 +18,6 @@ abstract public class InstructionClass {
 
     public Instruction getInstruction() {
         return instruction;
-    }
-
-    public HashMap<String, Descriptor> getVarTable() {
-        return VarTable;
     }
 
     public int getLabelCounter(){
@@ -96,6 +89,26 @@ abstract public class InstructionClass {
         }
 
         return this.getDescriptor(d);
+    }
+    public String getLabelComp(Operation operation) {
+        return switch (operation.getOpType()) {
+            case GTE -> "ifge";
+            case GTH -> "ifgt";
+            case LTE -> "ifle";
+            case LTH -> "iflt";
+            case EQ -> "ifeq";
+            case NOTB, NEQ -> "ifne";
+            default -> "";
+        };
+    }
+
+    public String getCompFormula() {
+        return " Then" + LabelCounter + "\n" +
+                "\ticonst_0\n" +
+                "\tgoto EndIf" + LabelCounter + '\n' +
+                "\tThen" + LabelCounter + ":\n" +
+                "\ticonst_1\n" +
+                "\tEndIf" + LabelCounter++ + ":\n";
     }
     public abstract String toJasmin();
 }

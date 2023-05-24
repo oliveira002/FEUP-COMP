@@ -17,18 +17,25 @@ public class BinaryOpsCode extends InstructionClass{
         BinaryOpInstruction instruction = (BinaryOpInstruction) this.getInstruction();
 
         Operation op = instruction.getOperation();
-        if(op.getOpType() != OperationType.ADD && op.getOpType() != OperationType.SUB
-                && op.getOpType() != OperationType.MUL && op.getOpType() != OperationType.DIV)
-            throw new RuntimeException("Invalid operation type");
 
-        jasminCode.append(loadElement(instruction.getLeftOperand()))
-                .append(loadElement(instruction.getRightOperand()));
+        jasminCode.append(loadElement(instruction.getLeftOperand())).append(loadElement(instruction.getRightOperand()));
 
         switch (op.getOpType()) {
             case ADD -> jasminCode.append("\tiadd\n");
             case SUB -> jasminCode.append("\tisub\n");
             case MUL -> jasminCode.append("\timul\n");
             case DIV -> jasminCode.append("\tidiv\n");
+            case LTH, LTE, GTH, GTE, EQ, NEQ -> jasminCode.append("\tisub\n\t")
+                    .append(getLabelComp(op))
+                    .append(getCompFormula());
+            case ANDB -> jasminCode.append("\tiadd\n").append("\ticonst_2\n")
+                    .append("\tisub\n").append("\tiflt Then").append(LabelCounter).append('\n')
+                    .append("\ticonst_1\n").append("\tgoto EndIf").append(LabelCounter).append("\n")
+                    .append("\tThen").append(LabelCounter).append(":\n").append("\ticonst_0\n")
+                    .append("\tEndIf").append(LabelCounter++).append(":\n");
+            default -> {
+                return "";
+            }
         }
 
         return jasminCode.toString();

@@ -12,10 +12,11 @@ import pt.up.fe.comp2023.jasmin.operations.CallOps.NewOps;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Jasmin implements JasminBackend {
     private ClassUnit OllirCode;
-    private HashMap<String, String>  importsMap = new HashMap<>();
+    private final HashMap<String, String>  importsMap = new HashMap<>();
     private String defaultSuperClass = "java/lang/Object";
     private int numLabel = 0;
     private Boolean Flag = false;
@@ -64,16 +65,16 @@ public class Jasmin implements JasminBackend {
         String superSpec = ".super ";
 
         if (this.OllirCode.getClassAccessModifier() != AccessModifiers.DEFAULT) {
-            code.append(classSpec + this.OllirCode.getClassAccessModifier().toString().toLowerCase()).append(" ");
+            code.append(classSpec).append(this.OllirCode.getClassAccessModifier().toString().toLowerCase()).append(" ");
         }
         else{
-            code.append(classSpec + "public ");
+            code.append(classSpec).append("public ");
         }
         code.append(this.OllirCode.getClassName()).append("\n");
 
         if (this.OllirCode.getSuperClass() != null)
             this.defaultSuperClass = this.importsMap.getOrDefault(this.OllirCode.getSuperClass(), this.OllirCode.getSuperClass());
-        code.append(superSpec + defaultSuperClass);
+        code.append(superSpec).append(defaultSuperClass);
 
         code.append("\n\n");
 
@@ -129,12 +130,11 @@ public class Jasmin implements JasminBackend {
         return code.toString();
     }
     public String defaultConstructor(){
-        StringBuilder code = new StringBuilder(".method public <init>()V\n" +
+        return ".method public <init>()V\n" +
                 "\taload_0\n" +
                 "\tinvokespecial " + this.defaultSuperClass + "/<init>()V\n" +
                 "\treturn\n" +
-                ".end method");
-        return code.toString();
+                ".end method";
     }
 
     public String jasminMethodParser(Method method){
@@ -167,12 +167,16 @@ public class Jasmin implements JasminBackend {
 
         boolean hasReturnInstruction = false;
         for (Instruction instruction : method.getInstructions()) {
+            for (Map.Entry<String, Instruction> label : method.getLabels().entrySet()) {
+                if (label.getValue().equals(instruction)) {
+                    code.append(label.getKey()).append(":\n");
+                }
+            }
             if (instruction instanceof ReturnInstruction) {
                 hasReturnInstruction = true;
             }
             code.append(this.routeInstruction(instruction, method.getVarTable(), method.getMethodName()));
-            if(!Flag && instruction instanceof CallInstruction){
-                CallInstruction i = (CallInstruction) instruction;
+            if(!Flag && instruction instanceof CallInstruction i){
                 if(i.getReturnType().getTypeOfElement() != ElementType.VOID
                         &&(i.getInvocationType() == CallType.invokestatic ||
                         i.getInvocationType() == CallType.invokespecial ||
@@ -198,7 +202,7 @@ public class Jasmin implements JasminBackend {
 
         return code.toString();
     }
-    public String CallRouter(CallInstruction instruction, HashMap<String, Descriptor> varTable, String MethodName){
+    public String CallRouter(CallInstruction instruction, HashMap<String, Descriptor> varTable){
         StringBuilder jasminCode = new StringBuilder();
 
         if(instruction.getInvocationType() == CallType.invokevirtual){
@@ -227,7 +231,7 @@ public class Jasmin implements JasminBackend {
         }
         else if(instruction.getInvocationType() == CallType.arraylength){
             SingleOpsCode code = new SingleOpsCode(instruction, varTable, this.numLabel, this);
-            jasminCode.append(code.toJasmin() + "\tarraylength\n");
+            jasminCode.append(code.toJasmin()).append("\tarraylength\n");
         }
 
         return jasminCode.toString();
@@ -235,58 +239,61 @@ public class Jasmin implements JasminBackend {
     public String routeInstruction(Instruction instruction, HashMap<String, Descriptor> varTable, String MethodName){
 
         if (instruction instanceof CallInstruction) {
-            return CallRouter((CallInstruction) instruction, varTable, MethodName);
+            return CallRouter((CallInstruction) instruction, varTable);
         }
 
-        if (instruction instanceof AssignInstruction) {
+        else if (instruction instanceof GotoInstruction) {
+            return "\tgoto " + ((GotoInstruction)instruction).getLabel() + "\n";
+        }
+
+        else if (instruction instanceof AssignInstruction) {
             AssignOpsCode code = new AssignOpsCode((AssignInstruction) instruction, varTable, this.numLabel, MethodName,this);
             this.numLabel = code.getLabelCounter();
             return code.toJasmin();
         }
 
-        if (instruction instanceof GotoInstruction) {
-            return "\tgoto " + ((GotoInstruction)instruction).getLabel() + "\n";
-        }
-
-        if (instruction instanceof ReturnInstruction) {
+        else if (instruction instanceof ReturnInstruction) {
             ReturnOpsCode code = new ReturnOpsCode((ReturnInstruction) instruction, varTable, this.numLabel, this);
             this.numLabel = code.getLabelCounter();
             return code.toJasmin();
         }
 
-        if (instruction instanceof SingleOpInstruction) {
-            SingleOpsCode code = new SingleOpsCode((SingleOpInstruction) instruction, varTable, this.numLabel,this);
+        else if (instruction instanceof SingleOpInstruction) {
+            SingleOpsCode code = new SingleOpsCode(instruction, varTable, this.numLabel,this);
             this.numLabel = code.getLabelCounter();
             return code.toJasmin();
         }
 
-        if (instruction instanceof PutFieldInstruction) {
-            PutFieldOpsCode code = new PutFieldOpsCode((PutFieldInstruction) instruction, varTable,
+
+        else if (instruction instanceof GetFieldInstruction) {
+            GetFieldOpsCode code = new GetFieldOpsCode(instruction, varTable,
                     this.numLabel,this,this.OllirCode.getClassName(),this.importsMap);
             this.numLabel = code.getLabelCounter();
             return code.toJasmin();
         }
 
-        if (instruction instanceof GetFieldInstruction) {
-            GetFieldOpsCode code = new GetFieldOpsCode((GetFieldInstruction) instruction, varTable,
+
+        else if (instruction instanceof PutFieldInstruction) {
+            PutFieldOpsCode code = new PutFieldOpsCode(instruction, varTable,
                     this.numLabel,this,this.OllirCode.getClassName(),this.importsMap);
             this.numLabel = code.getLabelCounter();
             return code.toJasmin();
         }
 
-        if (instruction instanceof BinaryOpInstruction) {
-            BinaryOpsCode code = new BinaryOpsCode((BinaryOpInstruction) instruction, varTable, this.numLabel,this);
+        else if (instruction instanceof BinaryOpInstruction) {
+            BinaryOpsCode code = new BinaryOpsCode(instruction, varTable, this.numLabel,this);
             this.numLabel = code.getLabelCounter();
             return code.toJasmin();
         }
 
-        if (instruction instanceof CondBranchInstruction) {
-            //return routeInstruction((CondBranchInstruction) instruction);
-            return "";
-        }
-
-        if (instruction instanceof UnaryOpInstruction) {
+        else if (instruction instanceof UnaryOpInstruction) {
             UnaryOpsCode code = new UnaryOpsCode((UnaryOpInstruction) instruction, varTable, this.numLabel,this);
+            this.numLabel = code.getLabelCounter();
+            return code.toJasmin();
+        }
+
+        else if (instruction instanceof CondBranchInstruction) {
+            ConditionalBranchOpsCode code = new ConditionalBranchOpsCode(instruction, varTable, this.numLabel,this);
             this.numLabel = code.getLabelCounter();
             return code.toJasmin();
         }
