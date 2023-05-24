@@ -19,11 +19,7 @@ public class ConstantPropagation extends PreorderJmmVisitor<Integer,Boolean> {
     }
 
     private Boolean defaultVisit(JmmNode jmmNode, Integer dummy) {
-        boolean changes = false;
-        for(JmmNode node: jmmNode.getChildren()) {
-            changes |= visit(node,1);
-        }
-        return changes;
+        return null;
     }
 
     private Boolean visitAssignment(JmmNode jmmNode, Integer dummy) {
