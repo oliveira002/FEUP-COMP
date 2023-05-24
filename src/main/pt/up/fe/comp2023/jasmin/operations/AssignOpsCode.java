@@ -43,7 +43,7 @@ public class AssignOpsCode extends InstructionClass{
                         if(binaryOp.getOperation().getOpType() == OperationType.SUB) {
                             literalValue = -literalValue;
                         }
-                        if (literalValue >= -128 && literalValue <= 128) {
+                        if (literalValue >= -128 && literalValue <= 127) {
                             return "\tiinc " + VarTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
                         }
                     }
