@@ -19,9 +19,11 @@ public class AssignOpsCode extends InstructionClass{
         Operand op = (Operand) instruction.getDest();
         Instruction rhs = instruction.getRhs();
 
+        Descriptor descriptor = VarTable.get(op.getName());
+
         if (rhs.getInstType() == InstructionType.BINARYOPER) {
             BinaryOpInstruction binaryOp = ((BinaryOpInstruction) rhs);
-            if (binaryOp.getOperation().getOpType() == OperationType.ADD) {
+            if (binaryOp.getOperation().getOpType() == OperationType.ADD || binaryOp.getOperation().getOpType() == OperationType.SUB) {
                 boolean leftLiteral = binaryOp.getLeftOperand().isLiteral();
                 boolean rightLiteral = binaryOp.getRightOperand().isLiteral();
 
@@ -39,6 +41,9 @@ public class AssignOpsCode extends InstructionClass{
                     if (operand.getName().equals(op.getName())) {
                         int literalValue = Integer.parseInt((literal).getLiteral());
                         if (literalValue >= -128 && literalValue <= 127) {
+                            if(binaryOp.getOperation().getOpType() == OperationType.SUB && literalValue > 0) {
+                                literalValue = -literalValue;
+                            }
                             return "\tiinc " + VarTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
                         }
                     }
@@ -47,14 +52,30 @@ public class AssignOpsCode extends InstructionClass{
         }
 
         String rhsCode = jasmin.routeInstruction(rhs,VarTable,MethodName);
-        //as arrays are not yet implemented, we can assume that the destination is a variable
+
+
+        if (descriptor.getVarType().getTypeOfElement() == ElementType.ARRAYREF
+                && op.getType().getTypeOfElement() != ElementType.ARRAYREF
+                    && op instanceof ArrayOperand o) {
+            Element index = o.getIndexOperands().get(0);
+            jasminCode.append(getDescriptor(descriptor))
+                    .append(loadElement(index));
+            jasminCode.append(rhsCode)
+                    .append((o.getType().getTypeOfElement() == ElementType.INT32 ||
+                            o.getType().getTypeOfElement() == ElementType.BOOLEAN) ? "\tiastore\n" : "\taastore\n");
+
+            return jasminCode.toString();
+        }
+
 
         jasminCode.append(rhsCode);
+
         if (op.getType().getTypeOfElement() == ElementType.INT32 || op.getType().getTypeOfElement() == ElementType.BOOLEAN)
             jasminCode.append("\tistore");
         else {
             jasminCode.append("\tastore");
         }
+
         int reg = VarTable.get(op.getName()).getVirtualReg();
         jasminCode.append((reg <= 3) ? "_" : " ").append(reg).append("\n");
         return jasminCode.toString();

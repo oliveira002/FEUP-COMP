@@ -32,12 +32,7 @@ public class NewOps extends InvokeAbstract{
             jasminCode.append("\tnewarray ");
             if (instruction.getListOfOperands().get(0).getType().getTypeOfElement() == ElementType.INT32) {
                 jasminCode.append("int\n");
-            } else {
-                throw new RuntimeException("ERROR: NEWARRAY type not implemented");
             }
-
-        } else {
-            throw new RuntimeException("; ERROR: NEW invocation type not implemented\n");
         }
         return jasminCode.toString();
     }

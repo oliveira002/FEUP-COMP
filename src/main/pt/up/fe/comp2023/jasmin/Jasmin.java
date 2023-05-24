@@ -221,6 +221,14 @@ public class Jasmin implements JasminBackend {
             NewOps code = new NewOps(instruction, varTable, this.numLabel, this.OllirCode.getSuperClass(), this.importsMap,this);
             jasminCode.append(code.toJasmin());
         }
+        else if(instruction.getInvocationType() == CallType.ldc) {
+            SingleOpsCode code = new SingleOpsCode(instruction, varTable, this.numLabel, this);
+            jasminCode.append(code.toJasmin());
+        }
+        else if(instruction.getInvocationType() == CallType.arraylength){
+            SingleOpsCode code = new SingleOpsCode(instruction, varTable, this.numLabel, this);
+            jasminCode.append(code.toJasmin() + "\tarraylength\n");
+        }
 
         return jasminCode.toString();
     }
@@ -237,8 +245,7 @@ public class Jasmin implements JasminBackend {
         }
 
         if (instruction instanceof GotoInstruction) {
-            //return routeInstruction((GotoInstruction) instruction);
-            return "";
+            return "\tgoto " + ((GotoInstruction)instruction).getLabel() + "\n";
         }
 
         if (instruction instanceof ReturnInstruction) {
