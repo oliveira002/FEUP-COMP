@@ -21,7 +21,7 @@ public class RegisterAllocation {
 
     public void regAlloc() {
         ArrayList<Method> methods = ollirClass.getMethods();
-
+        ollirClass.buildCFGs();
         for(Method method: methods) {
             LivenessAnalysis liveAnalysis = new LivenessAnalysis(method);
             liveAnalysis.analyse();

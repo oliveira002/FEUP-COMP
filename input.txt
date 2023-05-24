@@ -1,19 +1,17 @@
-import ioPlus;
-class SimpleWhileStat {
+class PropWithLoop {
+    public int foo(){
+      int a;
+      int i;
+      int res;
 
-    int h;
-    public int func(int a){
-        int c;
-        c = a;
+      a = 10;
+      i = 20;
+      i = i + a;
+      i = i + 10;
+      res = 1 + 10;
 
-        if(c < 2) {
-
-        }
-        else {
-
-        }
-
-        return 2;
+      return i;
     }
-
+    public static void main(String[] args) {
+    }
 }

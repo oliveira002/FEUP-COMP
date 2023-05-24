@@ -30,9 +30,9 @@ public class JmmOptimizer implements JmmOptimization {
         JmmNode root = jmmSemanticsResult.getRootNode();
         if(jmmSemanticsResult.getConfig().getOrDefault("optimize", "false").equals("true")) {
             ConstantPropagation constantProp = new ConstantPropagation();
-            //constantProp.visit(root,null);
+            constantProp.visit(root,null);
             ConstantFolding constantFold = new ConstantFolding();
-            //constantFold.visit(root,null);
+            constantFold.visit(root,null);
         }
         return jmmSemanticsResult;
     }
