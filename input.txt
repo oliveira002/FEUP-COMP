@@ -1,67 +1,19 @@
-import io;
-import Quicksort;
+import ioPlus;
+class SimpleWhileStat {
 
-class CompileBasic extends Quicksort {
-
-    int intField;
-    boolean boolField;
-    int[] boas;
-    String boas2;
-    CompileBasic boas3;
-
-
-    public int method1() {
-        int intLocal1;
-        boolean boolLocal1;
-
-        intLocal1 = 1 + 2 * 3 + 4;
-        boolLocal1 = true;
-
-        return 0;
-    }
-
-    public boolean method2(int intParam1, boolean boolParam1) {
-        //intField = 4;
-        //boolField = true;
-        return boolParam1;
-    }
-
-    public int method3() {
-        int a;
-        int b;
+    int h;
+    public int func(int a){
         int c;
-
-        a = 1;
-        b = 2;
         c = a;
 
-        io.println(c);
-        //io.println(new CompileBasic().method1());
+        if(c < 2) {
 
-        return a + b;
+        }
+        else {
+
+        }
+
+        return 2;
     }
 
-    public int method4(int nr) {
-        int d;
-        int e;
-        int f;
-        int[] intLocal2;
-
-        d = 2;
-        e = 2;
-        f = 2;
-
-        intLocal2 = new int[1+2+3];
-        intLocal2[0] = 1;
-        intLocal2[0+1] = d+e;
-        intLocal2[f] = 3;
-
-        return 0;
-    }
-
-    public static void main(String[] args) {
-        CompileBasic test;
-        test = new CompileBasic();
-        test.method4(10);
-    }
 }

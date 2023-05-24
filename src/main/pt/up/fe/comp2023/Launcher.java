@@ -13,10 +13,10 @@ import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp2023.analysis.JmmSimpleAnalysis;
 import pt.up.fe.comp2023.jasmin.Jasmin;
-import pt.up.fe.comp2023.ollir.ASTParser;
+import pt.up.fe.comp2023.ollir.JmmOptimizer;
+import pt.up.fe.comp2023.ollir.optimization.RegisterAllocation;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
-import pt.up.fe.specs.util.SpecsStrings;
 import pt.up.fe.specs.util.SpecsSystem;
 
 public class Launcher {
@@ -61,10 +61,17 @@ public class Launcher {
         System.out.println("!--Symbol table--!\n"+analysisResult.getSymbolTable());
 
         //Ollir generation
-        ASTParser astParser = new ASTParser();
-        OllirResult ollir = astParser.toOllir(analysisResult);
+        JmmOptimizer jmmOptimizer = new JmmOptimizer();
+        analysisResult = jmmOptimizer.optimize(analysisResult);
+        if(parserResult.getConfig().getOrDefault("optimize", "false").equals("true")) {
+            System.out.println("\n!-- OPTIMIZED AST--!");
+            System.out.println(analysisResult.getRootNode().toTree());
+        }
+        OllirResult ollir = jmmOptimizer.toOllir(analysisResult);
         System.out.println("!--Ollir--!\n"+ollir.getOllirCode());
 
+        RegisterAllocation registerAllocation = new RegisterAllocation(ollir,10);
+        registerAllocation.regAlloc();
         //Jasmin generation
         System.out.println("\n\n!--Jasmin--!\n");
         JasminBackend jasmin = new Jasmin();
@@ -78,8 +85,8 @@ public class Launcher {
         SpecsLogs.info("Executing with args: " + Arrays.toString(args));
 
         // Check if there is at least one argument
-        if (args.length != 1) {
-            throw new RuntimeException("Expected a single argument, a path to an existing input file.");
+        if (args.length < 1) {
+            throw new RuntimeException("Expected at least an argument, a path to an existing input file.");
         }
 
         // Create config with default values
@@ -88,6 +95,7 @@ public class Launcher {
         config.put("optimize", "false");
         config.put("registerAllocation", "-1");
         config.put("debug", "false");
+
 
         // Change config based on command line arguments
         for(String option : args){

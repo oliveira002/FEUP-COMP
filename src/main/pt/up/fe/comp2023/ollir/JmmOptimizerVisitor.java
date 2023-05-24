@@ -7,10 +7,9 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp2023.analysis.SymbolTableCR;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
+public class JmmOptimizerVisitor extends AJmmVisitor<StringBuilder,List<String>> {
     private final SymbolTableCR symbolTable;
     private int indent = 0;
     private String method = "";
@@ -35,7 +34,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
             ASTDict.BOOL,
             ASTDict.THIS);
 
-    public ASTParserVisitor(SymbolTableCR symbolTable){
+    public JmmOptimizerVisitor(SymbolTableCR symbolTable){
         this.symbolTable = symbolTable;
         this.buildVisitor();
     }
@@ -47,22 +46,23 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
         addVisit(ASTDict.CLASS_DECL,this::classDeclarationVisit);
         addVisit(ASTDict.METHOD_DECL, this::methodDeclarationVisit);
         //addVisit(ASTDict.VAR_TYPE, this::varTypeVisit);
-        //addVisit(ASTDict.THEN_STATEMENT, this::thenStatementVisit);
+        addVisit(ASTDict.THEN_STATEMENT, this::statementVisit);
         addVisit(ASTDict.CONDITIONAL_STATEMENT, this::condStatementVisit);
-        addVisit(ASTDict.EXP_STATEMENT, this::expressionStatementVisit);
+        addVisit(ASTDict.EXP_STATEMENT, this::statementVisit);
         addVisit(ASTDict.VAR_ASSIGN, this::varAssignVisit);
         addVisit(ASTDict.ARRAY_ASSIGN, this::arrayAssignVisit);
-        //addVisit(ASTDict.PARENTHESES, this::parenthesesVisit);
-        //addVisit(ASTDict.NOT_OP, this::notOperatorVisit);
+        addVisit(ASTDict.PARENTHESES, this::parenthesesVisit);
+        addVisit(ASTDict.NOT_OP, this::notOperatorVisit);
         addVisit(ASTDict.BINARY_OP, this::binaryOperatorVisit);
-        //addVisit(ASTDict.COMPARE_OP, this::comparisonOperatorVisit);
-        //addVisit(ASTDict.ARRAY_INDEX, this::arrayIndexVisit);
-        //addVisit(ASTDict.ARRAY_LENGTH, this::arrayLengthVisit);
+        addVisit(ASTDict.LOGICAL_OP, this::logicalOperatorVisit);
+        addVisit(ASTDict.COMPARE_OP, this::comparisonOperatorVisit);
+        addVisit(ASTDict.ARRAY_INDEX, this::arrayIndexVisit);
+        addVisit(ASTDict.ARRAY_LENGTH, this::arrayLengthVisit);
         addVisit(ASTDict.METHOD_CALL, this::methodCallVisit);
         addVisit(ASTDict.INTEGER, this::integerVisit);
         addVisit(ASTDict.IDENTIFIER, this::identifierVisit);
         addVisit(ASTDict.NEW_INT_ARRAY, this::newIntArrayVisit);
-        //addVisit(ASTDict.NEW_OBJECT, this::newObjectVisit);
+        addVisit(ASTDict.NEW_OBJECT, this::newObjectVisit);
         addVisit(ASTDict.BOOL, this::booleanVisit);
         //addVisit(ASTDict.THIS, this::thisVisit);
 
@@ -208,26 +208,68 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
     //TODO: Cp3
     private List<String> condStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
         String conditional_type = jmmNode.get("conditional");
-        this.indent++;
         switch (conditional_type){
             case "if" -> {
+                JmmNode condition = jmmNode.getJmmChild(0);
+                JmmNode ifThen = jmmNode.getJmmChild(1);
+                JmmNode elseThen = jmmNode.getJmmChild(2);
+                List<String> thenEndif = Utils.nextThenEndIf();
+                List<String> cond_code = visit(condition,ollirCode);
 
+                ollirCode.append("\n")
+                         .append(cond_code.get(1))
+                         .append("\t".repeat(indent))
+                         .append("if(")
+                         .append(cond_code.get(0))
+                         .append(".bool) goto ")
+                         .append(thenEndif.get(0))
+                         .append(";\n");
+                this.indent++;
+                visit(elseThen,ollirCode);
+                ollirCode.append("\t".repeat(indent)).append("goto ").append(thenEndif.get(1)).append(";\n");
+                ollirCode.append("\t".repeat(--indent)).append(thenEndif.get(0)).append(":\n");
+                this.indent++;
+                visit(ifThen,ollirCode);
+                ollirCode.append("\t".repeat(--indent)).append(thenEndif.get(1)).append(":\n");
             }
             case "while" -> {
+                JmmNode condition = jmmNode.getJmmChild(0);
+                JmmNode whileDo = jmmNode.getJmmChild(1);
+                List<String> bodyEndloop = Utils.nextBodyEndLoop();
+                List<String> cond_code = visit(condition,ollirCode);
 
+                ollirCode.append("\n")
+                         .append(cond_code.get(1))
+                         .append("\t".repeat(indent))
+                         .append("if(!.bool ")
+                         .append(cond_code.get(0))
+                         .append(".bool) goto ")
+                         .append(bodyEndloop.get(1))
+                         .append(";\n");
+                ollirCode.append("\t".repeat(indent))
+                         .append(bodyEndloop.get(0)).append(":\n");
+                this.indent++;
+                visit(whileDo, ollirCode);
+                ollirCode.append("\n\t")
+                         .append(cond_code.get(1))
+                         .append("\t".repeat(indent))
+                         .append("if(")
+                         .append(cond_code.get(0))
+                         .append(".bool) goto ")
+                         .append(bodyEndloop.get(0))
+                         .append(";\n");
+                ollirCode.append("\t".repeat(--indent)).append(bodyEndloop.get(1)).append(":\n");
             }
         }
-        this.indent--;
         return null;
     }
 
-    private  List<String> expressionStatementVisit(JmmNode jmmNode, StringBuilder ollirCode){
+    private  List<String> statementVisit(JmmNode jmmNode, StringBuilder ollirCode){
         for(JmmNode child : jmmNode.getChildren())
             visit(child, ollirCode);
         return null;
     }
 
-    //TODO: Cp2
     private List<String> varAssignVisit(JmmNode jmmNode, StringBuilder ollirCode){
         String var_name = jmmNode.get("var");
 
@@ -240,7 +282,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
 
             JmmNode child = jmmNode.getChildren().get(0);
             switch (child.getKind()) {
-                case ASTDict.BINARY_OP -> {
+                case ASTDict.BINARY_OP, ASTDict.LOGICAL_OP, ASTDict.NOT_OP, ASTDict.COMPARE_OP -> {
                     List<String> code = visit(child, ollirCode);
                     ollirCode.append(code.get(1).replace(code.get(0), var_name));
                     ollirCode.deleteCharAt(ollirCode.length() - 1); //Remove x2 last \n
@@ -250,7 +292,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
                     List<String> code = visit(child, ollirCode);
                     ollirCode.append(code.get(1)).append("\t".repeat(indent)).append(var_name).append(var_type).append(" :=").append(var_type).append(code.get(0));
                 }
-                case ASTDict.INTEGER, ASTDict.IDENTIFIER, ASTDict.BOOL -> {
+                case ASTDict.INTEGER, ASTDict.IDENTIFIER, ASTDict.BOOL, ASTDict.ARRAY_INDEX -> {
                     List<String> code = visit(child, ollirCode);
                     ollirCode.append(code.get(1))
                             .append("\t".repeat(indent))
@@ -301,7 +343,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
 
             JmmNode child = jmmNode.getChildren().get(0);
             switch (child.getKind()) {
-                case ASTDict.BINARY_OP -> {
+                case ASTDict.BINARY_OP, ASTDict.LOGICAL_OP, ASTDict.NOT_OP, ASTDict.COMPARE_OP -> {
                     List<String> code = visit(child, ollirCode);
                     ollirCode.append(code.get(1).replace(code.get(0), var_name));
                     ollirCode.deleteCharAt(ollirCode.length() - 1); //Remove x2 last \n
@@ -311,7 +353,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
                     List<String> code = visit(child, ollirCode);
                     ollirCode.append(code.get(1)).append("\t".repeat(indent)).append(var_name).append(var_type).append(" :=").append(var_type).append(code.get(0));
                 }
-                case ASTDict.INTEGER, ASTDict.IDENTIFIER, ASTDict.BOOL -> {
+                case ASTDict.INTEGER, ASTDict.IDENTIFIER, ASTDict.BOOL, ASTDict.ARRAY_INDEX -> {
                     List<String> code = visit(child, ollirCode);
                     ollirCode.append(code.get(1))
                             .append("\t".repeat(indent))
@@ -366,7 +408,7 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
 
             JmmNode child = jmmNode.getChildren().get(0);
             switch (child.getKind()) {
-                case ASTDict.BINARY_OP, ASTDict.METHOD_CALL, ASTDict.INTEGER, ASTDict.IDENTIFIER, ASTDict.BOOL -> {
+                case ASTDict.BINARY_OP, ASTDict.LOGICAL_OP, ASTDict.METHOD_CALL, ASTDict.INTEGER, ASTDict.IDENTIFIER, ASTDict.BOOL, ASTDict.ARRAY_INDEX, ASTDict.NOT_OP, ASTDict.COMPARE_OP-> {
 
                     List<String> result = visit(child, ollirCode);
 
@@ -380,10 +422,10 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
                             .append(var_type).append(").V;\n");
                 }
                 case ASTDict.NEW_INT_ARRAY -> {
-                    //Maybe later lmao
+                    //TODO
                 }
                 case ASTDict.NEW_OBJECT -> {
-                    //Maybe not later
+                    //TODO
                 }
             }
 
@@ -428,6 +470,17 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
         return null;
     }
 
+    private List<String> parenthesesVisit(JmmNode jmmNode, StringBuilder ollirCode){
+        return visit(jmmNode.getJmmChild(0), ollirCode);
+    }
+
+    private List<String> notOperatorVisit (JmmNode jmmNode, StringBuilder ollirCode){
+        List<String> code = visit(jmmNode.getJmmChild(0), ollirCode);
+        String temp = Utils.nextTemp();
+
+        return List.of(temp, code.get(1)+"\t".repeat(indent)+temp+".bool :=.bool !.bool " + code.get(0) + ".bool;\n");
+    }
+
     private List<String> binaryOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
         var lhs = jmmNode.getJmmChild(0);
         var rhs = jmmNode.getJmmChild(1);
@@ -454,130 +507,126 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
         return List.of(temp, prefixCode.toString());
     }
 
-    //TODO: Cp2
-    /*private List<String> methodCallVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        String called = jmmNode.getJmmChild(0).get("var");
-        String method = jmmNode.get("var");
+    private List<String> logicalOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
+        var lhs = jmmNode.getJmmChild(0);
+        var rhs = jmmNode.getJmmChild(1);
 
-        List<JmmNode> params = jmmNode.getChildren();
-        params = params.subList(1, params.size());
-        String param_value = "";
-        String param_prefix = "";
-        String param_type = "";
+        List<String> lhsCode = visit(lhs, ollirCode);
+        List<String> rhsCode = visit(rhs, ollirCode);
+        StringBuilder prefixCode = new StringBuilder();
 
-        String return_type =".V";
+        String temp = Utils.nextTemp();
 
-        //Var assign
-        if(jmmNode.getJmmParent().getKind().equals(ASTDict.VAR_ASSIGN)){
-            String temp = Utils.nextTemp();
-            Type return_type_aux = symbolTable.getReturnType(this.method);
-            return_type = Utils.toOllirType(return_type_aux.getName(), return_type_aux.isArray());
+        prefixCode.append(lhsCode.get(1))
+                .append(rhsCode.get(1))
+                .append("\t".repeat(indent))
+                .append(temp)
+                .append(".bool :=.bool ")
+                .append(lhsCode.get(0))
+                .append(".bool ")
+                .append(jmmNode.get("op"))
+                .append(".bool ")
+                .append(rhsCode.get(0))
+                .append(".bool;")
+                .append("\n");
 
-            List<Object> var_type = symbolTable.getLocalVarType(called, this.method);
+        return List.of(temp, prefixCode.toString());
+    }
 
-            if(var_type == null){
-                var_type = symbolTable.getParamType(called, this.method);
-            }
+    private List<String> comparisonOperatorVisit(JmmNode jmmNode, StringBuilder ollirCode){
 
-            StringBuilder prefix_code = new StringBuilder("\t".repeat(indent) + temp + return_type + " :=" + return_type + " invokevirtual("
-                    + called + Utils.toOllirType((String) var_type.get(0), (boolean) var_type.get(1)) + ", " + "\"" + method + "\"");
+        var lhs = jmmNode.getJmmChild(0);
+        var rhs = jmmNode.getJmmChild(1);
 
-            for(JmmNode param : params){
+        List<String> lhsCode = visit(lhs, ollirCode);
+        List<String> rhsCode = visit(rhs, ollirCode);
+        StringBuilder prefixCode = new StringBuilder();
 
-                 param_value = visit(param, ollirCode).get(0);
-                 param_prefix = visit(param, ollirCode).get(1);
+        String temp = Utils.nextTemp();
 
-                //Int
-                if(param.getKind().equals(ASTDict.INTEGER)){
-                    param_type = ".i32";
-                }
-                //Binary op
-                else if(param.getKind().equals(ASTDict.BINARY_OP)){
-                    param_type = ".i32";
-                }
-                //Identifier
-                else{
+        prefixCode.append(lhsCode.get(1))
+                .append(rhsCode.get(1))
+                .append("\t".repeat(indent))
+                .append(temp)
+                .append(".bool :=.bool ")
+                .append(lhsCode.get(0))
+                .append(".i32 ")
+                .append(jmmNode.get("op"))
+                .append(".bool ")
+                .append(rhsCode.get(0))
+                .append(".i32;")
+                .append("\n");
 
-                    List<Object> param_type_aux = symbolTable.getFieldType(param_value);
-                    if(param_type_aux == null){
-                        param_type_aux = symbolTable.getLocalVarType(param_value, this.method);
-                    }
-                    param_type = Utils.toOllirType((String) param_type_aux.get(0), (boolean) param_type_aux.get(1));
-                }
+        return List.of(temp, prefixCode.toString());
+    }
 
-                prefix_code.append(", ").append(param_value).append(param_type);
-            }
+    private List<String> arrayIndexVisit(JmmNode jmmNode, StringBuilder ollirCode){
 
-            prefix_code.append(")").append(return_type).append(";\n");
-            return List.of(temp, param_prefix+prefix_code.toString());
+        JmmNode array_child = jmmNode.getJmmChild(0);
+        JmmNode index_child = jmmNode.getJmmChild(1);
+        StringBuilder prefix = new StringBuilder();
+        StringBuilder sufix = new StringBuilder();
+        List<String> result = List.of("","");
+
+        if(array_child.getKind().equals(ASTDict.IDENTIFIER)){
+            result = visit(array_child, ollirCode);
+            prefix.append(result.get(1));
+            sufix.append(result.get(0)).append("[");
         }
 
-        //Import, class -> invokestatic
-        if(symbolTable.getParsedImports().contains(called) || symbolTable.getClassName().equals(called)){
-            ollirCode.append("\n")
-                     .append("\t".repeat(indent))
-                     .append("invokestatic(").append(called);
+        switch(index_child.getKind()){
+            case ASTDict.BINARY_OP, ASTDict.IDENTIFIER -> {
+                result = visit(index_child, ollirCode);
 
-        }
-        //local var, method params -> invokevirtual
-        else{
-
-            Type return_type_aux = symbolTable.getReturnType(this.method);
-            return_type = Utils.toOllirType(return_type_aux.getName(), return_type_aux.isArray());
-
-            List<Object> var_type = symbolTable.getLocalVarType(called, this.method);
-
-            if(var_type == null){
-                var_type = symbolTable.getParamType(called, this.method);
             }
-
-            ollirCode.append("\t".repeat(indent))
-                     .append("invokevirtual(")
-                     .append(called).append(Utils.toOllirType((String) var_type.get(0), (boolean) var_type.get(1)));
+            case ASTDict.INTEGER, ASTDict.ARRAY_INDEX, ASTDict.METHOD_CALL ->{
+                result = visit(index_child, ollirCode);
+                String temp = Utils.nextTemp();
+                result = List.of(temp, result.get(1)+"\t".repeat(indent) + temp + ".i32 :=.i32 " + result.get(0) + ".i32;\n");
+            }
         }
 
-         ollirCode.append(", \"")
-                  .append(method)
-                  .append("\"");
+        prefix.append(result.get(1));
+        sufix.append(result.get(0)).append(".i32]");
 
-        for(JmmNode param : params){
-
-            param_value = visit(param, ollirCode).get(0);
-            param_prefix = visit(param, ollirCode).get(1);
-
-            //Int
-            if(param.getKind().equals(ASTDict.INTEGER)){
-                 param_type = ".i32";
-            }
-            //Binary op
-            else if(param.getKind().equals(ASTDict.BINARY_OP)){
-                param_type = ".i32";
-            }
-            //Identifier
-            else{
-
-                List<Object> param_type_aux = symbolTable.getFieldType(param_value);
-                if(param_type_aux == null){
-                    param_type_aux = symbolTable.getLocalVarType(param_value, this.method);
-                }
-                param_type = Utils.toOllirType((String) param_type_aux.get(0), (boolean) param_type_aux.get(1));
-            }
-
-            ollirCode.append(", ")
-                     .append(param_value).append(param_type);
+        if(jmmNode.getJmmParent().getKind().equals(ASTDict.BINARY_OP) || jmmNode.getJmmParent().getKind().equals(ASTDict.METHOD_CALL)){
+            String temp2 = Utils.nextTemp();
+            String sufix2 = "\t".repeat(indent)+temp2+".i32 :=.i32 "+ sufix+".i32;\n";
+            return List.of(temp2, prefix+sufix2);
         }
 
-        ollirCode.append(")")
-                 .append(return_type)
-                 .append(";");
+        return List.of(sufix.toString(), prefix.toString());
+    }
 
-        return null;
-    }*/
+    private List<String> arrayLengthVisit(JmmNode jmmNode, StringBuilder ollirCode){
+
+        String temp = Utils.nextTemp();
+        List<String> array = visit(jmmNode.getJmmChild(0), ollirCode);
+        String prefix = array.get(1)+"\t".repeat(indent)+temp+".i32 :=.i32 arraylength(" + array.get(0)+  ".array.i32).i32;\n";
+
+        return List.of(temp, prefix);
+    }
 
     private List<String> methodCallVisit(JmmNode jmmNode, StringBuilder ollirCode){
-        String called = jmmNode.getJmmChild(0).get("var");
+        JmmNode calledNode = jmmNode.getJmmChild(0);
+        String called;
         StringBuilder called_code = new StringBuilder();
         StringBuilder called_prefix = new StringBuilder();
+        while (calledNode.getKind().equals(ASTDict.PARENTHESES)){
+            calledNode = calledNode.getJmmChild(0);
+        }
+        if(calledNode.getKind().equals(ASTDict.THIS)){
+            called = "this";
+        }
+        else if(calledNode.getKind().equals(ASTDict.METHOD_CALL) || calledNode.getKind().equals(ASTDict.NEW_OBJECT)){
+            List<String> called_aux = visit(calledNode, ollirCode);
+            called = called_aux.get(0);
+            called_prefix = new StringBuilder(called_aux.get(1));
+        }
+        else{
+            called = calledNode.get("var");
+        }
+
 
         String method = jmmNode.get("var");
         String return_type = ".V";
@@ -591,35 +640,49 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
 
         //Deal with called
         //Import, class -> invokestatic
-        if(symbolTable.getParsedImports().contains(called) || symbolTable.getClassName().equals(called)){
-            called_code.append("\t".repeat(indent)).append("invokestatic(").append(called).append(",").append("\"").append(method).append("\"");
+        if(symbolTable.getParsedImports().contains(called) || (symbolTable.getClassName().equals(called) && !calledNode.getKind().equals(ASTDict.NEW_OBJECT))){
+            called_code.append(called_prefix).append("\t".repeat(indent)).append("invokestatic(").append(called).append(",").append("\"").append(method).append("\"");
 
             if(symbolTable.getClassName().equals(called)){
                 return_type = Utils.toOllirType(symbolTable.getReturnType(method).getName(), symbolTable.getReturnType(method).isArray());
             }
         }
-        //local var, method params, class field -> invokevirtual
+        //local var, method params, class field, this, new obj() -> invokevirtual
         else{
-            Type called_type_aux = symbolTable.getAnyType(called, this.method);
-            String called_type = Utils.toOllirType(called_type_aux.getName(),called_type_aux.isArray());
+            String called_type;
+            Type called_type_aux = new Type("", false);;
+            if(calledNode.getKind().equals(ASTDict.THIS) || calledNode.getKind().equals(ASTDict.NEW_OBJECT)){
+                called_type = "." + symbolTable.getClassName();
+            }
+            else if(calledNode.getKind().equals(ASTDict.METHOD_CALL)){
+                called_type_aux = symbolTable.getReturnType(calledNode.get("var"));
+                called_type = "";
+            }
+            else{
+                called_type_aux = symbolTable.getAnyType(called, this.method);
+                called_type = Utils.toOllirType(called_type_aux.getName(),called_type_aux.isArray());
+            }
 
-            called_code.append("\t".repeat(indent)).append("invokevirtual(").append(called).append(called_type).append(",").append("\"").append(method).append("\"");
+
+            called_code.append("invokevirtual(").append(called).append(called_type).append(",").append("\"").append(method).append("\"");
 
             if(!symbolTable.getParsedImports().contains(called_type_aux.getName()))
                 return_type = Utils.toOllirType(symbolTable.getReturnType(method).getName(), symbolTable.getReturnType(method).isArray());
         }
 
         //Deal with parameters
+        int i = 0;
         for(JmmNode param : params){
 
             List<String> code = visit(param, ollirCode);
 
             switch(param.getKind()){
-                case ASTDict.BOOL -> param_type = ".bool";
-                case ASTDict.INTEGER, ASTDict.BINARY_OP -> param_type = ".i32";
-                //class field, local var, method params
+                case ASTDict.BOOL, ASTDict.NOT_OP, ASTDict.COMPARE_OP, ASTDict.LOGICAL_OP -> param_type = ".bool";
+                case ASTDict.INTEGER, ASTDict.BINARY_OP, ASTDict.ARRAY_LENGTH, ASTDict.ARRAY_INDEX-> param_type = ".i32";
+                //class field, local var or method params
                 case ASTDict.IDENTIFIER -> {
                     param_value = param.get("var");
+
                     if(symbolTable.fieldExists(param_value)){
                         List<Object> param_type_aux = symbolTable.getFieldType(param_value);
                         param_type = Utils.toOllirType((String) param_type_aux.get(0), (boolean) param_type_aux.get(1));
@@ -633,10 +696,14 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
                         param_type = Utils.toOllirType((String) param_type_aux.get(0), (boolean) param_type_aux.get(1));
                     }
                 }
+                case ASTDict.METHOD_CALL -> {
+                    param_type = "";
+                }
             }
 
-            params_prefix.append(code.get(1)).append("");
+            params_prefix.append(code.get(1));
             params_code.append(", ").append(code.get(0)).append(param_type);
+            i++;
         }
 
         //Var assign or binary op
@@ -647,19 +714,22 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
 
             params_code.append(")").append(parent_type).append(";\n\n");
             called_code.append(params_code);
-            return List.of(" " + called_code.substring(indent),params_prefix.toString());
+            return List.of(" " + called_code,params_prefix.toString());
         }
-        else if(parent.getKind().equals(ASTDict.BINARY_OP) || parent.getKind().equals(ASTDict.METHOD_CALL)) {
+        //This is really stupid, but I'm not changing it now
+        else if(parent.getKind().equals(ASTDict.BINARY_OP) || parent.getKind().equals(ASTDict.PARENTHESES) || parent.getKind().equals(ASTDict.METHOD_CALL) || parent.getKind().equals(ASTDict.ARRAY_INDEX) || parent.getKind().equals(ASTDict.NOT_OP) || parent.getKind().equals(ASTDict.COMPARE_OP) || parent.getKind().equals(ASTDict.LOGICAL_OP)) {
             String temp = Utils.nextTemp();
             params_code.append(")").append(return_type).append(";\n\n");
             called_code.append(params_code);
-            return List.of(temp + return_type, params_prefix.toString() + "\t".repeat(indent) + temp + return_type + " :=" + return_type + " " + called_code.substring(indent));
+            String ret1 = temp + return_type;
+            String ret2 = called_prefix + params_prefix.toString() + "\t".repeat(indent) + temp + return_type + " :=" + return_type + " " + called_code;
+            return List.of(ret1, ret2);
         }
 
         params_code.append(")").append(return_type).append(";\n\n");
 
         //Regular statement
-        ollirCode.append(params_prefix).append(called_code).append(params_code);
+        ollirCode.append(params_prefix).append(called_prefix).append("\t".repeat(indent)).append(called_code).append(params_code);
 
         return null;
     }
@@ -701,22 +771,30 @@ public class ASTParserVisitor extends AJmmVisitor<StringBuilder,List<String>> {
 
         JmmNode child = jmmNode.getChildren().get(0);
         switch(child.getKind()){
-            case ASTDict.BINARY_OP, ASTDict.IDENTIFIER -> {
+            case ASTDict.BINARY_OP, ASTDict.IDENTIFIER, ASTDict.INTEGER -> {
                 List<String> code = visit(child, ollirCode);
 
                 inside = code.get(0);
                 before = code.get(1);
 
             }
-            case ASTDict.INTEGER -> {
+            /*case ASTDict.INTEGER -> {
                 List<String> int_code = visit(child, ollirCode);
                 String temp = Utils.nextTemp();
 
                 inside = temp;
                 before = "\t".repeat(indent) + temp+".i32 :=.i32 "+int_code.get(0)+".i32;\n";
-            }
+            }*/
         }
         return List.of("new(array, %s.i32).array.i32;".formatted(inside), "\n"+before);
+    }
+
+    private List<String> newObjectVisit (JmmNode jmmNode, StringBuilder ollirCode){
+        String temp = Utils.nextTemp();
+        String type = jmmNode.get("var");
+        String prefix = "\t".repeat(indent)+ temp + "." + type + ":=." + type + " new(" + type +")." + type + ";\n"
+                + "\t".repeat(indent) + "invokespecial(" + temp +"."+type+",\"<init>\").V;\n";
+        return List.of(temp,prefix);
     }
 
     private List<String> booleanVisit(JmmNode jmmNode, StringBuilder ollirCode){
