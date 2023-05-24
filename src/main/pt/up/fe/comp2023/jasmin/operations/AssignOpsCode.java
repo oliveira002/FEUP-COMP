@@ -21,56 +21,52 @@ public class AssignOpsCode extends InstructionClass{
 
         Descriptor descriptor = VarTable.get(op.getName());
 
-        if (descriptor.getVarType().getTypeOfElement() == ElementType.ARRAYREF && op.getType().getTypeOfElement() != ElementType.ARRAYREF) {
-            ArrayOperand arrayOp = (ArrayOperand) op;
-            Element i = arrayOp.getIndexOperands().get(0);
-            jasminCode.append(getDescriptor(descriptor)).append(loadElement(i));
-        }
-        else{
-            if (rhs.getInstType() == InstructionType.BINARYOPER) {
-                BinaryOpInstruction binaryOp = ((BinaryOpInstruction) rhs);
-                if (binaryOp.getOperation().getOpType() == OperationType.ADD || binaryOp.getOperation().getOpType() == OperationType.SUB) {
-                    boolean leftLiteral = binaryOp.getLeftOperand().isLiteral();
-                    boolean rightLiteral = binaryOp.getRightOperand().isLiteral();
+        if (rhs.getInstType() == InstructionType.BINARYOPER) {
+            BinaryOpInstruction binaryOp = ((BinaryOpInstruction) rhs);
+            if (binaryOp.getOperation().getOpType() == OperationType.ADD || binaryOp.getOperation().getOpType() == OperationType.SUB) {
+                boolean leftLiteral = binaryOp.getLeftOperand().isLiteral();
+                boolean rightLiteral = binaryOp.getRightOperand().isLiteral();
 
-                    LiteralElement literal = null;
-                    Operand operand = null;
+                LiteralElement literal = null;
+                Operand operand = null;
 
-                    if (leftLiteral && !rightLiteral) {
-                        literal = (LiteralElement) binaryOp.getLeftOperand();
-                        operand = (Operand) binaryOp.getRightOperand();
-                    } else if (!leftLiteral && rightLiteral) {
-                        literal = (LiteralElement) binaryOp.getRightOperand();
-                        operand = (Operand) binaryOp.getLeftOperand();
-                    }
-                    if (literal != null && operand != null) {
-                        if (operand.getName().equals(op.getName())) {
-                            int literalValue = Integer.parseInt((literal).getLiteral());
-                            if (literalValue >= -128 && literalValue <= 127) {
-                                if(binaryOp.getOperation().getOpType() == OperationType.SUB && literalValue > 0) {
-                                    literalValue = -literalValue;
-                                }
-                                return "\tiinc " + VarTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
+                if (leftLiteral && !rightLiteral) {
+                    literal = (LiteralElement) binaryOp.getLeftOperand();
+                    operand = (Operand) binaryOp.getRightOperand();
+                } else if (!leftLiteral && rightLiteral) {
+                    literal = (LiteralElement) binaryOp.getRightOperand();
+                    operand = (Operand) binaryOp.getLeftOperand();
+                }
+                if (literal != null && operand != null) {
+                    if (operand.getName().equals(op.getName())) {
+                        int literalValue = Integer.parseInt((literal).getLiteral());
+                        if (literalValue >= -128 && literalValue <= 127) {
+                            if(binaryOp.getOperation().getOpType() == OperationType.SUB && literalValue > 0) {
+                                literalValue = -literalValue;
                             }
+                            return "\tiinc " + VarTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
                         }
                     }
                 }
             }
         }
 
-
         String rhsCode = jasmin.routeInstruction(rhs,VarTable,MethodName);
 
-        if (op.getType() instanceof ArrayType t) {
-            if (op instanceof ArrayOperand o) {
-                jasminCode.append(loadElement(o))
-                        .append(loadElement(o.getIndexOperands().get(0)))
-                        .append(rhsCode)
-                        .append((t.getArrayType() == ElementType.INT32 || t.getArrayType() == ElementType.BOOLEAN) ? "\tiastore\n" : "\taastore\n");
 
-                return jasminCode.toString();
-            }
+        if (descriptor.getVarType().getTypeOfElement() == ElementType.ARRAYREF
+                && op.getType().getTypeOfElement() != ElementType.ARRAYREF
+                    && op instanceof ArrayOperand o) {
+            Element index = o.getIndexOperands().get(0);
+            jasminCode.append(getDescriptor(descriptor))
+                    .append(loadElement(index));
+            jasminCode.append(rhsCode)
+                    .append((o.getType().getTypeOfElement() == ElementType.INT32 ||
+                            o.getType().getTypeOfElement() == ElementType.BOOLEAN) ? "\tiastore\n" : "\taastore\n");
+
+            return jasminCode.toString();
         }
+
 
         jasminCode.append(rhsCode);
 
