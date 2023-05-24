@@ -14,6 +14,7 @@ import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp2023.analysis.JmmSimpleAnalysis;
 import pt.up.fe.comp2023.jasmin.Jasmin;
 import pt.up.fe.comp2023.ollir.JmmOptimizer;
+import pt.up.fe.comp2023.ollir.optimization.RegisterAllocation;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -69,6 +70,8 @@ public class Launcher {
         OllirResult ollir = jmmOptimizer.toOllir(analysisResult);
         System.out.println("!--Ollir--!\n"+ollir.getOllirCode());
 
+        RegisterAllocation registerAllocation = new RegisterAllocation(ollir,10);
+        registerAllocation.regAlloc();
         //Jasmin generation
         System.out.println("\n\n!--Jasmin--!\n");
         JasminBackend jasmin = new Jasmin();
