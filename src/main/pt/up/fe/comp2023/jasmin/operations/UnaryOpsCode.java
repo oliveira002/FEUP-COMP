@@ -1,7 +1,6 @@
 package pt.up.fe.comp2023.jasmin.operations;
 
 import org.specs.comp.ollir.Descriptor;
-import org.specs.comp.ollir.Operand;
 import org.specs.comp.ollir.OperationType;
 import org.specs.comp.ollir.UnaryOpInstruction;
 import pt.up.fe.comp2023.jasmin.Jasmin;

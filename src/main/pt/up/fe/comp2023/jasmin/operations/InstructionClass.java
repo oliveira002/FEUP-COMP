@@ -2,9 +2,6 @@ package pt.up.fe.comp2023.jasmin.operations;
 
 import org.specs.comp.ollir.*;
 import pt.up.fe.comp2023.jasmin.Jasmin;
-import pt.up.fe.specs.util.exceptions.NotImplementedException;
-
-import java.awt.*;
 import java.util.HashMap;
 
 abstract public class InstructionClass {
@@ -21,10 +18,6 @@ abstract public class InstructionClass {
 
     public Instruction getInstruction() {
         return instruction;
-    }
-
-    public HashMap<String, Descriptor> getVarTable() {
-        return VarTable;
     }
 
     public int getLabelCounter(){
