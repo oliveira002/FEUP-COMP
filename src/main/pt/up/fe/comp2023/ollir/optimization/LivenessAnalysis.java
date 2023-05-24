@@ -53,12 +53,12 @@ public class LivenessAnalysis {
         HashSet<String> tempDef = map.get(id);
         if(tempDef != null) {
             tempDef.add(var);
-            this.def.put(id,tempDef);
+            map.put(id,tempDef);
         }
         else {
             HashSet<String> tempiDef = new HashSet<>();
             tempiDef.add(var);
-            this.def.put(id,tempiDef);
+            map.put(id,tempiDef);
         }
     }
 
