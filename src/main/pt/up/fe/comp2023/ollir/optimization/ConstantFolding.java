@@ -18,7 +18,7 @@ public class ConstantFolding extends PostorderJmmVisitor<Integer, Boolean> {
     }
 
     private Boolean defaultVisit(JmmNode jmmNode, Integer dummy) {
-        boolean changes = visit(jmmNode);
+        boolean changes = false;
         for(JmmNode node: jmmNode.getChildren()) {
             changes |= visit(node,1);
         }
