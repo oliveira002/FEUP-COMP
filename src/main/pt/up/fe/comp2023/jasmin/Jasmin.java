@@ -289,8 +289,9 @@ public class Jasmin implements JasminBackend {
         }
 
         else if (instruction instanceof CondBranchInstruction) {
-            //return routeInstruction((CondBranchInstruction) instruction);
-            return "";
+            ConditionalBranchOpsCode code = new ConditionalBranchOpsCode(instruction, varTable, this.numLabel,this);
+            this.numLabel = code.getLabelCounter();
+            return code.toJasmin();
         }
 
         throw new RuntimeException("no instruction");
