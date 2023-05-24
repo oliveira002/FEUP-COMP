@@ -6,13 +6,13 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import java.util.*;
 
 public class LivenessAnalysis {
-    private final HashMap<Instruction,HashSet<String>> def;
+    private final HashMap<Integer,HashSet<String>> def;
 
-    private final HashMap<Instruction,HashSet<String>> use;
+    private final HashMap<Integer,HashSet<String>> use;
 
-    private final HashMap<Instruction,HashSet<String>> in;
+    private final HashMap<Integer,HashSet<String>> in;
 
-    private final HashMap<Instruction,HashSet<String>> out;
+    private final HashMap<Integer,HashSet<String>> out;
 
     private final Method method;
 
@@ -25,18 +25,80 @@ public class LivenessAnalysis {
         this.out = new HashMap<>();
         this.method = method;
         this.instructionList = method.getInstructions();
+        this.initializeMaps(method.getInstructions().size());
     }
 
     public void analyse() {
-        int i = 1;
-        parseDefUse();
+        for(Instruction inst: instructionList) {
+            getWrittenVars(inst);
+            getReadVars(inst);
+        }
+
+        int numInst = instructionList.size();
+        boolean changes;
+        do {
+            changes = false;
+            for (int i = numInst - 1; i >= 0; i--) {
+                Instruction inst = instructionList.get(i);
+                int instId = inst.getId();
+                HashSet<String> tempIn = this.in.get(inst.getId());
+                HashSet<String> tempOut = this.out.get(inst.getId());
+
+                this.out.put(instId,calcOut(inst));
+                this.in.put(instId,calcIn(inst));
+
+                changes = !(tempIn.equals(this.in.get(inst.getId())) && tempOut.equals(this.out.get(inst.getId())));
+            }
+        } while(changes);
+        deadCodeFix(numInst);
         return;
     }
 
+    public HashSet<String> calcIn(Instruction inst) {
+        int instId = inst.getId();
+        HashSet<String> res = new HashSet<>(this.use.get(instId));
+        HashSet<String> tmpOut = new HashSet<>(this.out.get(instId));
+
+        for(String x: this.def.get(instId)) {
+            tmpOut.remove(x);
+        }
+
+        res.addAll(tmpOut);
+        return res;
+    }
+
+    public void deadCodeFix(int numInst) {
+        for(int i = 1; i <= numInst; i++) {
+            HashSet<String> def = new HashSet<>(this.def.get(i));
+            HashSet<String> out = new HashSet<>(this.out.get(i));
+            out.addAll(def);
+            this.out.put(numInst,out);
+        }
+    }
+
+    public HashSet<String> calcOut(Instruction inst) {
+        HashSet<String> res = new HashSet<>();
+        for (Node succ : inst.getSuccessors()) {
+            if(this.in.get(succ.getId()) != null) {
+                HashSet<String> tmp = new HashSet<>(this.in.get(succ.getId()));
+                res.addAll(tmp);
+            }
+        }
+        return res;
+    }
     public void parseDefUse() {
         for(Instruction inst: instructionList) {
             getWrittenVars(inst);
             getReadVars(inst);
+        }
+    }
+
+    public void initializeMaps(int numInst) {
+        for(int i = 1; i <= numInst; i++) {
+            def.put(i,new HashSet<>());
+            use.put(i,new HashSet<>());
+            in.put(i,new HashSet<>());
+            out.put(i,new HashSet<>());
         }
     }
 
@@ -45,22 +107,24 @@ public class LivenessAnalysis {
             AssignInstruction assign = (AssignInstruction) inst;
             String definedVar = ((Operand) assign.getDest()).getName();
             int instId = inst.getId();
-            addVarToSet(this.def,inst,definedVar);
+            addVarToSet(this.def,instId,definedVar);
         }
     }
 
-    public void addVarToSet(HashMap<Instruction, HashSet<String>> map, Instruction inst, String var) {
-        HashSet<String> tempDef = map.get(inst);
+    public void addVarToSet(HashMap<Integer, HashSet<String>> map, Integer id, String var) {
+        HashSet<String> tempDef = map.get(id);
         if(tempDef != null) {
             tempDef.add(var);
-            map.put(inst,tempDef);
+            map.put(id,tempDef);
         }
         else {
             HashSet<String> tempiDef = new HashSet<>();
             tempiDef.add(var);
-            map.put(inst,tempiDef);
+            map.put(id,tempiDef);
         }
     }
+
+
 
     public void getReadVars(Instruction inst) {
         switch(inst.getInstType().name()) {
@@ -79,14 +143,14 @@ public class LivenessAnalysis {
     public void getReturnVars(ReturnInstruction inst) {
         String varName = getVarName(inst.getOperand());
         if(varName != null) {
-            this.addVarToSet(this.use,inst,varName);
+            this.addVarToSet(this.use,inst.getId(),varName);
         }
     }
 
     public void getNoper(SingleOpInstruction inst) {
         Element firstOp = inst.getSingleOperand();
         if(!firstOp.isLiteral()) {
-            this.addVarToSet(this.use,inst,getVarName(firstOp));
+            this.addVarToSet(this.use,inst.getId(),getVarName(firstOp));
         }
     }
 
@@ -100,7 +164,7 @@ public class LivenessAnalysis {
         List<Element> params = inst.getListOfOperands();
         for(Element param: params) {
             if(!param.isLiteral()) {
-                this.addVarToSet(this.use,inst,getVarName(param));
+                this.addVarToSet(this.use,inst.getId(),getVarName(param));
             }
         }
     }
@@ -110,24 +174,24 @@ public class LivenessAnalysis {
         Element rightOp = inst.getRightOperand();
 
         if(!leftOp.isLiteral()) {
-            this.addVarToSet(this.use,inst,getVarName(leftOp));
+            this.addVarToSet(this.use,inst.getId(),getVarName(leftOp));
         }
         if(!rightOp.isLiteral()) {
-            this.addVarToSet(this.use,inst,getVarName(rightOp));
+            this.addVarToSet(this.use,inst.getId(),getVarName(rightOp));
         }
     }
 
     public void getUnaryOpVar(UnaryOpInstruction inst) {
         Element rightOp = inst.getOperand();
         if(!rightOp.isLiteral()) {
-            this.addVarToSet(this.use,inst,getVarName(rightOp));
+            this.addVarToSet(this.use,inst.getId(),getVarName(rightOp));
         }
     }
 
     public void getField(GetFieldInstruction inst) {
         Element secondOp = inst.getSecondOperand();
         if(!secondOp.isLiteral()) {
-            this.addVarToSet(this.use,inst,getVarName(secondOp));
+            this.addVarToSet(this.use,inst.getId(),getVarName(secondOp));
         }
     }
 
@@ -136,10 +200,10 @@ public class LivenessAnalysis {
         Element thirdOp = inst.getThirdOperand();
 
         if(!secondOp.isLiteral()) {
-            this.addVarToSet(this.use,inst,getVarName(secondOp));
+            this.addVarToSet(this.use,inst.getId(),getVarName(secondOp));
         }
         if(!thirdOp.isLiteral()) {
-            this.addVarToSet(this.use,inst,getVarName(thirdOp));
+            this.addVarToSet(this.use,inst.getId(),getVarName(thirdOp));
         }
     }
 
