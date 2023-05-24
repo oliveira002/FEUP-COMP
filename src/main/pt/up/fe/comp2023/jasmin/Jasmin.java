@@ -245,8 +245,7 @@ public class Jasmin implements JasminBackend {
         }
 
         if (instruction instanceof GotoInstruction) {
-            //return routeInstruction((GotoInstruction) instruction);
-            return "";
+            return "\tgoto " + ((GotoInstruction)instruction).getLabel() + "\n";
         }
 
         if (instruction instanceof ReturnInstruction) {
