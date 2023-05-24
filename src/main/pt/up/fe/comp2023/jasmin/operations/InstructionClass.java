@@ -97,5 +97,25 @@ abstract public class InstructionClass {
 
         return this.getDescriptor(d);
     }
+    public String getLabelComp(Operation operation) {
+        return switch (operation.getOpType()) {
+            case GTE -> "ifge";
+            case GTH -> "ifgt";
+            case LTE -> "ifle";
+            case LTH -> "iflt";
+            case EQ -> "ifeq";
+            case NOTB, NEQ -> "ifne";
+            default -> "";
+        };
+    }
+
+    public String getCompFormula() {
+        return " Then" + LabelCounter + "\n" +
+                "\ticonst_0\n" +
+                "\tgoto EndIf" + LabelCounter + '\n' +
+                "\tThen" + LabelCounter + ":\n" +
+                "\ticonst_1\n" +
+                "\tEndIf" + LabelCounter++ + ":\n";
+    }
     public abstract String toJasmin();
 }

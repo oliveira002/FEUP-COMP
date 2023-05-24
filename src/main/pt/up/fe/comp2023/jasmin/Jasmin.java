@@ -238,57 +238,59 @@ public class Jasmin implements JasminBackend {
             return CallRouter((CallInstruction) instruction, varTable, MethodName);
         }
 
-        if (instruction instanceof AssignInstruction) {
+        else if (instruction instanceof GotoInstruction) {
+            return "\tgoto " + ((GotoInstruction)instruction).getLabel() + "\n";
+        }
+
+        else if (instruction instanceof AssignInstruction) {
             AssignOpsCode code = new AssignOpsCode((AssignInstruction) instruction, varTable, this.numLabel, MethodName,this);
             this.numLabel = code.getLabelCounter();
             return code.toJasmin();
         }
 
-        if (instruction instanceof GotoInstruction) {
-            return "\tgoto " + ((GotoInstruction)instruction).getLabel() + "\n";
-        }
-
-        if (instruction instanceof ReturnInstruction) {
+        else if (instruction instanceof ReturnInstruction) {
             ReturnOpsCode code = new ReturnOpsCode((ReturnInstruction) instruction, varTable, this.numLabel, this);
             this.numLabel = code.getLabelCounter();
             return code.toJasmin();
         }
 
-        if (instruction instanceof SingleOpInstruction) {
+        else if (instruction instanceof SingleOpInstruction) {
             SingleOpsCode code = new SingleOpsCode((SingleOpInstruction) instruction, varTable, this.numLabel,this);
             this.numLabel = code.getLabelCounter();
             return code.toJasmin();
         }
 
-        if (instruction instanceof PutFieldInstruction) {
-            PutFieldOpsCode code = new PutFieldOpsCode((PutFieldInstruction) instruction, varTable,
-                    this.numLabel,this,this.OllirCode.getClassName(),this.importsMap);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
-        }
 
-        if (instruction instanceof GetFieldInstruction) {
+        else if (instruction instanceof GetFieldInstruction) {
             GetFieldOpsCode code = new GetFieldOpsCode((GetFieldInstruction) instruction, varTable,
                     this.numLabel,this,this.OllirCode.getClassName(),this.importsMap);
             this.numLabel = code.getLabelCounter();
             return code.toJasmin();
         }
 
-        if (instruction instanceof BinaryOpInstruction) {
+
+        else if (instruction instanceof PutFieldInstruction) {
+            PutFieldOpsCode code = new PutFieldOpsCode((PutFieldInstruction) instruction, varTable,
+                    this.numLabel,this,this.OllirCode.getClassName(),this.importsMap);
+            this.numLabel = code.getLabelCounter();
+            return code.toJasmin();
+        }
+
+        else if (instruction instanceof BinaryOpInstruction) {
             BinaryOpsCode code = new BinaryOpsCode((BinaryOpInstruction) instruction, varTable, this.numLabel,this);
             this.numLabel = code.getLabelCounter();
             return code.toJasmin();
         }
 
-        if (instruction instanceof CondBranchInstruction) {
-            //return routeInstruction((CondBranchInstruction) instruction);
-            return "";
-        }
-
-        if (instruction instanceof UnaryOpInstruction) {
+        else if (instruction instanceof UnaryOpInstruction) {
             UnaryOpsCode code = new UnaryOpsCode((UnaryOpInstruction) instruction, varTable, this.numLabel,this);
             this.numLabel = code.getLabelCounter();
             return code.toJasmin();
+        }
+
+        else if (instruction instanceof CondBranchInstruction) {
+            //return routeInstruction((CondBranchInstruction) instruction);
+            return "";
         }
 
         throw new RuntimeException("no instruction");
