@@ -72,22 +72,18 @@ public class InterferenceGraph {
         int numColors;
         if (maxRegisters.length > 0) {
             int max = maxRegisters[0];
-            numColors = Math.min(max, minRegisters); // Set the number of colors (registers) to the minimum required or the specified maximum
+            numColors = Math.min(max, minRegisters);
         } else {
-            numColors = minRegisters; // Use the minimum required registers
+            numColors = minRegisters;
         }
 
-        // Create an array to store the assigned colors for each node
         int[] nodeColors = new int[nodes.size()];
 
-        // Iterate over the nodes and color them using the greedy algorithm
         for (int i = 0; i < nodes.size(); i++) {
             InterferenceNode node = nodes.get(i);
 
-            // Create a boolean array to track the used colors by the neighboring nodes
             boolean[] usedColors = new boolean[numColors];
 
-            // Check the colors used by the neighboring nodes
             for (InterferenceNode neighbor : node.getEdges()) {
                 int neighborColor = nodeColors[nodes.indexOf(neighbor)];
                 if (neighborColor != 0) {
@@ -95,7 +91,6 @@ public class InterferenceGraph {
                 }
             }
 
-            // Find the lowest unused color for the current node
             int color;
             for (color = 0; color < numColors; color++) {
                 if (!usedColors[color]) {
@@ -103,14 +98,12 @@ public class InterferenceGraph {
                 }
             }
 
-            // Assign the color to the current node
             nodeColors[i] = color + 1;
         }
 
-        int numUsedColors = Arrays.stream(nodeColors).max().orElse(0); // Calculate the number of used colors
+        int numUsedColors = Arrays.stream(nodeColors).max().orElse(0);
         System.out.println("Number of colors used: " + numUsedColors);
 
-        // Print nodes for each color
         Map<Integer, List<InterferenceNode>> colorMap = new HashMap<>();
         for (int i = 0; i < nodeColors.length; i++) {
             int color = nodeColors[i];
