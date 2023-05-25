@@ -17,6 +17,8 @@ public class ReturnOpsCode extends InstructionClass{
         if (!instruction.hasReturnValue())
             return "\treturn\n";
 
+
+
         ElementType reType = instruction.getOperand().getType().getTypeOfElement();
         StringBuilder jasminCode = new StringBuilder();
         if (reType == ElementType.INT32 || reType == ElementType.BOOLEAN) {
@@ -26,6 +28,7 @@ public class ReturnOpsCode extends InstructionClass{
             jasminCode.append(super.loadElement(instruction.getOperand()))
                     .append("\tareturn\n");
         }
+        super.jasmin.lowerStackSize();
         return jasminCode.toString();
     }
 }

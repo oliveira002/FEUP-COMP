@@ -19,6 +19,9 @@ public class Jasmin implements JasminBackend {
     private final HashMap<String, String>  importsMap = new HashMap<>();
     private String defaultSuperClass = "java/lang/Object";
     private int numLabel = 0;
+
+    private int stackSize = 0;
+    private int maxStackSize = 0;
     private Boolean Flag = false;
 
     public Jasmin(){
@@ -54,6 +57,7 @@ public class Jasmin implements JasminBackend {
 
         for(Method method: this.OllirCode.getMethods()){
             jasminCode.append(this.jasminMethodParser(method));
+            resetStack();
         }
 
         System.out.println(jasminCode);
@@ -162,7 +166,8 @@ public class Jasmin implements JasminBackend {
         }
         code.append(this.getParams(method));
         if(!method.isConstructMethod()){
-            code.append("\t.limit stack 99\n\t.limit locals 99\n");
+            code.append("\t.limit stack €STACK-LIMIT€\n");
+            code.append(getLocalLimit(method.getVarTable()));
         }
 
         boolean hasReturnInstruction = false;
@@ -191,7 +196,7 @@ public class Jasmin implements JasminBackend {
         }
         code.append(".end method\n\n");
         Flag = false;
-        return code.toString();
+        return code.toString().replaceFirst("€STACK-LIMIT€",Integer.toString(this.maxStackSize));
     }
     public String getParams(Method method){
         StringBuilder code = new StringBuilder();
@@ -205,35 +210,55 @@ public class Jasmin implements JasminBackend {
     public String CallRouter(CallInstruction instruction, HashMap<String, Descriptor> varTable){
         StringBuilder jasminCode = new StringBuilder();
 
-        if(instruction.getInvocationType() == CallType.invokevirtual){
-            InvokeVirtualOps code = new InvokeVirtualOps(instruction, varTable, this.numLabel, this.OllirCode.getClassName(), this.importsMap,this);
-            jasminCode.append(code.toJasmin());
-        }
-        else if(instruction.getInvocationType() == CallType.invokespecial){
-            InvokeSpecialOps code = new InvokeSpecialOps(instruction, varTable, this.numLabel, this.OllirCode.getSuperClass(), this.importsMap,this);
-            String code2 = code.toJasmin();
-            if(Flag){
-                Flag = false;
-                code2 = code2.replaceFirst("invokespecial", "invokenonvirtual");
-            }
-            jasminCode.append(code2);
-        }
-        else if(instruction.getInvocationType() == CallType.invokestatic){
-            InvokeStaticOps code = new InvokeStaticOps(instruction, varTable, this.numLabel,this.OllirCode.getClassName(), this.importsMap,this);
-            jasminCode.append(code.toJasmin());
-        } else if (instruction.getInvocationType() == CallType.NEW) {
-            NewOps code = new NewOps(instruction, varTable, this.numLabel, this.OllirCode.getSuperClass(), this.importsMap,this);
-            jasminCode.append(code.toJasmin());
-        }
-        else if(instruction.getInvocationType() == CallType.ldc) {
-            SingleOpsCode code = new SingleOpsCode(instruction, varTable, this.numLabel, this);
-            jasminCode.append(code.toJasmin());
-        }
-        else if(instruction.getInvocationType() == CallType.arraylength){
-            SingleOpsCode code = new SingleOpsCode(instruction, varTable, this.numLabel, this);
-            jasminCode.append(code.toJasmin()).append("\tarraylength\n");
-        }
+        int lowerStack = 0;
 
+        switch (instruction.getInvocationType()) {
+            case invokevirtual -> {
+                InvokeVirtualOps code = new InvokeVirtualOps(instruction, varTable, this.numLabel, this.OllirCode.getClassName(), this.importsMap, this);
+                jasminCode.append(code.toJasmin());
+
+            }
+            case invokespecial -> {
+                InvokeSpecialOps code = new InvokeSpecialOps(instruction, varTable, this.numLabel, this.OllirCode.getSuperClass(), this.importsMap, this);
+                String code2 = code.toJasmin();
+                if (Flag) {
+                    Flag = false;
+                    code2 = code2.replaceFirst("invokespecial", "invokenonvirtual");
+                }
+                jasminCode.append(code2);
+
+            }
+            case invokestatic -> {
+                InvokeStaticOps code = new InvokeStaticOps(instruction, varTable, this.numLabel, this.OllirCode.getClassName(), this.importsMap, this);
+                jasminCode.append(code.toJasmin());
+
+                lowerStack -= 1;
+            }
+            case NEW -> {
+                NewOps code = new NewOps(instruction, varTable, this.numLabel, this.OllirCode.getSuperClass(), this.importsMap, this);
+                jasminCode.append(code.toJasmin());
+            }
+            case ldc -> {
+                SingleOpsCode code = new SingleOpsCode(instruction, varTable, this.numLabel, this);
+                jasminCode.append(code.toJasmin());
+            }
+            case arraylength -> {
+                SingleOpsCode code = new SingleOpsCode(instruction, varTable, this.numLabel, this);
+                jasminCode.append(code.toJasmin()).append("\tarraylength\n");
+            }
+        }
+        if(instruction.getInvocationType() == CallType.invokestatic ||
+                instruction.getInvocationType() == CallType.invokevirtual ||
+                instruction.getInvocationType() == CallType.invokespecial){
+            boolean hasOps = instruction.getListOfOperands().size() != 0;
+            boolean returnNonVoid = instruction.getReturnType().getTypeOfElement() != ElementType.VOID;
+            if (hasOps && returnNonVoid) lowerStack = instruction.getListOfOperands().size();
+            else if (hasOps) lowerStack = instruction.getListOfOperands().size() + 1;
+            else if (!returnNonVoid) lowerStack = 1;
+        }
+        for(int a = 0; a < lowerStack;a++){
+            lowerStackSize();
+        }
         return jasminCode.toString();
     }
     public String routeInstruction(Instruction instruction, HashMap<String, Descriptor> varTable, String MethodName){
@@ -248,56 +273,88 @@ public class Jasmin implements JasminBackend {
 
         else if (instruction instanceof AssignInstruction) {
             AssignOpsCode code = new AssignOpsCode((AssignInstruction) instruction, varTable, this.numLabel, MethodName,this);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
         else if (instruction instanceof ReturnInstruction) {
             ReturnOpsCode code = new ReturnOpsCode((ReturnInstruction) instruction, varTable, this.numLabel, this);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
         else if (instruction instanceof SingleOpInstruction) {
             SingleOpsCode code = new SingleOpsCode(instruction, varTable, this.numLabel,this);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
 
         else if (instruction instanceof GetFieldInstruction) {
             GetFieldOpsCode code = new GetFieldOpsCode(instruction, varTable,
                     this.numLabel,this,this.OllirCode.getClassName(),this.importsMap);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
 
         else if (instruction instanceof PutFieldInstruction) {
             PutFieldOpsCode code = new PutFieldOpsCode(instruction, varTable,
                     this.numLabel,this,this.OllirCode.getClassName(),this.importsMap);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
         else if (instruction instanceof BinaryOpInstruction) {
             BinaryOpsCode code = new BinaryOpsCode(instruction, varTable, this.numLabel,this);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
         else if (instruction instanceof UnaryOpInstruction) {
             UnaryOpsCode code = new UnaryOpsCode((UnaryOpInstruction) instruction, varTable, this.numLabel,this);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
         else if (instruction instanceof CondBranchInstruction) {
             ConditionalBranchOpsCode code = new ConditionalBranchOpsCode(instruction, varTable, this.numLabel,this);
-            this.numLabel = code.getLabelCounter();
-            return code.toJasmin();
+            String result = code.toJasmin();
+            this.numLabel = code.getLabelCounter() + this.numLabel;
+            return result;
         }
 
         throw new RuntimeException("no instruction");
     }
+
+    public String getLocalLimit(HashMap<String, Descriptor> VarTable) {
+        int limit = 0;
+        for (Descriptor descriptor : VarTable.values()) {
+            if (descriptor.getVirtualReg() > limit) {
+                limit = descriptor.getVirtualReg();
+            }
+        }
+        return "\t.limit locals " + (limit + 1) + "\n";
+    }
+    private void resetStack(){
+        this.stackSize = 0;
+        this.maxStackSize = 0;
+    }
+    public void growStackSize(int size){
+        this.stackSize = this.stackSize + size;
+        if(this.stackSize > this.maxStackSize){
+            this.maxStackSize = this.stackSize;
+        }
+    }
+    public void lowerStackSize(){
+        this.stackSize = this.stackSize - 1;
+    }
 }
+

@@ -40,10 +40,10 @@ public class AssignOpsCode extends InstructionClass{
                 if (literal != null && operand != null) {
                     if (operand.getName().equals(op.getName())) {
                         int literalValue = Integer.parseInt((literal).getLiteral());
+                        if(binaryOp.getOperation().getOpType() == OperationType.SUB) {
+                            literalValue = -literalValue;
+                        }
                         if (literalValue >= -128 && literalValue <= 127) {
-                            if(binaryOp.getOperation().getOpType() == OperationType.SUB && literalValue > 0) {
-                                literalValue = -literalValue;
-                            }
                             return "\tiinc " + VarTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
                         }
                     }
@@ -64,6 +64,10 @@ public class AssignOpsCode extends InstructionClass{
                     .append((o.getType().getTypeOfElement() == ElementType.INT32 ||
                             o.getType().getTypeOfElement() == ElementType.BOOLEAN) ? "\tiastore\n" : "\taastore\n");
 
+            super.jasmin.lowerStackSize();
+            super.jasmin.lowerStackSize();
+            super.jasmin.lowerStackSize();
+
             return jasminCode.toString();
         }
 
@@ -78,6 +82,9 @@ public class AssignOpsCode extends InstructionClass{
 
         int reg = VarTable.get(op.getName()).getVirtualReg();
         jasminCode.append((reg <= 3) ? "_" : " ").append(reg).append("\n");
+
+        super.jasmin.lowerStackSize();
+
         return jasminCode.toString();
     }
 }
