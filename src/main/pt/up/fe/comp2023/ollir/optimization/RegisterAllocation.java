@@ -1,10 +1,12 @@
 package pt.up.fe.comp2023.ollir.optimization;
 
 import org.specs.comp.ollir.ClassUnit;
+import org.specs.comp.ollir.Descriptor;
 import org.specs.comp.ollir.Method;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class RegisterAllocation {
     private final int numRegisters;
@@ -23,11 +25,18 @@ public class RegisterAllocation {
         ArrayList<Method> methods = ollirClass.getMethods();
         ollirClass.buildCFGs();
         for (Method method : methods) {
+            Map<String, Descriptor> varTable = method.getVarTable();
             LivenessAnalysis liveAnalysis = new LivenessAnalysis(method);
             liveAnalysis.analyse();
             InterferenceGraph graph = new InterferenceGraph(liveAnalysis, numRegisters);
             graph.buildGraph();
             graph.colorGraph(numRegisters);
+
+            for(InterferenceNode node: graph.getNodes()) {
+                varTable.get(node.getVar()).setVirtualReg(node.getRegister());
+            }
+
+            int a = 2;
         }
     }
 }

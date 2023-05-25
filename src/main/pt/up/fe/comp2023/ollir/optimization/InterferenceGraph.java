@@ -14,14 +14,14 @@ public class InterferenceGraph {
 
     private final HashSet<String> pairs;
 
-    private int minRegisters;
+    private int registers;
 
     public InterferenceGraph(LivenessAnalysis liveness, int registers) {
         this.liveness = liveness;
         this.variables = liveness.getVariables();
         this.pairs = liveness.getPairs();
         this.nodes = new ArrayList<>();
-        this.minRegisters = registers;
+        this.registers = registers;
         this.method = liveness.getMethod();
     }
 
@@ -68,13 +68,17 @@ public class InterferenceGraph {
         return nodes;
     }
 
-    public void colorGraph(Integer... maxRegisters) {
+    public boolean colorGraph(Integer maxRegisters) {
         int numColors;
-        if (maxRegisters.length > 0) {
-            int max = maxRegisters[0];
-            numColors = Math.min(max, minRegisters);
-        } else {
-            numColors = minRegisters;
+        if(maxRegisters == 0) {
+            numColors = calculateMinimumRegisters();
+        }
+        else {
+            numColors = maxRegisters;
+        }
+
+        if(numColors < calculateMinimumRegisters()) {
+            return false;
         }
 
         int[] nodeColors = new int[nodes.size()];
@@ -114,13 +118,28 @@ public class InterferenceGraph {
             List<InterferenceNode> nodesForColor = colorMap.getOrDefault(color, Collections.emptyList());
             for(int i = 0; i < nodesForColor.size(); i++) {
                 System.out.println("Nodes with color " + color + ": " + nodesForColor.get(i).getVar());
+                InterferenceNode no = this.getNode(nodesForColor.get(i).getVar());
+                no.setRegister(color);
             }
         }
+
+        return true;
     }
 
     private void resetGraph() {
         for (InterferenceNode node : nodes) {
             node.setRegister(-1); // Reset the register for each node
         }
+    }
+
+    private int calculateMinimumRegisters() {
+        int maxDegree = 0;
+        for (InterferenceNode node : nodes) {
+            int degree = node.getEdges().size();
+            if (degree > maxDegree) {
+                maxDegree = degree;
+            }
+        }
+        return maxDegree + 1; // Minimum required registers = maximum degree + 1
     }
 }

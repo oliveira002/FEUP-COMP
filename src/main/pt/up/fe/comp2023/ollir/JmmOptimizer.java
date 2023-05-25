@@ -7,6 +7,7 @@ import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp2023.analysis.SymbolTableCR;
 import pt.up.fe.comp2023.ollir.optimization.ConstantFolding;
 import pt.up.fe.comp2023.ollir.optimization.ConstantPropagation;
+import pt.up.fe.comp2023.ollir.optimization.RegisterAllocation;
 
 public class JmmOptimizer implements JmmOptimization {
     @Override
@@ -43,7 +44,21 @@ public class JmmOptimizer implements JmmOptimization {
 
     @Override
     public OllirResult optimize(OllirResult ollirResult) {
-        return JmmOptimization.super.optimize(ollirResult);
+
+        // check for register flag
+        int numRegisters = -1;
+        if(ollirResult.getConfig().containsKey("registerAllocation")) {
+            numRegisters = Integer.parseInt(ollirResult.getConfig().get("registerAllocation"));
+        }
+
+        if(numRegisters == -1) {
+            return ollirResult;
+        }
+        else {
+            RegisterAllocation registerAllocation = new RegisterAllocation(ollirResult,numRegisters);
+            registerAllocation.regAlloc();
+        }
+        return ollirResult;
     }
 
 }
