@@ -210,17 +210,13 @@ public class Jasmin implements JasminBackend {
     public String CallRouter(CallInstruction instruction, HashMap<String, Descriptor> varTable){
         StringBuilder jasminCode = new StringBuilder();
 
-        boolean hasOps = instruction.getListOfOperands().size() != 0;
-        boolean returnNonVoid = instruction.getReturnType().getTypeOfElement() != ElementType.VOID;
         int lowerStack = 0;
 
         switch (instruction.getInvocationType()) {
             case invokevirtual -> {
                 InvokeVirtualOps code = new InvokeVirtualOps(instruction, varTable, this.numLabel, this.OllirCode.getClassName(), this.importsMap, this);
                 jasminCode.append(code.toJasmin());
-                if (hasOps && returnNonVoid) lowerStack = instruction.getListOfOperands().size();
-                else if (hasOps && !returnNonVoid) lowerStack = instruction.getListOfOperands().size() + 1;
-                else if (!hasOps && !returnNonVoid) lowerStack = 1;
+
             }
             case invokespecial -> {
                 InvokeSpecialOps code = new InvokeSpecialOps(instruction, varTable, this.numLabel, this.OllirCode.getSuperClass(), this.importsMap, this);
@@ -230,16 +226,12 @@ public class Jasmin implements JasminBackend {
                     code2 = code2.replaceFirst("invokespecial", "invokenonvirtual");
                 }
                 jasminCode.append(code2);
-                if (hasOps && returnNonVoid) lowerStack = instruction.getListOfOperands().size();
-                else if (hasOps && !returnNonVoid) lowerStack = instruction.getListOfOperands().size() + 1;
-                else if (!hasOps && !returnNonVoid) lowerStack = 1;
+
             }
             case invokestatic -> {
                 InvokeStaticOps code = new InvokeStaticOps(instruction, varTable, this.numLabel, this.OllirCode.getClassName(), this.importsMap, this);
                 jasminCode.append(code.toJasmin());
-                if (hasOps && returnNonVoid) lowerStack = instruction.getListOfOperands().size();
-                else if (hasOps && !returnNonVoid) lowerStack = instruction.getListOfOperands().size() + 1;
-                else if (!hasOps && !returnNonVoid) lowerStack = 1;
+
                 lowerStack -= 1;
             }
             case NEW -> {
@@ -254,6 +246,15 @@ public class Jasmin implements JasminBackend {
                 SingleOpsCode code = new SingleOpsCode(instruction, varTable, this.numLabel, this);
                 jasminCode.append(code.toJasmin()).append("\tarraylength\n");
             }
+        }
+        if(instruction.getInvocationType() == CallType.invokestatic ||
+                instruction.getInvocationType() == CallType.invokevirtual ||
+                instruction.getInvocationType() == CallType.invokespecial){
+            boolean hasOps = instruction.getListOfOperands().size() != 0;
+            boolean returnNonVoid = instruction.getReturnType().getTypeOfElement() != ElementType.VOID;
+            if (hasOps && returnNonVoid) lowerStack = instruction.getListOfOperands().size();
+            else if (hasOps) lowerStack = instruction.getListOfOperands().size() + 1;
+            else if (!returnNonVoid) lowerStack = 1;
         }
         for(int a = 0; a < lowerStack;a++){
             lowerStackSize();
