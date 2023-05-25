@@ -22,12 +22,12 @@ public class RegisterAllocation {
     public void regAlloc() {
         ArrayList<Method> methods = ollirClass.getMethods();
         ollirClass.buildCFGs();
-        for(Method method: methods) {
+        for (Method method : methods) {
             LivenessAnalysis liveAnalysis = new LivenessAnalysis(method);
             liveAnalysis.analyse();
             InterferenceGraph graph = new InterferenceGraph(liveAnalysis, numRegisters);
             graph.buildGraph();
-            graph.colorGraph();
+            graph.colorGraph(numRegisters);
         }
     }
 }

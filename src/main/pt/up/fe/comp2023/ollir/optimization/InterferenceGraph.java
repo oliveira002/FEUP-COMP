@@ -2,9 +2,7 @@ package pt.up.fe.comp2023.ollir.optimization;
 
 import org.specs.comp.ollir.Method;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Stack;
+import java.util.*;
 
 public class InterferenceGraph {
 
@@ -30,12 +28,13 @@ public class InterferenceGraph {
     public void buildGraph() {
         initNodes();
         initEdges();
+        int a = 2;
     }
 
     public void initNodes() {
         for(String var: variables) {
             InterferenceNode node = new InterferenceNode(var);
-            nodes.add(node);
+            this.nodes.add(node);
         }
     }
 
@@ -47,6 +46,7 @@ public class InterferenceGraph {
             addEdge(from,to);
         }
     }
+
 
     public void addEdge(String from, String to) {
         InterferenceNode fromNode = getNode(from);
@@ -68,39 +68,34 @@ public class InterferenceGraph {
         return nodes;
     }
 
-    public void colorGraph() {
-        int numColors = minRegisters; // Set the number of colors (registers) to the minimum required
-
-        Stack<InterferenceNode> stack = new Stack<>();
-
-        // Find the initial nodes with less than numColors edges
-        for (InterferenceNode node : nodes) {
-            if (node.getEdges().size() < numColors) {
-                stack.push(node);
-            }
+    public void colorGraph(Integer... maxRegisters) {
+        int numColors;
+        if (maxRegisters.length > 0) {
+            int max = maxRegisters[0];
+            numColors = Math.min(max, minRegisters); // Set the number of colors (registers) to the minimum required or the specified maximum
+        } else {
+            numColors = minRegisters; // Use the minimum required registers
         }
 
-        // Check if the algorithm can be applied
-        if (stack.isEmpty()) {
-            System.out.println("Cannot apply the algorithm. No nodes with less than " + numColors + " edges.");
-            return;
-        }
+        // Create an array to store the assigned colors for each node
+        int[] nodeColors = new int[nodes.size()];
 
-        int maxColor = -1; // Tracks the maximum register assigned
+        // Iterate over the nodes and color them using the greedy algorithm
+        for (int i = 0; i < nodes.size(); i++) {
+            InterferenceNode node = nodes.get(i);
 
-        // Remove nodes from the graph and assign colors
-        while (!stack.isEmpty()) {
-            InterferenceNode node = stack.pop();
-
-            // Find the lowest available color (register) for the node
+            // Create a boolean array to track the used colors by the neighboring nodes
             boolean[] usedColors = new boolean[numColors];
+
+            // Check the colors used by the neighboring nodes
             for (InterferenceNode neighbor : node.getEdges()) {
-                if (neighbor.getRegister() != -1) {
-                    usedColors[neighbor.getRegister()] = true;
+                int neighborColor = nodeColors[nodes.indexOf(neighbor)];
+                if (neighborColor != 0) {
+                    usedColors[neighborColor - 1] = true;
                 }
             }
 
-            // Assign the lowest unused color
+            // Find the lowest unused color for the current node
             int color;
             for (color = 0; color < numColors; color++) {
                 if (!usedColors[color]) {
@@ -108,20 +103,31 @@ public class InterferenceGraph {
                 }
             }
 
-            node.setRegister(color);
-            maxColor = Math.max(maxColor, color); // Update the maximum register assigned
-
-            // Remove the node from the graph
-            nodes.remove(node);
-            for (InterferenceNode neighbor : node.getEdges()) {
-                neighbor.getEdges().remove(node);
-                if (neighbor.getEdges().size() < numColors && !stack.contains(neighbor)) {
-                    stack.push(neighbor);
-                }
-            }
+            // Assign the color to the current node
+            nodeColors[i] = color + 1;
         }
 
-        int numUsedColors = maxColor + 1; // Calculate the number of used colors
+        int numUsedColors = Arrays.stream(nodeColors).max().orElse(0); // Calculate the number of used colors
         System.out.println("Number of colors used: " + numUsedColors);
+
+        // Print nodes for each color
+        Map<Integer, List<InterferenceNode>> colorMap = new HashMap<>();
+        for (int i = 0; i < nodeColors.length; i++) {
+            int color = nodeColors[i];
+            colorMap.computeIfAbsent(color, k -> new ArrayList<>()).add(nodes.get(i));
+        }
+
+        for (int color = 1; color <= numUsedColors; color++) {
+            List<InterferenceNode> nodesForColor = colorMap.getOrDefault(color, Collections.emptyList());
+            for(int i = 0; i < nodesForColor.size(); i++) {
+                System.out.println("Nodes with color " + color + ": " + nodesForColor.get(i).getVar());
+            }
+        }
+    }
+
+    private void resetGraph() {
+        for (InterferenceNode node : nodes) {
+            node.setRegister(-1); // Reset the register for each node
+        }
     }
 }

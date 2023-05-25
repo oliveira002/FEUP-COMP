@@ -86,10 +86,12 @@ public class LivenessAnalysis {
 
     public HashSet<String> calcOut(Instruction inst) {
         HashSet<String> res = new HashSet<>();
-        for (Node succ : inst.getSuccessors()) {
-            if(this.in.get(succ.getId()) != null) {
-                HashSet<String> tmp = new HashSet<>(this.in.get(succ.getId()));
-                res.addAll(tmp);
+        if(inst.getSuccessors().get(0).getNodeType() != NodeType.END) {
+            Instruction instSuc = ((Instruction) inst.getSuccessors().get(0));
+            res.addAll(this.in.get(instSuc.getId()));
+            Instruction succ2 = ((Instruction) inst.getSuccessors().get(0));
+            if(succ2 != null) {
+                res.addAll(this.in.get(succ2.getId()));
             }
         }
         return res;
@@ -229,12 +231,8 @@ public class LivenessAnalysis {
         String[] elements = set.toArray(new String[0]);
         int size = elements.length;
         for (int i = 0; i < size - 1; i++) {
-            // Iterate over the remaining elements
             for (int j = i + 1; j < size; j++) {
-                // Create a combination string
                 String combination = elements[i] + "-" + elements[j];
-
-                // Add the combination to the result set
                 res.add(combination);
             }
         }

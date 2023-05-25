@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class InterferenceNode {
 
-    int register;
+    int register = -1;
     private String var;
     private ArrayList<InterferenceNode> edges;
 
