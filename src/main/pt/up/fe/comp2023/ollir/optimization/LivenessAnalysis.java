@@ -270,4 +270,8 @@ public class LivenessAnalysis {
     public HashSet<String> getVariables() {
         return variables;
     }
+
+    public Method getMethod() {
+        return method;
+    }
 }

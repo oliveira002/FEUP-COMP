@@ -25,8 +25,9 @@ public class RegisterAllocation {
         for(Method method: methods) {
             LivenessAnalysis liveAnalysis = new LivenessAnalysis(method);
             liveAnalysis.analyse();
-            InterferenceGraph graph = new InterferenceGraph(liveAnalysis);
+            InterferenceGraph graph = new InterferenceGraph(liveAnalysis, numRegisters);
             graph.buildGraph();
+            graph.colorGraph();
         }
     }
 }
