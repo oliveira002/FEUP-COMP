@@ -25,9 +25,12 @@ public class BinaryOpsCode extends InstructionClass{
             case SUB -> jasminCode.append("\tisub\n");
             case MUL -> jasminCode.append("\timul\n");
             case DIV -> jasminCode.append("\tidiv\n");
-            case LTH, LTE, GTH, GTE, EQ, NEQ -> jasminCode.append("\tisub\n\t")
-                    .append(getLabelComp(op))
-                    .append(getCompFormula());
+            case LTH, LTE, GTH, GTE, EQ, NEQ -> {
+                jasminCode.append("\tisub\n\t")
+                        .append(getLabelComp(op))
+                        .append(getCompFormula());
+                super.jasmin.lowerStackSize();
+            }
             case AND,ANDB -> {
                 jasminCode.append("\tiand\n");
             }
@@ -35,6 +38,7 @@ public class BinaryOpsCode extends InstructionClass{
                 return "";
             }
         }
+        super.jasmin.lowerStackSize();
 
         return jasminCode.toString();
     }

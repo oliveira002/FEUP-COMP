@@ -64,6 +64,10 @@ public class AssignOpsCode extends InstructionClass{
                     .append((o.getType().getTypeOfElement() == ElementType.INT32 ||
                             o.getType().getTypeOfElement() == ElementType.BOOLEAN) ? "\tiastore\n" : "\taastore\n");
 
+            super.jasmin.lowerStackSize();
+            super.jasmin.lowerStackSize();
+            super.jasmin.lowerStackSize();
+
             return jasminCode.toString();
         }
 
@@ -78,6 +82,9 @@ public class AssignOpsCode extends InstructionClass{
 
         int reg = VarTable.get(op.getName()).getVirtualReg();
         jasminCode.append((reg <= 3) ? "_" : " ").append(reg).append("\n");
+
+        super.jasmin.lowerStackSize();
+
         return jasminCode.toString();
     }
 }

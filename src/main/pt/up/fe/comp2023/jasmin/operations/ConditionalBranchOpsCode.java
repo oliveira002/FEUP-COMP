@@ -30,13 +30,22 @@ public class ConditionalBranchOpsCode extends InstructionClass{
             }
             assert rightOperand != null;
             switch (type){
-                case LTH, LTE, GTH, GTE -> jasminCode.append(loadElement(leftOperand)).append(loadElement(rightOperand)).append("\tisub\n")
-                        .append('\t').append(getLabelComp(opInstruction.getOperation())).append(' ')
-                        .append(((CondBranchInstruction) instruction).getLabel()).append('\n');
-                case EQ -> jasminCode.append(loadElement(leftOperand)).append(loadElement(rightOperand)).append("\tisub\n")
+                case LTH, LTE, GTH, GTE -> {
+                    jasminCode.append(loadElement(leftOperand)).append(loadElement(rightOperand)).append("\tisub\n")
+                            .append('\t').append(getLabelComp(opInstruction.getOperation())).append(' ')
+                            .append(((CondBranchInstruction) instruction).getLabel()).append('\n');
+                    super.jasmin.lowerStackSize();
+                }
+                case EQ -> {
+                    jasminCode.append(loadElement(leftOperand)).append(loadElement(rightOperand)).append("\tisub\n")
                         .append("\tifeq ").append(((CondBranchInstruction) instruction).getLabel()).append('\n');
-                case NEQ -> jasminCode.append(loadElement(leftOperand)).append(loadElement(rightOperand)).append("\tisub\n")
-                        .append("\tifne ").append(((CondBranchInstruction) instruction).getLabel()).append('\n');
+                    super.jasmin.lowerStackSize();
+                }
+                case NEQ -> {
+                    jasminCode.append(loadElement(leftOperand)).append(loadElement(rightOperand)).append("\tisub\n")
+                            .append("\tifne ").append(((CondBranchInstruction) instruction).getLabel()).append('\n');
+                    super.jasmin.lowerStackSize();
+                }
                 case ORB -> jasminCode.append(loadElement(leftOperand))
                         .append("\tifne ").append(((CondBranchInstruction) instruction).getLabel()).append('\n')
                         .append(loadElement(rightOperand))
@@ -55,6 +64,7 @@ public class ConditionalBranchOpsCode extends InstructionClass{
             jasminCode.append(loadElement(singleOp.getOperands().get(0)))
                     .append("\tifne ").append(((CondBranchInstruction) instruction).getLabel()).append("\n");
         }
+        super.jasmin.lowerStackSize();
 
         return jasminCode.toString();
     }

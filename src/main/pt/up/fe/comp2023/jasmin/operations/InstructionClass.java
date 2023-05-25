@@ -24,6 +24,7 @@ abstract public class InstructionClass {
         return LabelCounter;
     }
     public String getDescriptor(Descriptor descriptor) {
+        this.jasmin.growStackSize(1);
         ElementType elementType = descriptor.getVarType().getTypeOfElement();
         if (elementType == ElementType.THIS)
             return "\taload_0\n";
@@ -45,6 +46,7 @@ abstract public class InstructionClass {
     }
 
     public String getLiteral(LiteralElement element) {
+        this.jasmin.growStackSize(1);
         String jasminCode = "\t";
         int literal;
         String string = element.getLiteral();
@@ -85,12 +87,14 @@ abstract public class InstructionClass {
         if (e.getType().getTypeOfElement() != ElementType.ARRAYREF && d.getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
             ArrayOperand arrayOp = (ArrayOperand) e;
             Element i = arrayOp.getIndexOperands().get(0);
+            this.jasmin.growStackSize(1);
             return this.getDescriptor(d) + loadElement(i) + "\tiaload\n";
         }
 
         return this.getDescriptor(d);
     }
     public String getLabelComp(Operation operation) {
+        this.jasmin.growStackSize(1);
         return switch (operation.getOpType()) {
             case GTE -> "ifge";
             case GTH -> "ifgt";

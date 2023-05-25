@@ -24,6 +24,7 @@ public class NewOps extends InvokeAbstract{
             }
             jasminCode.append("\tnew ").append(this.importsMap.getOrDefault
                     (((Operand) instruction.getFirstArg()).getName(),((Operand) instruction.getFirstArg()).getName())).append("\n");
+            super.jasmin.growStackSize(1);
 
         } else if (elementType == ElementType.ARRAYREF) {
             for (Element element : instruction.getListOfOperands()) {
@@ -35,6 +36,10 @@ public class NewOps extends InvokeAbstract{
             }
         }
         jasminCode.append("\tdup\n");
+        for (int a = 0; a< instruction.getListOfOperands().size()-1 ; a++) {
+            super.jasmin.lowerStackSize();
+        }
+        super.jasmin.growStackSize(1);
         return jasminCode.toString();
     }
 }

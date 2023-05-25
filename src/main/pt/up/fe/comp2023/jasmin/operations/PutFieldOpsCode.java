@@ -21,6 +21,9 @@ public class PutFieldOpsCode extends InstructionClass{
     @Override
     public String toJasmin() {
         PutFieldInstruction instruction = (PutFieldInstruction) this.getInstruction();
+        super.jasmin.lowerStackSize();
+        super.jasmin.lowerStackSize();
+
         return super.loadElement(instruction.getFirstOperand()) +
                 this.loadElement(instruction.getThirdOperand()) +
                 "\tputfield " +
