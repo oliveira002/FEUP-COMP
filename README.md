@@ -58,7 +58,7 @@ Since the grade distribution doesn't add up to 100%, we decided that it's only f
 
 ### Self-evaluation
 
-Obviously, we think we deserve a 20/20, but to seem humble, we'll officially request for a 19/20 :)
+To seem humble, we'll officially request for a 19/20 :)
 
 ### Extra elements
 
