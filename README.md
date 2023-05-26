@@ -45,3 +45,24 @@ The testing framework, which uses the class ``pt.up.fe.comp.TestUtils``, has met
 In order for the test class to find your implementations for the stages, it uses the file ``config.properties`` that is in root of your repository. It has four fields, one for each stage (i.e. ``ParserClass``, ``AnalysisClass``, ``OptimizationClass``, ``BackendClass``), and initially it only has one value, ``pt.up.fe.comp2023.SimpleParser``, associated with the first stage.
 
 During the development of your compiler you will update this file in order to setup the classes that implement each of the compilation stages.
+
+## Group and grade distribution
+
+| Student ID | Student Name | Student email | Grade distribution |
+| - | - | - | - |
+| (202004950)[https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=202004950] | Diogo Babo | up202004950@up.pt | 33% |
+| (202004187)[https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=202004187] | Gustavo Costa | up202004187@up.pt | 33% |
+| (202004407)[https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=202004407] | João Oliveira | up202004407@up.pt | 33% |
+
+Since the grade distribution doesn't add up to 100%, we decided that it's only fair to give the remaining 1% to our beloved professor, João Bispo.
+
+### Self-evaluation
+
+Obviously, we think we deserve a 20/20, but to seem humble, we'll officially request for a 19/20 :)
+
+### Extra elements
+
+What our work has extra from the requested features is:
+- A lot of hard work
+- Careful planing
+- Upper case variables
