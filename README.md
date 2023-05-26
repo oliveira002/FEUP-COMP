@@ -50,9 +50,9 @@ During the development of your compiler you will update this file in order to se
 
 | Student ID | Student Name | Student email | Grade distribution |
 | - | - | - | - |
-| (202004950)[https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=202004950] | Diogo Babo | up202004950@up.pt | 33% |
-| (202004187)[https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=202004187] | Gustavo Costa | up202004187@up.pt | 33% |
-| (202004407)[https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=202004407] | João Oliveira | up202004407@up.pt | 33% |
+| [202004950](https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=202004950) | Diogo Babo | up202004950@up.pt | 33% |
+| [202004187](https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=202004187) | Gustavo Costa | up202004187@up.pt | 33% |
+| [202004407](https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=202004407) | João Oliveira | up202004407@up.pt | 33% |
 
 Since the grade distribution doesn't add up to 100%, we decided that it's only fair to give the remaining 1% to our beloved professor, João Bispo.
 
