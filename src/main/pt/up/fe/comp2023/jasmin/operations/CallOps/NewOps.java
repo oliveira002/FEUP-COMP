@@ -38,7 +38,7 @@ public class NewOps extends InvokeAbstract{
         }
         jasminCode.append("\tdup\n");
         super.jasmin.growStackSize(1);
-        for (int a = 0; a< instruction.getListOfOperands().size()-2 ; a++) {
+        for (int a = 0; a< instruction.getListOfOperands().size()-1 ; a++) {
             super.jasmin.lowerStackSize();
         }
         return jasminCode.toString();
