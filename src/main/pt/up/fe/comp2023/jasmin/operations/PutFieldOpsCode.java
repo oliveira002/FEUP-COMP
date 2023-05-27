@@ -21,15 +21,16 @@ public class PutFieldOpsCode extends InstructionClass{
     @Override
     public String toJasmin() {
         PutFieldInstruction instruction = (PutFieldInstruction) this.getInstruction();
-        super.jasmin.lowerStackSize();
-        super.jasmin.lowerStackSize();
-
-        return super.loadElement(instruction.getFirstOperand()) +
+        String code = super.loadElement(instruction.getFirstOperand()) +
                 this.loadElement(instruction.getThirdOperand()) +
                 "\tputfield " +
                 ((((Operand) instruction.getFirstOperand()).getName().equals("this")) ?
                         this.importsMap.getOrDefault(ThisClassName,ThisClassName) : (((Operand) instruction.getFirstOperand()).getName())) +
                 "/" + ((Operand) instruction.getSecondOperand()).getName() +
                 " " + jasmin.getParseType(instruction.getSecondOperand().getType()) + "\n";
+        super.jasmin.lowerStackSize();
+        super.jasmin.lowerStackSize();
+
+        return code;
     }
 }
