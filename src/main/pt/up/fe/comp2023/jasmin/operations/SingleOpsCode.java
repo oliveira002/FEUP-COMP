@@ -13,7 +13,6 @@ public class SingleOpsCode extends InstructionClass{
     @Override
     public String toJasmin() {
         Element e;
-        jasmin.growStackSize(1);
         if(instruction instanceof SingleOpInstruction){
             SingleOpInstruction instruction = (SingleOpInstruction) this.getInstruction();
             e = instruction.getSingleOperand();

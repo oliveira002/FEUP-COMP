@@ -19,9 +19,10 @@ public class NewOps extends InvokeAbstract{
         ElementType elementType = instruction.getReturnType().getTypeOfElement();
 
         if (elementType == ElementType.OBJECTREF) {
+            /*
             for (Element element : instruction.getListOfOperands()) {
                 jasminCode.append(super.loadElement(element));
-            }
+            }*/
             jasminCode.append("\tnew ").append(this.importsMap.getOrDefault
                     (((Operand) instruction.getFirstArg()).getName(),((Operand) instruction.getFirstArg()).getName())).append("\n");
             super.jasmin.growStackSize(1);
