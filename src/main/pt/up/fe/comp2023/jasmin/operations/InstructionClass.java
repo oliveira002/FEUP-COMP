@@ -87,7 +87,7 @@ abstract public class InstructionClass {
         if (e.getType().getTypeOfElement() != ElementType.ARRAYREF && d.getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
             ArrayOperand arrayOp = (ArrayOperand) e;
             Element i = arrayOp.getIndexOperands().get(0);
-            this.jasmin.growStackSize(1);
+            this.jasmin.growStackSize(2);
             return this.getDescriptor(d) + loadElement(i) + "\tiaload\n";
         }
 
