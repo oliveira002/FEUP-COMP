@@ -57,6 +57,7 @@ public class AssignOpsCode extends InstructionClass{
         if (descriptor.getVarType().getTypeOfElement() == ElementType.ARRAYREF
                 && op.getType().getTypeOfElement() != ElementType.ARRAYREF
                     && op instanceof ArrayOperand o) {
+            this.jasmin.growStackSize(1);
             Element index = o.getIndexOperands().get(0);
             jasminCode.append(getDescriptor(descriptor))
                     .append(loadElement(index));
