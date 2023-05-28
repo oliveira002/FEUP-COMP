@@ -36,7 +36,6 @@ public class JmmOptimizer implements JmmOptimization {
                 ConstantFolding constantFold = new ConstantFolding();
                 changes = constantFold.visit(root,1);
                 changes = constantProp.visit(root,1) || changes;
-                int a = 2;
             }
         }
         return jmmSemanticsResult;

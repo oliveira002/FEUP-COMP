@@ -43,7 +43,6 @@ public class Launcher {
         SimpleParser parser = new SimpleParser();
 
         // Parse stage
-        System.out.println("\n!--AST--!");
         JmmParserResult parserResult = parser.parse(code, config);
 
         // Check if there are parsing errors
@@ -57,18 +56,23 @@ public class Launcher {
 
         // Check if there are analysis errors
         TestUtils.noErrors(analysisResult.getReports());
-        System.out.println(parserResult.getRootNode().toTree());
-        System.out.println("!--Symbol table--!\n"+analysisResult.getSymbolTable());
+        if(parserResult.getConfig().getOrDefault("debug", "false").equals("true")) {
+            System.out.println(parserResult.getRootNode().toTree());
+            System.out.println("!--Symbol table--!\n"+analysisResult.getSymbolTable());
+        }
 
         //Ollir generation
         JmmOptimizer jmmOptimizer = new JmmOptimizer();
         analysisResult = jmmOptimizer.optimize(analysisResult);
-        if(parserResult.getConfig().getOrDefault("optimize", "false").equals("true")) {
+        if(parserResult.getConfig().getOrDefault("optimize", "false").equals("true") && parserResult.getConfig().getOrDefault("debug", "false").equals("true")) {
             System.out.println("\n!-- OPTIMIZED AST--!");
             System.out.println(analysisResult.getRootNode().toTree());
         }
         OllirResult ollir = jmmOptimizer.toOllir(analysisResult);
-        System.out.println("!--Ollir--!\n"+ollir.getOllirCode());
+
+        if(parserResult.getConfig().getOrDefault("debug", "false").equals("true")) {
+            System.out.println("!--Ollir--!\n"+ollir.getOllirCode());
+        }
 
         ollir = jmmOptimizer.optimize(ollir);
         // check for errors on reg alloc
@@ -80,7 +84,6 @@ public class Launcher {
         JasminResult jasminResult = jasmin.toJasmin(ollir);
         var output = TestUtils.runJasmin(jasminResult.getJasminCode());
         System.out.println(output);
-
     }
 
     private static Map<String, String> parseArgs(String[] args) {

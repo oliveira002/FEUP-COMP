@@ -79,7 +79,6 @@ public class InterferenceGraph {
 
         if(numColors < minColors) {
             System.out.println("Not enough colors to color the graph: " + " need at least " + minColors);
-
             return false;
         }
 
