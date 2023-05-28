@@ -58,14 +58,14 @@ Since the grade distribution doesn't add up to 100%, we decided that it's only f
 
 ### Self-evaluation
 
-To seem humble, we'll officially request for a 19/20 :)
+To seem humble, we'll officially request for a 19.5/20 :)
 
 ### Optimizations
 All three requested optimizations where done:
 - Constant Propagation
 - Constant Folding
 - Register Allocation
-- Jasmin **Requested** Optimization Instructions 
+- Jasmin **Requested** Optimization Instructions (iload_x, istore_x, astore_x, aload_x, iconst_0, bipush, sipush, ldc, iinc, iflt, ifne, etc)
 
 # Extras
 - In the register allocation we avoid using the This/Params specified registers
