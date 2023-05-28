@@ -59,7 +59,6 @@ public class LivenessAnalysis {
         this.deadCodeFix(numInst);
         this.getInterferences();
         this.findVariables();
-        return;
     }
 
     public HashSet<String> calcIn(Instruction inst) {

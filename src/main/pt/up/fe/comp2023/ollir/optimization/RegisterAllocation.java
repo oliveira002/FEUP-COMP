@@ -34,6 +34,7 @@ public class RegisterAllocation {
             graph.buildGraph();
             if(!graph.colorGraph(numRegisters)) {
                 ollirResult.getReports().add(Report.newError(Stage.OPTIMIZATION,0,0,"Not enough registers provided in input",null));
+                return;
             };
 
             for(InterferenceNode node: graph.getNodes()) {
