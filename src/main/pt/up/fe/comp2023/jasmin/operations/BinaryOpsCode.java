@@ -17,23 +17,14 @@ public class BinaryOpsCode extends InstructionClass{
         BinaryOpInstruction instruction = (BinaryOpInstruction) this.getInstruction();
 
         Operation op = instruction.getOperation();
+
         if(op.getOpType() == OperationType.LTH || op.getOpType() ==OperationType.LTE ||
         op.getOpType() ==OperationType.GTH || op.getOpType() ==OperationType.GTE || op.getOpType() ==OperationType.EQ || op.getOpType() ==OperationType.NEQ){
-            boolean leftIsZero = instruction.getLeftOperand().isLiteral() && ((LiteralElement) instruction.getLeftOperand()).getLiteral().equals("0");
             boolean rightIsZero = instruction.getRightOperand().isLiteral() && ((LiteralElement) instruction.getRightOperand()).getLiteral().equals("0");
-            if(leftIsZero){
-                jasminCode.append(loadElement(instruction.getRightOperand())).append("\t")
-                        .append(getLabelComp(op))
-                        .append(getCompFormula());
-                super.jasmin.lowerStackSize();
-                super.jasmin.lowerStackSize();
-                return jasminCode.toString();
-            }
-            else if(rightIsZero){
+            if(rightIsZero){
                 jasminCode.append(loadElement(instruction.getLeftOperand())).append("\t")
                         .append(getLabelComp(op))
                         .append(getCompFormula());
-                super.jasmin.lowerStackSize();
                 super.jasmin.lowerStackSize();
                 return jasminCode.toString();
             }
