@@ -71,6 +71,8 @@ public class Launcher {
         System.out.println("!--Ollir--!\n"+ollir.getOllirCode());
 
         ollir = jmmOptimizer.optimize(ollir);
+        // check for errors on reg alloc
+        TestUtils.noErrors(ollir.getReports());
 
         //Jasmin generation
         System.out.println("\n\n!--Jasmin--!\n");

@@ -4,6 +4,8 @@ import org.specs.comp.ollir.ClassUnit;
 import org.specs.comp.ollir.Descriptor;
 import org.specs.comp.ollir.Method;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -30,13 +32,13 @@ public class RegisterAllocation {
             liveAnalysis.analyse();
             InterferenceGraph graph = new InterferenceGraph(liveAnalysis, numRegisters);
             graph.buildGraph();
-            graph.colorGraph(numRegisters);
+            if(!graph.colorGraph(numRegisters)) {
+                ollirResult.getReports().add(Report.newError(Stage.OPTIMIZATION,0,0,"Not enough registers provided in input",null));
+            };
 
             for(InterferenceNode node: graph.getNodes()) {
                 varTable.get(node.getVar()).setVirtualReg(node.getRegister());
             }
-
-            int a = 2;
         }
     }
 }

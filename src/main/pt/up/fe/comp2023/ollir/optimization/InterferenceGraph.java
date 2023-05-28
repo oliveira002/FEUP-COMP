@@ -28,7 +28,6 @@ public class InterferenceGraph {
     public void buildGraph() {
         initNodes();
         initEdges();
-        int a = 2;
     }
 
     public void initNodes() {
@@ -70,14 +69,17 @@ public class InterferenceGraph {
 
     public boolean colorGraph(Integer maxRegisters) {
         int numColors;
+        int minColors = calculateMinimumRegisters();
         if(maxRegisters == 0) {
-            numColors = calculateMinimumRegisters();
+            numColors = minColors;
         }
         else {
             numColors = maxRegisters;
         }
 
-        if(numColors < calculateMinimumRegisters()) {
+        if(numColors < minColors) {
+            System.out.println("Not enough colors to color the graph: " + " need at least " + minColors);
+
             return false;
         }
 

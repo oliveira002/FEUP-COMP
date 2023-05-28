@@ -86,16 +86,15 @@ public class LivenessAnalysis {
 
     public HashSet<String> calcOut(Instruction inst) {
         HashSet<String> res = new HashSet<>();
-        if(inst.getSuccessors().get(0).getNodeType() != NodeType.END) {
-            Instruction instSuc = ((Instruction) inst.getSuccessors().get(0));
-            res.addAll(this.in.get(instSuc.getId()));
-            Instruction succ2 = ((Instruction) inst.getSuccessors().get(0));
-            if(succ2 != null) {
-                res.addAll(this.in.get(succ2.getId()));
+        for (Node succ : inst.getSuccessors()) {
+            if(this.in.get(succ.getId()) != null) {
+                HashSet<String> tmp = new HashSet<>(this.in.get(succ.getId()));
+                res.addAll(tmp);
             }
         }
         return res;
     }
+
     public void parseDefUse() {
         for(Instruction inst: instructionList) {
             getWrittenVars(inst);
