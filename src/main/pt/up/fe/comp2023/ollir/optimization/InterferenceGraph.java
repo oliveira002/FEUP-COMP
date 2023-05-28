@@ -16,13 +16,13 @@ public class InterferenceGraph {
 
     private int registers;
 
-    public InterferenceGraph(LivenessAnalysis liveness, int registers) {
+    public InterferenceGraph(LivenessAnalysis liveness, int registers, Method method) {
         this.liveness = liveness;
         this.variables = liveness.getVariables();
         this.pairs = liveness.getPairs();
         this.nodes = new ArrayList<>();
         this.registers = registers;
-        this.method = liveness.getMethod();
+        this.method = method;
     }
 
     public void buildGraph() {
