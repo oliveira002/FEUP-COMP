@@ -128,12 +128,6 @@ public class InterferenceGraph {
         return true;
     }
 
-    private void resetGraph() {
-        for (InterferenceNode node : nodes) {
-            node.setRegister(-1); // Reset the register for each node
-        }
-    }
-
     private int calculateMinimumRegisters() {
         int maxDegree = 0;
         for (InterferenceNode node : nodes) {
@@ -142,6 +136,6 @@ public class InterferenceGraph {
                 maxDegree = degree;
             }
         }
-        return maxDegree + 1; // Minimum required registers = maximum degree + 1
+        return maxDegree + 1;
     }
 }
