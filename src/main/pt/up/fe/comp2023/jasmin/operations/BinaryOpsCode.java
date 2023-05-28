@@ -18,6 +18,17 @@ public class BinaryOpsCode extends InstructionClass{
 
         Operation op = instruction.getOperation();
 
+        if(op.getOpType() == OperationType.LTH || op.getOpType() ==OperationType.LTE ||
+        op.getOpType() ==OperationType.GTH || op.getOpType() ==OperationType.GTE || op.getOpType() ==OperationType.EQ || op.getOpType() ==OperationType.NEQ){
+            boolean rightIsZero = instruction.getRightOperand().isLiteral() && ((LiteralElement) instruction.getRightOperand()).getLiteral().equals("0");
+            if(rightIsZero){
+                jasminCode.append(loadElement(instruction.getLeftOperand())).append("\t")
+                        .append(getLabelComp(op))
+                        .append(getCompFormula());
+                super.jasmin.lowerStackSize();
+                return jasminCode.toString();
+            }
+        }
         jasminCode.append(loadElement(instruction.getLeftOperand())).append(loadElement(instruction.getRightOperand()));
 
         switch (op.getOpType()) {
