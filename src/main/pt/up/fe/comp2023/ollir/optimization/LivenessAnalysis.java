@@ -210,7 +210,7 @@ public class LivenessAnalysis {
         Element thirdOp = inst.getThirdOperand();
 
         if(!secondOp.isLiteral()) {
-            this.addVarToSet(this.use,inst.getId(),getVarName(secondOp));
+            this.addVarToSet(this.def,inst.getId(),getVarName(secondOp));
         }
         if(!thirdOp.isLiteral()) {
             this.addVarToSet(this.use,inst.getId(),getVarName(thirdOp));

@@ -1,4 +1,5 @@
 class RegAlloc {
+    int h;
     public int soManyRegisters(int arg){
        int a;
        int b;
@@ -6,6 +7,7 @@ class RegAlloc {
        a = 10;
        b = 20;
        c = a + b;
+       h = 2;
        return c;
     }
 
