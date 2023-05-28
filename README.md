@@ -54,15 +54,18 @@ During the development of your compiler you will update this file in order to se
 | [202004187](https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=202004187) | Gustavo Costa | up202004187@up.pt | 33% |
 | [202004407](https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=202004407) | João Oliveira | up202004407@up.pt | 33% |
 
-Since the grade distribution doesn't add up to 100%, we decided that it's only fair to give the remaining 1% to our beloved professor, João Bispo.
+Since the grade distribution doesn't add up to 100%, we decided that it's only fair to give the remaining 1% to our professor, João Bispo.
 
 ### Self-evaluation
 
 To seem humble, we'll officially request for a 19/20 :)
 
-### Extra elements
+### Optimizations
+All three requested optimizations where done:
+- Constant Propagation
+- Constant Folding
+- Register Allocation
+- Jasmin **Requested** Optimization Instructions 
 
-What our work has extra from the requested features is:
-- A lot of hard work
-- Careful planing
-- Upper case variables
+# Extras
+- In the register allocation we avoid using the This/Params specified registers
