@@ -22,7 +22,7 @@ public class BinaryOpsCode extends InstructionClass{
             boolean leftIsZero = instruction.getLeftOperand().isLiteral() && ((LiteralElement) instruction.getLeftOperand()).getLiteral().equals("0");
             boolean rightIsZero = instruction.getRightOperand().isLiteral() && ((LiteralElement) instruction.getRightOperand()).getLiteral().equals("0");
             if(leftIsZero){
-                jasminCode.append(loadElement(instruction.getRightOperand()))
+                jasminCode.append(loadElement(instruction.getRightOperand())).append("\t")
                         .append(getLabelComp(op))
                         .append(getCompFormula());
                 super.jasmin.lowerStackSize();
@@ -30,7 +30,7 @@ public class BinaryOpsCode extends InstructionClass{
                 return jasminCode.toString();
             }
             else if(rightIsZero){
-                jasminCode.append(loadElement(instruction.getLeftOperand()))
+                jasminCode.append(loadElement(instruction.getLeftOperand())).append("\t")
                         .append(getLabelComp(op))
                         .append(getCompFormula());
                 super.jasmin.lowerStackSize();
