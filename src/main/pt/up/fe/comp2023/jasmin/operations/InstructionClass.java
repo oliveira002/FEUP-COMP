@@ -107,12 +107,12 @@ abstract public class InstructionClass {
     }
 
     public String getCompFormula() {
-        String code = " Then" + LabelCounter + "\n" +
+        String code = " ThenJasmin" + LabelCounter + "\n" +
                 "\ticonst_0\n" +
-                "\tgoto EndIf" + LabelCounter + '\n' +
-                "\tThen" + LabelCounter + ":\n" +
+                "\tgoto EndIfJasmin" + LabelCounter + '\n' +
+                "ThenJasmin" + LabelCounter + ":\n" +
                 "\ticonst_1\n" +
-                "\tEndIf" + LabelCounter + ":\n";
+                "EndIfJasmin" + LabelCounter + ":\n";
         LabelCounter = LabelCounter + 1;
         return code;
     }
