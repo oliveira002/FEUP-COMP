@@ -14,11 +14,13 @@ public class RegisterAllocation {
     private final OllirResult ollirResult;
 
     private final ClassUnit ollirClass;
+    private final Map<String, String> config;
 
-    public RegisterAllocation(OllirResult ollirResult, int n) {
+    public RegisterAllocation(OllirResult ollirResult, int n, Map<String, String> config) {
         this.numRegisters = n;
         this.ollirResult = ollirResult;
         this.ollirClass = ollirResult.getOllirClass();
+        this.config = config;
     }
 
     public void regAlloc() {
@@ -28,7 +30,7 @@ public class RegisterAllocation {
             Map<String, Descriptor> varTable = method.getVarTable();
             LivenessAnalysis liveAnalysis = new LivenessAnalysis(method);
             liveAnalysis.analyse();
-            InterferenceGraph graph = new InterferenceGraph(liveAnalysis, numRegisters, method);
+            InterferenceGraph graph = new InterferenceGraph(liveAnalysis, numRegisters, method, config);
             graph.buildGraph();
             if(!graph.colorGraph(numRegisters)) {
                 ollirResult.getReports().add(Report.newError(Stage.OPTIMIZATION,0,0,"Not enough registers provided in input",null));

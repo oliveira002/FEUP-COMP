@@ -54,7 +54,7 @@ public class JmmOptimizer implements JmmOptimization {
             return ollirResult;
         }
         else {
-            RegisterAllocation registerAllocation = new RegisterAllocation(ollirResult,numRegisters);
+            RegisterAllocation registerAllocation = new RegisterAllocation(ollirResult,numRegisters, ollirResult.getConfig());
             registerAllocation.regAlloc();
         }
         return ollirResult;

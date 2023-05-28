@@ -60,7 +60,6 @@ public class Jasmin implements JasminBackend {
             resetStack();
         }
 
-        System.out.println(jasminCode);
         return new JasminResult(ollirResult, jasminCode.toString(), Collections.emptyList());
     }
     public String jasminHeader(){

@@ -21,6 +21,8 @@ import pt.up.fe.specs.util.SpecsSystem;
 
 public class Launcher {
 
+    private static int phase = 1;
+
     public static void main(String[] args) {
         // Setups console logging and other things
         SpecsSystem.programStandardInit();
@@ -56,34 +58,50 @@ public class Launcher {
 
         // Check if there are analysis errors
         TestUtils.noErrors(analysisResult.getReports());
+        System.out.println("Phase "+ phase++ +": AST generation");
         if(parserResult.getConfig().getOrDefault("debug", "false").equals("true")) {
-            System.out.println(parserResult.getRootNode().toTree());
-            System.out.println("!--Symbol table--!\n"+analysisResult.getSymbolTable());
+            System.out.println("\n!--AST--!\n"+parserResult.getRootNode().toTree());
+        }
+
+        System.out.println("Phase "+ phase++ +": Symbol Table generation");
+        if(parserResult.getConfig().getOrDefault("debug", "false").equals("true")) {
+            System.out.println("\n!--Symbol table--!\n"+analysisResult.getSymbolTable());
+        }
+
+        //Jmm optimization
+        JmmOptimizer jmmOptimizer = new JmmOptimizer();
+        analysisResult = jmmOptimizer.optimize(analysisResult);
+        if(parserResult.getConfig().getOrDefault("optimize", "false").equals("true")) {
+            System.out.println("Phase "+ phase++ +": Code optimization");
+
+            if(parserResult.getConfig().getOrDefault("debug", "false").equals("true")) {
+                System.out.println("\n!-- OPTIMIZED AST--!\n"+analysisResult.getRootNode().toTree());
+            }
         }
 
         //Ollir generation
-        JmmOptimizer jmmOptimizer = new JmmOptimizer();
-        analysisResult = jmmOptimizer.optimize(analysisResult);
-        if(parserResult.getConfig().getOrDefault("optimize", "false").equals("true") && parserResult.getConfig().getOrDefault("debug", "false").equals("true")) {
-            System.out.println("\n!-- OPTIMIZED AST--!");
-            System.out.println(analysisResult.getRootNode().toTree());
-        }
         OllirResult ollir = jmmOptimizer.toOllir(analysisResult);
-
+        System.out.println("Phase "+ phase++ +": OLLIR generation");
         if(parserResult.getConfig().getOrDefault("debug", "false").equals("true")) {
-            System.out.println("!--Ollir--!\n"+ollir.getOllirCode());
+            System.out.println("\n!--Ollir code--!\n"+ollir.getOllirCode());
         }
 
-        ollir = jmmOptimizer.optimize(ollir);
+        //Register allocation
+        System.out.println("Phase "+ phase++ +": Register allocation");
         // check for errors on reg alloc
         TestUtils.noErrors(ollir.getReports());
 
         //Jasmin generation
-        System.out.println("\n\n!--Jasmin--!\n");
         JasminBackend jasmin = new Jasmin();
         JasminResult jasminResult = jasmin.toJasmin(ollir);
-        var output = TestUtils.runJasmin(jasminResult.getJasminCode());
-        System.out.println(output);
+        System.out.println("Phase "+ phase++ +": Jasmin generation");
+        if(parserResult.getConfig().getOrDefault("debug", "false").equals("true")) {
+            System.out.println("\n!--Jasmin code--!\n"+jasminResult.getJasminCode());
+            var output = TestUtils.runJasmin(jasminResult.getJasminCode());
+            System.out.println(output);
+        }
+
+        System.out.println("Compilation finished");
     }
 
     private static Map<String, String> parseArgs(String[] args) {

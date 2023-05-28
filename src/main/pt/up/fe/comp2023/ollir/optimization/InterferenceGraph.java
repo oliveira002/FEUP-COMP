@@ -15,14 +15,16 @@ public class InterferenceGraph {
     private final HashSet<String> pairs;
 
     private int registers;
+    private  Map<String, String> config;
 
-    public InterferenceGraph(LivenessAnalysis liveness, int registers, Method method) {
+    public InterferenceGraph(LivenessAnalysis liveness, int registers, Method method, Map<String, String> config) {
         this.liveness = liveness;
         this.variables = liveness.getVariables();
         this.pairs = liveness.getPairs();
         this.nodes = new ArrayList<>();
         this.registers = registers;
         this.method = method;
+        this.config = config;
     }
 
     public void buildGraph() {
@@ -107,8 +109,10 @@ public class InterferenceGraph {
         }
 
         int numUsedColors = Arrays.stream(nodeColors).max().orElse(0);
-        System.out.println("Number of colors used: " + numUsedColors);
 
+        if(config.getOrDefault("debug", "false").equals("true")) {
+            System.out.println("Number of colors used: " + numUsedColors);
+        }
         Map<Integer, List<InterferenceNode>> colorMap = new HashMap<>();
         for (int i = 0; i < nodeColors.length; i++) {
             int color = nodeColors[i];
@@ -118,7 +122,9 @@ public class InterferenceGraph {
         for (int color = 1; color <= numUsedColors; color++) {
             List<InterferenceNode> nodesForColor = colorMap.getOrDefault(color, Collections.emptyList());
             for(int i = 0; i < nodesForColor.size(); i++) {
-                System.out.println("Nodes with color " + color + ": " + nodesForColor.get(i).getVar());
+                if(config.getOrDefault("debug", "false").equals("true")) {
+                    System.out.println("Nodes with color " + color + ": " + nodesForColor.get(i).getVar());
+                }
                 InterferenceNode no = this.getNode(nodesForColor.get(i).getVar());
                 no.setRegister(color);
             }
