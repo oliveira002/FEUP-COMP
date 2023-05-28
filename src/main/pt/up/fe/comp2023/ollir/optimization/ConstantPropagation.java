@@ -89,13 +89,14 @@ public class ConstantPropagation extends PreorderJmmVisitor<Integer,Boolean> {
         }
         else if(node.get("conditional").equals("while")) {
             JmmNode exp = node.getJmmChild(0);
+            changes |= visit(exp, null);
             JmmNode whileExp = node.getJmmChild(1);
+
 
             List<String> varsInWhile = getConditionalAssignments(whileExp);
             for(String x : varsInWhile) {
                 varMap.remove(x);
             }
-            changes |= visit(exp, null);
             return changes;
         }
         return false;
